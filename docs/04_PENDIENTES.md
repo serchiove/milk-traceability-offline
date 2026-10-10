@@ -5,7 +5,7 @@
 - [x] Nueve tablas y migraciones iniciales.
 - [x] App Android conectada al backend, según captura del usuario.
 - [x] Tres comprobaciones guardadas en SQLite, según captura del usuario.
-- [ ] Confirmar persistencia SQLite después de cerrar completamente y reabrir la app.
+- [x] Confirmar persistencia SQLite después de cerrar completamente y reabrir la app.
 
 ## Entrega 1: autenticación y catálogos
 - [ ] Acordar contrato de API y permisos de operario / jefatura.
