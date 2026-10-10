@@ -204,4 +204,22 @@
 <h2>Limitaciones que deben mantenerse visibles</h2>
 <p>El entorno es local. No hay todavía autenticación real, HTTPS de despliegue, APK independiente, cuenta PostgreSQL de mínimos privilegios ni sincronización de lotes. El modelo piloto no incluye mezclas, vaciados o reasignaciones. No introducir esas funciones sin acordar cambios de alcance y migraciones.</p>
 <h2>Resultado esperado del siguiente avance</h2>
-<p>El primer hito operativo será demostrar un usuario autorizado que registra un lote desde Android y una jefatura que consulta exactamente ese lote en web. Ese recorrido proporciona una base comprobable para agregar calidad, trazabilidad y trabajo sin conexión.</p></main></html>
+<p>El primer hito operativo será demostrar un usuario autorizado que registra un lote desde Android y una jefatura que consulta exactamente ese lote en web. Ese recorrido proporciona una base comprobable para agregar calidad, trazabilidad y trabajo sin conexión.</p><section><h2>Conectar PostgreSQL a pgAdmin</h2>
+<p>La base ya se crea en PostgreSQL mediante los scripts del proyecto. pgAdmin es una herramienta para administrarla; registrar la conexión permite ver la instancia existente.</p>
+<p>1. Ejecutar Iniciar.cmd en la carpeta del proyecto y esperar a que los servicios estén disponibles.</p>
+<p>2. Abrir pgAdmin. Hacer clic derecho en Servers, seleccionar Register y después Server.</p>
+<p>3. En General, escribir Acopio Desarrollo como nombre.</p>
+<p>4. En Connection, completar estos valores:</p>
+<p>| Campo | Valor |</p>
+<p>|---|---|</p>
+<p>| Host name o address | 127.0.0.1 |</p>
+<p>| Port | 55440 |</p>
+<p>| Maintenance database | acopio_dev |</p>
+<p>| Username | acopio_dev |</p>
+<p>| Password | Contenido del archivo .local/db-password.txt de esta computadora |</p>
+<p>5. Abrir el archivo de contraseña local y copiar su contenido sin espacios ni saltos de línea adicionales. No compartir esa contraseña ni incluirla en capturas, informes o GitHub. Cada computadora genera la suya.</p>
+<p>6. Pulsar Save. Desplegar Servers → Acopio Desarrollo → Databases → acopio_dev → Schemas → acopio → Tables. Si es necesario, hacer clic derecho y seleccionar Refresh.</p>
+<p>7. Deben aparecer nueve tablas: rol, centro_acopio, usuario, proveedor, vehiculo, tanque, lote_leche, registro_calidad e incidencia. Las tablas del proyecto están en acopio; public contiene el historial de migraciones de Flyway.</p>
+<p>Si aparece connection timeout expired, confirmar que Iniciar.cmd terminó, revisar host 127.0.0.1 y puerto 55440 y ejecutar Verificar.cmd. Si continúa, revisar .local/postgres.log. Ese mensaje indica que no se alcanza el servidor; no exige recrear las tablas. Si aparece un error de autenticación, revisar usuario y contraseña local.</p>
+<p>Al ejecutar Detener.cmd se detiene también esta instancia de PostgreSQL; para volver a conectarse desde pgAdmin, ejecutar Iniciar.cmd nuevamente. No confundir esta instancia con otros servidores de PostgreSQL que usen el puerto 5432.</p>
+</section></main></html>

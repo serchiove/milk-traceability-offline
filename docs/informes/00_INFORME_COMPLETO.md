@@ -246,3 +246,28 @@ El entorno es local. No hay todavía autenticación real, HTTPS de despliegue, A
 
 ## Resultado esperado del siguiente avance
 El primer hito operativo será demostrar un usuario autorizado que registra un lote desde Android y una jefatura que consulta exactamente ese lote en web. Ese recorrido proporciona una base comprobable para agregar calidad, trazabilidad y trabajo sin conexión.
+
+
+## Conectar PostgreSQL a pgAdmin
+
+La base ya se crea en PostgreSQL mediante los scripts del proyecto. pgAdmin es una herramienta para administrarla; registrar la conexión permite ver la instancia existente.
+
+1. Ejecutar Iniciar.cmd en la carpeta del proyecto y esperar a que los servicios estén disponibles.
+2. Abrir pgAdmin. Hacer clic derecho en Servers, seleccionar Register y después Server.
+3. En General, escribir Acopio Desarrollo como nombre.
+4. En Connection, completar estos valores:
+
+| Campo | Valor |
+|---|---|
+| Host name o address | 127.0.0.1 |
+| Port | 55440 |
+| Maintenance database | acopio_dev |
+| Username | acopio_dev |
+| Password | Contenido del archivo .local/db-password.txt de esta computadora |
+
+5. Abrir el archivo de contraseña local y copiar su contenido sin espacios ni saltos de línea adicionales. No compartir esa contraseña ni incluirla en capturas, informes o GitHub. Cada computadora genera la suya.
+6. Pulsar Save. Desplegar Servers → Acopio Desarrollo → Databases → acopio_dev → Schemas → acopio → Tables. Si es necesario, hacer clic derecho y seleccionar Refresh.
+7. Deben aparecer nueve tablas: rol, centro_acopio, usuario, proveedor, vehiculo, tanque, lote_leche, registro_calidad e incidencia. Las tablas del proyecto están en acopio; public contiene el historial de migraciones de Flyway.
+
+Si aparece connection timeout expired, confirmar que Iniciar.cmd terminó, revisar host 127.0.0.1 y puerto 55440 y ejecutar Verificar.cmd. Si continúa, revisar .local/postgres.log. Ese mensaje indica que no se alcanza el servidor; no exige recrear las tablas. Si aparece un error de autenticación, revisar usuario y contraseña local.
+Al ejecutar Detener.cmd se detiene también esta instancia de PostgreSQL; para volver a conectarse desde pgAdmin, ejecutar Iniciar.cmd nuevamente. No confundir esta instancia con otros servidores de PostgreSQL que usen el puerto 5432.
