@@ -1,0 +1,20 @@
+.local/
+.env
+.env.local
+**/node_modules/
+**/dist/
+**/dist-android/
+**/target/
+**/.expo/
+mobile/.env.local
+*.log
+
+# Herramientas y archivos privados
+.github/modernize/
+**/__pycache__/
+*.p12
+*.jks
+*.keystore
+*.pem
+.env.*
+!.env.example

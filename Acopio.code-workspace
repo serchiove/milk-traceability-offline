@@ -1,0 +1,24 @@
+{
+  "folders": [
+    {
+      "name": "Acopio · proyecto completo",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/node_modules": true,
+      "**/target": true,
+      "**/.expo": true,
+      "**/dist": true,
+      "**/dist-android": true,
+      ".local": true
+    },
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/target": true,
+      "**/.local": true,
+      "**/package-lock.json": true
+    }
+  }
+}
