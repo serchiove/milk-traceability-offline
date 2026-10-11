@@ -19,7 +19,10 @@
 | CP-09 | Recuperación de conexión | Registro local pendiente | Recuperar internet y sincronizar | El registro se envía al servidor y cambia a sincronizado | Pendiente de ejecución | Pendiente |
 | CP-10 | Registro duplicado | Mismo UUID con contenido diferente | Sincronizar nuevamente | El sistema detecta el conflicto y evita duplicar el lote | Pendiente de ejecución | Pendiente |
 | CP-11 | Error durante el registro | Información incompleta o error de base de datos | Intentar registrar el lote | No se guarda información parcial | Pendiente de ejecución | Pendiente |
-
+| CP-12 | Reintento del mismo registro | Mismo UUID y mismo contenido | Sincronizar nuevamente | El sistema confirma el registro original y no crea un duplicado | Pendiente de ejecución | Pendiente |
+| CP-13 | Tanque de otro centro | Lote aprobado y tanque perteneciente a otro centro | Asignar el lote | El sistema rechaza la asignación porque el tanque pertenece a otro centro | Pendiente de ejecución | Pendiente |
+| CP-14 | Tanque sin capacidad suficiente | Lote aprobado con volumen mayor a la capacidad disponible | Asignar el lote | El sistema rechaza la asignación y solicita seleccionar otro tanque | Pendiente de ejecución | Pendiente |
+| CP-15 | Reporte filtrado | Criterios de fecha, centro y estado | Generar el reporte | El sistema muestra únicamente los registros que cumplen los filtros seleccionados | Pendiente de ejecución | Pendiente |
 ## Criterios de validación
 
 - La temperatura se registra en °C.
