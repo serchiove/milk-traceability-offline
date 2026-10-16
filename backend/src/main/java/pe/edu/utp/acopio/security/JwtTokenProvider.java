@@ -4,6 +4,8 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
@@ -14,20 +16,23 @@ public class JwtTokenProvider {
     private String jwtSecret;
 
     @Value("${app.jwt.expiration-ms}")
-    private int jwtExpirationMs;
+    private long jwtExpirationMs;
 
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
     public String generarToken(String email, Long idUsuario, Long idCentro, String rol) {
+        Date ahora = new Date();
+        Date expiracion = new Date(ahora.getTime() + jwtExpirationMs);
+
         return Jwts.builder()
                 .setSubject(email)
                 .claim("idUsuario", idUsuario)
                 .claim("idCentro", idCentro)
                 .claim("rol", rol)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .setIssuedAt(ahora)
+                .setExpiration(expiracion)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -37,10 +42,34 @@ public class JwtTokenProvider {
             Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(authToken);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            // Log de error de firma, expiración o token mal formado
+            System.err.println("Token JWT inválido: " + e.getMessage());
+            return false;
         }
-        return false;
     }
-    
-    // Métodos para extraer claims (email, idUsuario, idCentro, rol)...
+
+    private Claims obtenerClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    public String getEmailFromToken(String token) {
+        return obtenerClaims(token).getSubject();
+    }
+
+    public String getRolFromToken(String token) {
+        return obtenerClaims(token).get("rol", String.class);
+    }
+
+    public Long getIdUsuarioFromToken(String token) {
+        Number id = obtenerClaims(token).get("idUsuario", Number.class);
+        return id != null ? id.longValue() : null;
+    }
+
+    public Long getIdCentroFromToken(String token) {
+        Number id = obtenerClaims(token).get("idCentro", Number.class);
+        return id != null ? id.longValue() : null;
+    }
 }

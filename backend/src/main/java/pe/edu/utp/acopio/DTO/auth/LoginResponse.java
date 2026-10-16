@@ -1,9 +1,6 @@
-package pe.edu.utp.acopio.dto.auth;
+package pe.edu.utp.acopio.DTO.auth;
 
 public record LoginResponse(
-    String token,
-    Long idUsuario,
-    Long idCentro,
-    String rol,
-    String nombre
+    String accessToken,
+    UsuarioDto usuario
 ) {}
