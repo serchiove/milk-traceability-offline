@@ -1,4 +1,4 @@
-package pe.edu.utp.acopio.dto.auth;
+package pe.edu.utp.acopio.DTO.auth;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

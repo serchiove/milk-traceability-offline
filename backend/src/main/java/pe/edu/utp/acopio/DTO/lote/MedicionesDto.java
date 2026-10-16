@@ -1,4 +1,4 @@
-package pe.edu.utp.acopio.dto.lote;
+package pe.edu.utp.acopio.DTO.lote;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 
 public record MedicionesDto(
     @NotNull(message = "La temperatura es obligatoria")
-    @DecimalMin(value = "-273.15", message = "Temperatura física inválida")
     BigDecimal temperaturaC,
 
     @NotNull(message = "La acidez es obligatoria")
@@ -14,6 +13,6 @@ public record MedicionesDto(
     BigDecimal acidezDornic,
 
     @NotNull(message = "La densidad es obligatoria")
-    @DecimalMin(value = "0.1", message = "Densidad inválida")
+    @DecimalMin(value = "0.0001", message = "La densidad debe ser mayor a 0")
     BigDecimal densidadGml
 ) {}

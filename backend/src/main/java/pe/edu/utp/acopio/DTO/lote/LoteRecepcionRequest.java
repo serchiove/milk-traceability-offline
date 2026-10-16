@@ -1,8 +1,7 @@
-package pe.edu.utp.acopio.dto.lote;
+package pe.edu.utp.acopio.DTO.lote;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -19,14 +18,11 @@ public record LoteRecepcionRequest(
     Long idVehiculo,
 
     @NotNull(message = "El volumen es obligatorio")
-    @DecimalMin(value = "0.1", message = "El volumen debe ser mayor a 0")
+    @DecimalMin(value = "0.01", message = "El volumen debe ser mayor a 0")
     BigDecimal volumenLitros,
 
     @NotNull(message = "La fecha y hora de captura es obligatoria")
     OffsetDateTime fechaHora,
-
-    @NotBlank(message = "La huella de solicitud (SHA256) es obligatoria")
-    String huellaSolicitud,
 
     @Valid
     @NotNull(message = "Las mediciones de calidad son obligatorias")
