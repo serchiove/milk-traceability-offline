@@ -19,7 +19,11 @@
       "**/target": true,
       "**/.local": true,
       "**/package-lock.json": true
+<<<<<<< HEAD
     },
     "java.configuration.updateBuildConfiguration": "interactive"
+=======
+    }
+>>>>>>> ba7c9f4 (feat(mobile): initialize mobile app with Expo and SQLite integration)
   }
 }

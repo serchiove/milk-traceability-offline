@@ -13,6 +13,7 @@
 | Android → SQLite | Captura del usuario: 3 comprobaciones guardadas |
 | Persistencia al cerrar/reabrir | Pendiente de confirmación del usuario |
 
+<<<<<<< HEAD
 ## Mantenimiento — 22/11/2026
 
 | Comprobación | Resultado |
@@ -25,6 +26,9 @@
 El procedimiento y los límites de recuperación están en [Mantenimiento y recuperación](07_MANTENIMIENTO.md). Los respaldos comprobados son locales; configurar una copia externa y probar recuperación desde esa copia siguen siendo tareas manuales.
 
 La organización de carpetas/documentación no vuelve a ejecutar las pruebas anteriores ni convierte su evidencia en una nueva ejecución.
+=======
+La organización de carpetas/documentación no vuelve a ejecutar estas pruebas ni convierte evidencia anterior en una nueva ejecución.
+>>>>>>> ba7c9f4 (feat(mobile): initialize mobile app with Expo and SQLite integration)
 
 ## Comprobación manual corta
 1. Iniciar el entorno; comprobar conexión real desde web.

@@ -27,7 +27,11 @@
         <url/>
     </scm>
     <properties>
+<<<<<<< HEAD
         <java.version>25</java.version>
+=======
+        <java.version>17</java.version>
+>>>>>>> ba7c9f4 (feat(mobile): initialize mobile app with Expo and SQLite integration)
     </properties>
     <dependencies>
         <!-- Dependencias originales -->

@@ -11,7 +11,11 @@ cd milk-traceability-offline
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Preparar.ps1
 ```
 
+<<<<<<< HEAD
 Preparar.ps1 requiere Java 25 LTS, Maven 3.9+, Node 24 LTS, Git y PostgreSQL 18 instalados. Ver docs/01_INICIO_RAPIDO.md.
+=======
+Preparar.ps1 requiere Java 17, Maven 3.9+, Node 24 LTS, Git y PostgreSQL 18 instalados. Ver docs/01_INICIO_RAPIDO.md.
+>>>>>>> ba7c9f4 (feat(mobile): initialize mobile app with Expo and SQLite integration)
 
 ## Trabajar en una función nueva
 

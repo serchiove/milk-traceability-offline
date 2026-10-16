@@ -10,6 +10,10 @@ class AcopioApplicationTests {
  @Test void aplicaModeloFisicoCompleto() {
   assertThat(jdbc.queryForObject("SELECT count(*) FROM information_schema.tables WHERE table_schema='acopio' AND table_type='BASE TABLE'",Integer.class)).isEqualTo(9);
   assertThat(jdbc.queryForObject("SELECT count(*) FROM information_schema.columns WHERE table_schema='acopio' AND table_name IN (SELECT table_name FROM information_schema.tables WHERE table_schema='acopio' AND table_type='BASE TABLE')",Integer.class)).isEqualTo(59);
+<<<<<<< HEAD
   assertThat(jdbc.queryForObject("SELECT count(*) FROM public.flyway_schema_history WHERE success",Integer.class)).isEqualTo(3);
+=======
+  assertThat(jdbc.queryForObject("SELECT count(*) FROM public.flyway_schema_history WHERE success",Integer.class)).isEqualTo(2);
+>>>>>>> ba7c9f4 (feat(mobile): initialize mobile app with Expo and SQLite integration)
  }
 }

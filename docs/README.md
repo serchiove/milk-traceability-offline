@@ -6,7 +6,10 @@ Leer en este orden:
 3. [Organización del equipo](03_EQUIPO.md): responsables y forma de integrar cambios.
 4. [Plan de implementación](04_PENDIENTES.md): entregas y criterios de aceptación.
 5. [Pruebas](05_PRUEBAS.md): evidencia disponible y comprobaciones pendientes.
+<<<<<<< HEAD
 6. [Mantenimiento y recuperación](07_MANTENIMIENTO.md): respaldos, programación automática, restauración de prueba y recuperación local.
+=======
+>>>>>>> ba7c9f4 (feat(mobile): initialize mobile app with Expo and SQLite integration)
 
 Esta documentación describe el código actual. Los diagramas y el prototipo del informe representan funciones propuestas; no equivalen a funciones implementadas.
 

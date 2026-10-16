@@ -22,7 +22,11 @@ La primera ejecución puede tardar por descargas y creación de la base. Si apar
 
 | Carpeta | Tecnología | Trabajo preparado |
 |---|---|---|
+<<<<<<< HEAD
 | `backend` | Java 25 LTS, Spring Boot 4.1.1, Maven | Controller → Service → Repository, endpoint `/api/estado`, Actuator, JDBC y migraciones Flyway |
+=======
+| `backend` | Java 17, Spring Boot 4.1.1, Maven | Controller → Service → Repository, endpoint `/api/estado`, Actuator, JDBC y migraciones Flyway |
+>>>>>>> ba7c9f4 (feat(mobile): initialize mobile app with Expo and SQLite integration)
 | `dashboard` | React, Vite, Bootstrap 5 | Pantalla de diagnóstico que consulta la API real y muestra centros de PostgreSQL |
 | `mobile` | React Native, Expo SDK 57, TypeScript | Vista, ViewModel y repositorio separados; prueba de API y almacenamiento SQLite |
 | `database` | PostgreSQL 18 | Copia del SQL del informe como referencia |
@@ -31,7 +35,11 @@ La primera ejecución puede tardar por descargas y creación de la base. Si apar
 
 La base es **nueva e independiente** de tus instalaciones existentes: host `127.0.0.1`, puerto `55440`, nombre y usuario `acopio_dev`. La contraseña se genera y guarda en `.local/db-password.txt`; no compartirla ni incluirla en el informe. El usuario propietario es solo para este entorno académico local. Antes de un despliegue deberá separarse del usuario de la aplicación y limitar permisos.
 
+<<<<<<< HEAD
 Se utilizan Java 25 LTS, Maven 3.9.13 y PostgreSQL 18.3. Los scripts prefieren Node 24.19.0 incluido en el runtime local y no modifican el Node 25 global ni las variables permanentes del sistema. Si cambias de máquina, usa Java 25 LTS y Node 24 LTS; define `ACOPIO_NODE` si necesitas una ruta específica.
+=======
+Se reutilizan Java 17.0.18, Maven 3.9.13 y PostgreSQL 18.3 ya instalados. Los scripts prefieren Node 24.19.0 incluido en el runtime local y no modifican el Node 25 global ni las variables permanentes del sistema. Si cambias de máquina, usa Node 24 LTS y define `ACOPIO_NODE` si necesitas una ruta específica.
+>>>>>>> ba7c9f4 (feat(mobile): initialize mobile app with Expo and SQLite integration)
 
 ## App Android
 
@@ -60,7 +68,11 @@ Se utiliza `adb reverse` para acceder al backend y Metro por USB/emulador. El ba
 
 ## Prepararlo en otra computadora del equipo
 
+<<<<<<< HEAD
 Copiar el paquete de código fuente o usar Git cuando acuerden el repositorio. Requisitos: Java 25 LTS, Maven 3.9+, Node 24 LTS, Git y PostgreSQL 18. Para móvil, Android por USB o Android Studio. No hace falta XAMPP.
+=======
+Copiar el paquete de código fuente o usar Git cuando acuerden el repositorio. Requisitos: Java 17, Maven 3.9+, Node 24 LTS, Git y PostgreSQL 18. Para móvil, Android por USB o Android Studio. No hace falta XAMPP.
+>>>>>>> ba7c9f4 (feat(mobile): initialize mobile app with Expo and SQLite integration)
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Preparar.ps1
