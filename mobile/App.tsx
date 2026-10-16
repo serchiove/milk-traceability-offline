@@ -1,5 +1,10 @@
-import {StatusBar} from 'expo-status-bar';
-import {StyleSheet,Text,View,Pressable,ScrollView} from 'react-native';
-import {useEntornoViewModel} from './src/viewmodel/useEntornoViewModel';
-export default function App(){const vm=useEntornoViewModel();return <ScrollView contentContainerStyle={s.page}><StatusBar style="dark"/><Text style={s.brand}>ACOPIO / MÓVIL</Text><Text style={s.title}>Entorno de desarrollo</Text><Text style={s.sub}>Base MVVM · React Native + Expo</Text><View style={s.card}><Text style={s.heading}>Conexión al servidor</Text><Text style={s.text}>{vm.estado}</Text><Pressable accessibilityRole="button" disabled={vm.busy} onPress={vm.comprobarApi} style={s.button}><Text style={s.white}>{vm.busy?'Comprobando…':'Comprobar API real'}</Text></Pressable></View><View style={s.card}><Text style={s.heading}>Guardado local</Text><Text style={s.text}>{vm.local}</Text><Pressable accessibilityRole="button" onPress={vm.comprobarLocal} style={s.button}><Text style={s.white}>Guardar prueba en SQLite</Text></Pressable></View><Text style={s.sub}>Esta pantalla verifica el entorno. La captura de lotes, el inicio de sesión y la sincronización se desarrollarán después. El guardado de prueba no registra lotes.</Text></ScrollView>}
-const s=StyleSheet.create({page:{padding:24,paddingTop:64,backgroundColor:'#f4f7f6',flexGrow:1},brand:{color:'#197151',fontWeight:'700',letterSpacing:2,marginBottom:28},title:{fontSize:34,fontWeight:'700',color:'#163b36'},sub:{fontSize:15,color:'#60716e',lineHeight:23,marginVertical:12},card:{backgroundColor:'white',padding:22,borderRadius:16,marginVertical:12},heading:{fontSize:20,fontWeight:'600',color:'#163b36'},text:{fontSize:16,marginVertical:18,color:'#324d47'},button:{backgroundColor:'#197151',padding:16,borderRadius:10},white:{color:'white',fontWeight:'600',textAlign:'center'}});
+import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {Application} from './src/navigation/Application';
+
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <Application />
+    </SafeAreaProvider>
+  );
+}
