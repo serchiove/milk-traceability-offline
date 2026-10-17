@@ -8,5 +8,6 @@ public record Usuario(
     String email,
     String passwordHash,
     String rol,
+    String centro,
     boolean activo
 ) {}

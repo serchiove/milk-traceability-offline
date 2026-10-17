@@ -43,6 +43,16 @@ public class LoteRepository {
         rs.getObject("fecha_evaluacion", OffsetDateTime.class)
     );
 
+    public boolean referenciasActivas(Long proveedor, Long vehiculo, Long usuario, Long centro) {
+        return Boolean.TRUE.equals(jdbcTemplate.queryForObject("""
+            SELECT EXISTS(SELECT 1 FROM acopio.proveedor WHERE id_proveedor=? AND activo)
+               AND EXISTS(SELECT 1 FROM acopio.vehiculo WHERE id_vehiculo=? AND activo)
+               AND EXISTS(SELECT 1 FROM acopio.usuario u JOIN acopio.rol r USING(id_rol)
+                          JOIN acopio.centro_acopio c USING(id_centro)
+                          WHERE u.id_usuario=? AND u.id_centro=? AND u.activo AND c.activo AND r.nombre='OPERARIO')
+            """, Boolean.class, proveedor, vehiculo, usuario, centro));
+    }
+
     public boolean insertarLoteSiNoExiste(LoteRecepcionRequest req, Long idUsuario, Long idCentro, String huella) {
         String sql = """
             INSERT INTO acopio.lote_leche (

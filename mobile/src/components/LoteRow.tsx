@@ -22,7 +22,7 @@ export function LoteRow({ lote, abrir }: {
     <View style={s.flex}>
       <Text numberOfLines={1} style={s.recordTitle}>{lote.proveedor}</Text>
       <Text style={s.caption}>{lote.vehiculo} · {fecha(lote.fecha)}</Text>
-      <Text style={s.local}>Local · Sin enviar</Text>
+      <Text style={s.local}>{lote.enviado ? 'Recibido por el servidor' : 'Local · Por confirmar envío'}</Text>
     </View>
 
     <View style={s.recordEnd}>

@@ -14,6 +14,17 @@ $env:DB_PASSWORD=(Get-Content "$local/db-password.txt" -Raw).Trim()
 $env:PGPASSWORD=$env:DB_PASSWORD
 $env:PGCONNECT_TIMEOUT='5'
 $env:SERVER_PORT='18080'
+# Generate once per PC; keep outside Git and reuse across backend restarts.
+if(!$env:JWT_SECRET){
+ $jwtFile=Join-Path $local 'jwt-secret.txt'
+ if(!(Test-Path -LiteralPath $jwtFile)){
+  $jwtBytes=New-Object byte[] 48
+  $jwtGenerator=[System.Security.Cryptography.RandomNumberGenerator]::Create()
+  try {$jwtGenerator.GetBytes($jwtBytes)} finally {$jwtGenerator.Dispose()}
+  [System.IO.File]::WriteAllText($jwtFile,[Convert]::ToBase64String($jwtBytes))
+ }
+ $env:JWT_SECRET=([System.IO.File]::ReadAllText($jwtFile)).Trim()
+}
 function Start-Database {
  & "$pgBin/pg_ctl.exe" -D "$local/pgdata" status *> $null
  if($LASTEXITCODE -ne 0){
@@ -29,6 +40,14 @@ function Start-Database {
 }
 function Build-All {
  Start-Database
+ # Integration tests must never write fixtures into the application's development database.
+ $env:TEST_DB_NAME='acopio_test'
+ $testDatabaseExists=& "$pgBin/psql.exe" -w -h 127.0.0.1 -p 55440 -U acopio_dev -d postgres -t -A -c "SELECT 1 FROM pg_database WHERE datname='acopio_test'"
+ if($LASTEXITCODE -ne 0){throw 'No se pudo comprobar la base de pruebas.'}
+ if($testDatabaseExists -ne '1'){
+  & "$pgBin/createdb.exe" -h 127.0.0.1 -p 55440 -U acopio_dev acopio_test
+  if($LASTEXITCODE -ne 0){throw 'No se pudo crear la base aislada acopio_test.'}
+ }
  $jar="$root/backend/target/acopio-0.0.1-SNAPSHOT.jar"
  $jarMatch=$jar.Replace('/','\')
  $runningBackends=@(Get-CimInstance Win32_Process -Filter "name='java.exe'" | Where-Object {
@@ -107,7 +126,7 @@ switch($Action){
   New-Item -ItemType Directory -Force "$local/temp-windows" | Out-Null
   $env:TEMP="$local/temp-windows";$env:TMP=$env:TEMP
   Push-Location "$root/mobile"
-  try { & $node node_modules/expo/bin/cli start --localhost } finally {Pop-Location}
+  try { & $node node_modules/expo/bin/cli start --localhost --clear } finally {Pop-Location}
  }
  'Stop' {
   foreach($name in @('metro','dashboard','backend')){

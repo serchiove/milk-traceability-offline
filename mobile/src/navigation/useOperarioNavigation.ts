@@ -27,7 +27,7 @@ export function useOperarioNavigation(vm: LotesViewModel, sesion: SesionOperario
     else if(pantalla === 'registro' && paso > 0)
       setPaso(paso - 1);
     else
-      navegar(['conexion', 'pendientes', 'calidad', 'trazabilidad', 'tanque'].includes(pantalla) ? 'perfil' : 'inicio');
+      navegar(['conexion', 'pendientes', 'calidad', 'trazabilidad', 'tanque', 'catalogos'].includes(pantalla) ? 'perfil' : 'inicio');
   }
   async function salirConEdicion(accion: () => void) {
     if (await vm.asegurarEdicion()) accion();

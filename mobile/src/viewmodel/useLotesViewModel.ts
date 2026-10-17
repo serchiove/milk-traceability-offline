@@ -1,8 +1,14 @@
+import type { SesionOperario } from '../services/authService';
+import { cargarCatalogosLocales, sesionVigente, type CatalogosLocales } from '../services/sesionLocal';
+import { leerEnvio } from '../model/loteRepository';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ErroresLote, FormularioLote, LoteLocal } from '../model/lote';
 import { formularioVacio, validarLote } from '../model/lote';
 import { guardarEdicion, guardarLote, leerEdicion, listarLotes } from '../model/loteRepository';
-export function useLotesViewModel() {
+export function useLotesViewModel(sesion:SesionOperario|null) {
+  const clave=sesion?`${sesion.usuario.id}:${sesion.usuario.idCentro}`:undefined;
+  const [catalogos,setCatalogos]=useState<CatalogosLocales|null>(null);
+  useEffect(()=>{if(sesion)void cargarCatalogosLocales(sesion).then(setCatalogos).catch(()=>setError('No se pudieron leer los catálogos locales.'));},[sesion]);
   const [form, setForm] = useState(formularioVacio);
   const actual = useRef(formularioVacio());
   const [intentoEdicion, setIntentoEdicion] = useState(0);
@@ -15,7 +21,7 @@ export function useLotesViewModel() {
   useEffect(() => {
     montado.current = true;
     let activo = true;
-    leerEdicion().then(edicion => {
+    leerEdicion(clave).then(edicion => {
       if (!activo) return;
       if (edicion) {actual.current = edicion; setForm(edicion); setRecuperado(true);}
       setListoEdicion(true);
@@ -55,7 +61,9 @@ export function useLotesViewModel() {
     setCargando(true);
     setError('');
     try {
-      setLotes(await listarLotes());
+      const locales=await listarLotes();
+      const accesibles=await Promise.all(locales.map(async lote=>{const envio=await leerEnvio(lote.id);return !envio || (envio.usuario===sesion?.usuario.id&&envio.centro===sesion?.usuario.idCentro)?lote:null;}));
+      setLotes(accesibles.filter((lote):lote is LoteLocal=>lote!==null));
     }
     catch {
       setError('No se pudieron leer los registros del dispositivo. Vuelve a intentarlo.');
@@ -63,18 +71,23 @@ export function useLotesViewModel() {
     finally {
       setCargando(false);
     }
-  }, []);
+  }, [sesion]);
   useEffect(() => { void recargar(); }, [recargar]);
   function persistirEdicion(valor: FormularioLote) {
     const revision = ++version.current;
     setEstadoEdicion('guardando');
-    const tarea = guardarEdicion(valor);
+    const tarea = guardarEdicion(valor, clave);
     pendiente.current = tarea;
     void tarea.then(() => {
       if (montado.current && revision === version.current) setEstadoEdicion('guardado');
     }).catch(() => {
       if (montado.current && revision === version.current) setEstadoEdicion('error');
     });
+  }
+  function seleccionarCatalogo(campo:'proveedor'|'vehiculo',id:number,nombre:string){
+    if(!listoEdicion||bloqueo.current||!sesion||!catalogos)return;
+    const siguiente={...actual.current,[campo]:nombre,[campo==='proveedor'?'idProveedor':'idVehiculo']:String(id),centro:catalogos.centro.nombre};
+    actual.current=siguiente;setForm(siguiente);setErrores({});persistirEdicion(siguiente);
   }
   function cambiar(campo: keyof FormularioLote, valor: string) {
     if (!listoEdicion || bloqueo.current) return;
@@ -97,7 +110,7 @@ export function useLotesViewModel() {
     setGuardando(true);
     const vacio = formularioVacio();
     try {
-      await guardarEdicion(vacio);
+      await guardarEdicion(vacio, clave);
       actual.current = vacio;
       setForm(vacio);
       setErrores({});
@@ -109,20 +122,27 @@ export function useLotesViewModel() {
     finally {bloqueo.current = false; setGuardando(false);}
   }
   const tieneCambios = Object.values(form).some(valor => valor.trim().length > 0);
+  function accesoCaptura(){
+    if(!sesion||!sesionVigente(sesion)){setError('La sesión venció. Inicia sesión nuevamente; la edición se conserva.');return false;}
+    if(!catalogos||!catalogos.proveedores.some(p=>p.id===Number(form.idProveedor))||!catalogos.vehiculos.some(v=>v.id===Number(form.idVehiculo))){setError('Selecciona proveedor y vehículo del catálogo descargado.');return false;}
+    setError('');return true;
+  }
   function validarPaso(campos: (keyof FormularioLote)[]) {
+    if(!accesoCaptura())return false;
     const validacion = validarLote(form);
     const erroresPaso = Object.fromEntries(campos.filter(campo => validacion.errores[campo]).map(campo => [campo, validacion.errores[campo]]));
     setErrores(erroresPaso);
     return Object.keys(erroresPaso).length === 0;
   }
   function prepararRevision() {
+    if(!accesoCaptura())return null;
     const validacion = validarLote(form);
     setErrores(validacion.errores);
     setError('');
     return validacion.datos ?? null;
   }
   async function guardar(): Promise<LoteLocal | null> {
-    if(bloqueo.current || !listoEdicion)
+    if(!accesoCaptura() || bloqueo.current || !listoEdicion)
       return null;
     const validacion = validarLote(form);
     setErrores(validacion.errores);
@@ -132,7 +152,9 @@ export function useLotesViewModel() {
     bloqueo.current = true;
     setGuardando(true);
     try {
-      const lote = await guardarLote(validacion.datos);
+      if(!sesion||!sesionVigente(sesion))throw new Error('Sesión vencida');
+      if(!catalogos||!catalogos.proveedores.some(p=>p.id===Number(form.idProveedor))||!catalogos.vehiculos.some(v=>v.id===Number(form.idVehiculo)))throw new Error('Selecciona datos oficiales');
+      const lote = await guardarLote(validacion.datos,{usuario:sesion.usuario.id,centro:sesion.usuario.idCentro,idProveedor:Number(form.idProveedor),idVehiculo:Number(form.idVehiculo),clave:clave!});
       setLotes(anteriores => [lote, ...anteriores]);
       ++version.current;
       actual.current = formularioVacio();
@@ -154,5 +176,5 @@ export function useLotesViewModel() {
     if (listoEdicion) void asegurarEdicion();
     else {setEstadoEdicion('guardando'); setIntentoEdicion(valor => valor + 1);}
   }
-  return { reintentarEdicion, listoEdicion, estadoEdicion, recuperado, asegurarEdicion, descartarEdicion, validarPaso, form, errores, tieneCambios, prepararRevision, lotes, sugerencias, visibles, litrosVisibles, busqueda, setBusqueda, cargando, guardando, error, cambiar, guardar, recargar };
+  return { catalogos, seleccionarCatalogo, reintentarEdicion, listoEdicion, estadoEdicion, recuperado, asegurarEdicion, descartarEdicion, validarPaso, form, errores, tieneCambios, prepararRevision, lotes, sugerencias, visibles, litrosVisibles, busqueda, setBusqueda, cargando, guardando, error, cambiar, guardar, recargar };
 }

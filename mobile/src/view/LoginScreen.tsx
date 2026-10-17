@@ -95,14 +95,14 @@ export function LoginScreen({ onAcceso, onLocal }: Props) {
         <View style={s.actions}>
           <Button title="Iniciar sesión" onPress={entrar} loading={vm.ocupado} disabled={vm.ocupado} />
           <Button
-            title="Continuar con borradores locales"
+            title="Recuperar acceso offline autorizado"
             onPress={() => { Keyboard.dismiss(); onLocal(); }}
             variant="outline"
             disabled={vm.ocupado}
           />
         </View>
 
-        <Text style={s.help}>El acceso central aún no está habilitado. En modo local puedes registrar sin una cuenta; los borradores se comparten en este celular.</Text>
+        <Text style={s.help}>El primer acceso requiere conexión para descargar los catálogos. Después podrás capturar sin red mientras tu sesión autorizada siga vigente.</Text>
 
         <Text style={s.footer}>Para solicitar acceso, contacta con tu administrador.</Text>
 

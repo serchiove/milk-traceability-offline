@@ -20,7 +20,7 @@ export function PerfilScreen({ sesion, cantidad, navegar, solicitarSalida }: Pro
         <Icon name="user" size={30} color={theme.colors.primary} />
       </View>
       <Text style={s.title}>{sesion ? sesion.usuario.nombre : 'Modo local'}</Text>
-      <Text style={s.intro}>{sesion ? 'Sesión de operario' : 'Sin sesión central autenticada'}</Text>
+      <Text style={s.intro}>{sesion ? sesion.usuario.centro : 'Sin sesión central autenticada'}</Text>
     </View>
 
     <Text style={s.sectionTitle}>Dispositivo y conexión</Text>
@@ -39,29 +39,30 @@ export function PerfilScreen({ sesion, cantidad, navegar, solicitarSalida }: Pro
       />
       <SettingsRow
         titulo="Buscar por identificador"
-        descripcion="Consulta tus registros locales"
+        descripcion="Consulta por UUID o escanea un QR"
         destino="trazabilidad"
         navegar={navegar}
       />
     </View>
 
     <Text style={s.sectionTitle}>Servicios de planta</Text>
+    <SettingsRow titulo="Catálogos de recepción" descripcion="Proveedores, vehículos y tu centro" destino="catalogos" navegar={navegar} />
     <View style={s.list}>
       <SettingsRow
         titulo="Resultados de calidad"
-        descripcion="Pendiente de integración"
+        descripcion="Consulta central actualizada"
         destino="calidad"
         navegar={navegar}
       />
       <SettingsRow
         titulo="Tanques de destino"
-        descripcion="Pendiente de integración"
+        descripcion="Consulta central actualizada"
         destino="tanque"
         navegar={navegar}
       />
     </View>
 
-    <Text style={s.footnote}>Los borradores se comparten en este dispositivo. No se envían automáticamente.</Text>
+    <Text style={s.footnote}>Las nuevas recepciones quedan asociadas a tu usuario y centro. El envío se confirma desde cada recepción.</Text>
     <Button
       title={sesion ? 'Cerrar sesión' : 'Volver al acceso'}
       onPress={solicitarSalida}

@@ -1,3 +1,5 @@
+import { EnvioRecepcion } from '../components/EnvioRecepcion';
+import type { SesionOperario } from '../services/authService';
 import { Text, View } from 'react-native';
 import { Button } from '../components/Button';
 import { Icon } from '../components/Icon';
@@ -8,11 +10,13 @@ import { screenStyles as s } from '../theme/screenStyles';
 import { fecha, numero } from '../utils/formato';
 type Props = {
   detalle: LoteLocal;
+  sesion: SesionOperario | null;
+  actualizado: () => void;
   guardado: boolean;
   columnas: boolean;
   navegar: (destino: Pantalla) => void;
 };
-export function DetalleScreen({ detalle, guardado, columnas, navegar }: Props) {
+export function DetalleScreen({ detalle, guardado, columnas, navegar, sesion, actualizado }: Props) {
   return <>
 
     {guardado && <View accessibilityLiveRegion="polite" style={s.saved}>
@@ -20,7 +24,7 @@ export function DetalleScreen({ detalle, guardado, columnas, navegar }: Props) {
       <Text style={s.link}>Recepción guardada</Text>
     </View>}
 
-    <Text style={s.eyebrow}>LOCAL · SIN ENVIAR</Text>
+    <Text style={s.eyebrow}>{detalle.enviado ? 'CONFIRMADO POR EL SERVIDOR' : 'COPIA LOCAL'}</Text>
     <Text style={s.title}>{detalle.proveedor}</Text>
     <Text style={s.intro}>{fecha(detalle.fecha)}</Text>
 
@@ -40,7 +44,7 @@ export function DetalleScreen({ detalle, guardado, columnas, navegar }: Props) {
       </View>)}
     </View>
 
-    <Text style={s.saveNote}>Sin dictamen de calidad. El envío al servidor aún no está disponible.</Text>
+    <EnvioRecepcion key={detalle.id} lote={detalle} sesion={sesion} actualizado={actualizado} />
     <Text style={s.label}>Identificador del registro</Text>
     <Text selectable style={s.uuid}>{detalle.id}</Text>
 

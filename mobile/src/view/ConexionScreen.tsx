@@ -24,7 +24,7 @@ export function ConexionScreen({ red }: Props) {
       loading={red.busy}
       disabled={red.busy}
     />
-    <Text style={s.footnote}>Esta consulta no envía tus registros. La sincronización todavía no está integrada.</Text>
+    <Text style={s.footnote}>Esta consulta no envía tus registros. Puedes enviar cada recepción desde su detalle con una sesión de operario.</Text>
 
   </>;
 }

@@ -6,7 +6,7 @@ import { screenStyles as s } from '../theme/screenStyles';
 import { theme } from '../theme/theme';
 import { numero } from '../utils/formato';
 import type { LotesViewModel } from '../viewmodel/types';
-import { SelectorLocal } from '../components/SelectorLocal';
+import { SelectorCatalogo } from '../components/SelectorCatalogo';
 type Props = {
   vm: LotesViewModel;
   paso: number;
@@ -37,39 +37,10 @@ export function RegistroScreen({ vm, paso, columnas, siguiente, guardar, volver,
 
     {paso === 0 && <View style={s.form}>
 
-      <SelectorLocal
-        titulo="Proveedor"
-        valor={vm.form.proveedor}
-        opciones={vm.sugerencias.proveedor}
-        placeholder="Nombre o código del proveedor"
-        error={vm.errores.proveedor}
-        bloqueado={bloqueado}
-        cambiar={valor => vm.cambiar('proveedor', valor)}
-      />
-
-      <SelectorLocal
-        titulo="Placa del vehículo"
-        valor={vm.form.vehiculo}
-        opciones={vm.sugerencias.vehiculo}
-        placeholder="ABC-123"
-        error={vm.errores.vehiculo}
-        bloqueado={bloqueado}
-        mayusculas
-        cambiar={valor => vm.cambiar('vehiculo', valor)}
-      />
-
-      <SelectorLocal
-        titulo="Centro de acopio"
-        valor={vm.form.centro}
-        opciones={vm.sugerencias.centro}
-        placeholder="Nombre del centro"
-        error={vm.errores.centro}
-        bloqueado={bloqueado}
-        cambiar={valor => vm.cambiar('centro', valor)}
-      />
-
-      <Text style={s.caption}>El historial contiene datos ingresados en este celular.</Text>
-
+      <SelectorCatalogo titulo="Proveedor" valor={vm.form.proveedor} opciones={(vm.catalogos?.proveedores??[]).map(p=>({id:p.id,nombre:p.razonSocial,detalle:p.numeroDocumento}))} seleccionar={(id,nombre)=>vm.seleccionarCatalogo('proveedor',id,nombre)} disabled={bloqueado}/>
+      <SelectorCatalogo titulo="Vehículo" valor={vm.form.vehiculo} opciones={(vm.catalogos?.vehiculos??[]).map(v=>({id:v.id,nombre:v.placa,detalle:`Capacidad nominal: ${v.capacidadLitros} L`}))} seleccionar={(id,nombre)=>vm.seleccionarCatalogo('vehiculo',id,nombre)} disabled={bloqueado}/>
+      <Text style={s.label}>Centro asignado</Text><Text style={s.intro}>{vm.catalogos?.centro.nombre??'Catálogo no disponible'}</Text>
+      <Text style={s.caption}>Catálogos descargados: {vm.catalogos?.actualizado??'Pendiente'}. Se actualizan al iniciar sesión con conexión.</Text>
     </View>}
 
     {paso === 1 && <>

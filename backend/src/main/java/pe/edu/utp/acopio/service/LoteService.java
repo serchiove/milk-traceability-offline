@@ -33,7 +33,14 @@ public class LoteService {
     @Transactional
     public LoteRecepcionResponse registrarLote(LoteRecepcionRequest req, Long idUsuario, Long idCentro) {
         String huellaCalculada = calcularHuellaSha256(req, idUsuario, idCentro);
+        if (req.huellaSolicitud() != null && !huellaCalculada.equals(req.huellaSolicitud()))
+            throw new IllegalArgumentException("La huella enviada no coincide con los datos recibidos");
 
+        // Preserve historical idempotent retries even if a supplier/vehicle was later deactivated.
+        if (loteRepository.buscarEstadoLote(req.idLote()).isEmpty() &&
+            !loteRepository.referenciasActivas(req.idProveedor(), req.idVehiculo(), idUsuario, idCentro)) {
+            throw new IllegalArgumentException("Referencias inactivas o inexistentes");
+        }
         // 1. Intentar insertar lote y registro_calidad PENDIENTE en la misma transacción
         boolean esNuevo = loteRepository.insertarLoteSiNoExiste(req, idUsuario, idCentro, huellaCalculada);
         if (esNuevo) {

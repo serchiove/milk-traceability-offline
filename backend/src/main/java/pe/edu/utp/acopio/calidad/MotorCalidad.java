@@ -9,10 +9,13 @@ import java.util.stream.Collectors;
 @Component
 public class MotorCalidad {
 
-    public static final String VERSION_REGLAS = "NTP-202.001-2026.1";
+    private final String versionReglas;
     private final List<ReglaCalidad> reglas;
 
-    public MotorCalidad(List<ReglaCalidad> reglas) {
+    public MotorCalidad(List<ReglaCalidad> reglas,
+                        @org.springframework.beans.factory.annotation.Value("${app.calidad.version:DEMO-1}") String versionReglas) {
+        if (versionReglas.isBlank() || versionReglas.length() > 40) throw new IllegalArgumentException("Version de reglas invalida");
+        this.versionReglas = versionReglas;
         this.reglas = reglas;
     }
 
@@ -24,10 +27,10 @@ public class MotorCalidad {
             .collect(Collectors.toList());
 
         if (incumplimientos.isEmpty()) {
-            return new ResultadoEvaluacion("APROBADO", VERSION_REGLAS, null);
+            return new ResultadoEvaluacion("APROBADO", versionReglas, null);
         } else {
             String motivo = String.join("; ", incumplimientos);
-            return new ResultadoEvaluacion("RECHAZADO", VERSION_REGLAS, motivo);
+            return new ResultadoEvaluacion("RECHAZADO", versionReglas, motivo);
         }
     }
 

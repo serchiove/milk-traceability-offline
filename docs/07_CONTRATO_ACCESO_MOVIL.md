@@ -1,14 +1,11 @@
-# Contrato propuesto de acceso móvil
+# Contrato de acceso móvil
 
-Propuesta para acordar entre Sergio y Patricio; no describe un endpoint ya implementado.
+## Backend implementado
 
-## Estado
-La pantalla de acceso está preparada. Por defecto EXPO_PUBLIC_AUTH_PATH no está definida y el servicio no envía credenciales ni concede una sesión. El modo de borradores locales no autentica usuarios y conserva la funcionalidad local de desarrollo.
+`POST /api/auth/login`, con JSON `email` y `password`.
+Consulta `acopio.usuario`, `acopio.rol` y `acopio.centro_acopio`. Comprueba BCrypt, usuario activo y centro activo. Una contraseña incorrecta, usuario inexistente o cuenta/centro inactivo devuelve 401 sin distinguir cuál falló.
 
-## Petición propuesta
-POST a una ruta relativa del backend, por ejemplo /api/auth/login, solo después de que Patricio confirme su implementación. JSON con email y password.
-
-## Respuesta propuesta
+Respuesta 200 compatible con `mobile/src/services/authService.ts`:
 
 ```json
 {
@@ -23,14 +20,22 @@ POST a una ruta relativa del backend, por ejemplo /api/auth/login, solo después
 }
 ```
 
-La etiqueta OPERARIO y los nombres de campos deben confirmarse entre ambos. La app rechaza una respuesta incompleta o un rol diferente. El backend debe comprobar usuario activo, contraseña protegida, rol y centro; las validaciones del cliente no sustituyen la autorización del servidor.
+Los IDs son ejemplos; se obtienen de la base. El backend admite cuentas de OPERARIO y JEFATURA; la app móvil acepta únicamente OPERARIO.
 
-Errores previstos: 401 credenciales incorrectas, 403 sin acceso, 429 demasiados intentos, error de red o tiempo de espera. El token se mantiene solo en memoria y no se imprime ni se guarda en SQLite; la contraseña se limpia después del intento. La sesión no se restaura al reiniciar.
+## Estado de la app
 
-## Antes de habilitar acceso real
-Acordar HTTPS para despliegue, vencimiento y revocación de sesión, protección de endpoints y envío del token a servicios de negocio. Resolver catálogos y asociación de borradores con usuario/centro. Los borradores actuales son compartidos por dispositivo y no deben enviarse automáticamente tras acceder con otra cuenta.
+El acceso móvil usa `/api/auth/login` por defecto. La dirección base se configura con `EXPO_PUBLIC_API_URL`. Perfil → Catálogos consulta proveedores, vehículos y centro con el token de la sesión. El token se conserva en Expo SecureStore hasta la expiración del JWT y la contraseña se limpia después del intento. La sesión vigente se restaura al reiniciar si existen los catálogos locales. Véase docs/12_ALINEACION_INFORME_OFICIAL.md.
 
-No habilitar EXPO_PUBLIC_AUTH_PATH como si fuera un sistema de autenticación terminado. Un inicio exitoso solo permite preparar la sesión en memoria; la sincronización, autorización de negocio y separación de registros por usuario aún deben implementarse.
+Los borradores SQLite siguen siendo compartidos por dispositivo. Un login no los convierte en recepciones del usuario autenticado ni los envía. Antes de implementar sincronización deben resolverse referencias oficiales de proveedor/vehículo y la asociación de borradores al usuario/centro.
 
-## Continuar hoy
-Abrir Expo y recargar. Se muestra acceso. Correo y contraseña se validan, pero un formulario válido informa que falta integrar la API. Continuar con borradores locales permite registrar y consultar en SQLite, sin acceso autenticado. Volver al acceso desmonta la pantalla de trabajo: guardar los campos antes de salir para no perder cambios sin guardar.
+## Autorización
+
+`POST /api/lotes` requiere `Authorization: Bearer TOKEN` y rol OPERARIO. Los IDs de usuario y centro se toman de la identidad autenticada, no del JSON enviado por el móvil. Cada petición con token comprueba que la cuenta y centro sigan activos y que no hayan cambiado rol o centro respecto del token.
+
+401 indica autenticación ausente, inválida, vencida o invalidada por cambio de cuenta; 403 indica que el rol autenticado no permite esa operación. El backend no implementa todavía limitación de intentos/429 ni recuperación de contraseña.
+
+## Configuración
+
+`JWT_SECRET` es obligatorio y debe tener al menos 32 bytes. `scripts/Dev.ps1` genera una clave aleatoria por PC en `.local/jwt-secret.txt` cuando no se suministra por entorno. No debe publicarse ese archivo. `JWT_EXPIRATION_MS` es configurable y vale 86400000 por defecto. Al cambiar la clave se invalidan los tokens anteriores.
+
+Para despliegue deben usarse HTTPS y credenciales propias; las cuentas de V3/V4 son solo demostración.

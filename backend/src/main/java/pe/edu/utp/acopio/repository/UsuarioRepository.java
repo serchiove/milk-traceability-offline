@@ -25,6 +25,7 @@ public class UsuarioRepository {
         rs.getString("email"),
         rs.getString("password_hash"),
         rs.getString("rol"),
+        rs.getString("centro"),
         rs.getBoolean("activo")
     );
 
@@ -37,12 +38,14 @@ public class UsuarioRepository {
                    u.email,
                    u.password_hash,
                    r.nombre AS rol,
-                   u.activo
-            FROM usuario u
-            INNER JOIN rol r ON u.id_rol = r.id_rol
+                   c.nombre AS centro,
+                   (u.activo AND c.activo) AS activo
+            FROM acopio.usuario u
+            INNER JOIN acopio.rol r ON u.id_rol = r.id_rol
+            INNER JOIN acopio.centro_acopio c ON c.id_centro = u.id_centro
             WHERE LOWER(u.email) = LOWER(?)
             """;
-        List<Usuario> resultados = jdbcTemplate.query(sql, usuarioRowMapper, email);
+        List<Usuario> resultados = jdbcTemplate.query(sql, usuarioRowMapper, email.trim());
         return resultados.stream().findFirst();
     }
 }
