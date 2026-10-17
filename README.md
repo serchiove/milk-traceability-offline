@@ -22,7 +22,7 @@ La primera ejecución puede tardar por descargas y creación de la base. Si apar
 
 | Carpeta | Tecnología | Trabajo preparado |
 |---|---|---|
-| `backend` | Java 17, Spring Boot 4.1.1, Maven | Controller → Service → Repository, endpoint `/api/estado`, Actuator, JDBC y migraciones Flyway |
+| `backend` | Java 17, Spring Boot 4.1.1, Maven | Controller → Service → Repository, endpoint `/api/estado`, Actuator, JPA/Hibernate y migraciones Flyway |
 | `dashboard` | React, Vite, Bootstrap 5 | Pantalla de diagnóstico que consulta la API real y muestra centros de PostgreSQL |
 | `mobile` | React Native, Expo SDK 57, TypeScript | Vista, ViewModel y repositorio separados; prueba de API y almacenamiento SQLite |
 | `database` | PostgreSQL 18 | Copia del SQL del informe como referencia |

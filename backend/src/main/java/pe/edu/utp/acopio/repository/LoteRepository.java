@@ -1,123 +1,106 @@
 package pe.edu.utp.acopio.repository;
 
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
+import jakarta.persistence.EntityManager;
+import java.time.OffsetDateTime;
+import java.util.*;
 import org.springframework.stereotype.Repository;
 import pe.edu.utp.acopio.DTO.lote.LoteRecepcionRequest;
-
-//import java.sql.Timestamp;
-import java.time.OffsetDateTime;
-//import java.time.ZoneOffset;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import pe.edu.utp.acopio.model.*;
 
 @Repository
 public class LoteRepository {
+  @jakarta.persistence.PersistenceContext private EntityManager em;
 
-    private final JdbcTemplate jdbcTemplate;
+  public record EstadoLoteBD(
+      UUID idLote,
+      String huellaSolicitud,
+      String codigoQr,
+      OffsetDateTime recibidoEn,
+      String estadoEvaluacion,
+      String versionReglas,
+      String motivo,
+      OffsetDateTime fechaEvaluacion) {}
 
-    public LoteRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
+  public boolean referenciasActivas(Long proveedor, Long vehiculo, Long usuario, Long centro) {
+    long p =
+        em.createQuery(
+                "select count(p) from Proveedor p where p.id=:id and p.activo=true", Long.class)
+            .setParameter("id", proveedor)
+            .getSingleResult();
+    long v =
+        em.createQuery(
+                "select count(v) from Vehiculo v where v.id=:id and v.activo=true", Long.class)
+            .setParameter("id", vehiculo)
+            .getSingleResult();
+    long u =
+        em.createQuery(
+                "select count(u) from Usuario u where u.id=:id and u.centroEntidad.id=:centro and"
+                    + " u.activo=true and u.centroEntidad.activo=true and"
+                    + " u.rolEntidad.nombre='OPERARIO'",
+                Long.class)
+            .setParameter("id", usuario)
+            .setParameter("centro", centro)
+            .getSingleResult();
+    return p == 1 && v == 1 && u == 1;
+  }
 
-    public record EstadoLoteBD(
-        UUID idLote,
-        String huellaSolicitud,
-        String codigoQr,
-        OffsetDateTime recibidoEn,
-        String estadoEvaluacion,
-        String versionReglas,
-        String motivo,
-        OffsetDateTime fechaEvaluacion
-    ) {}
+  public boolean insertarLoteSiNoExiste(
+      LoteRecepcionRequest r, Long usuario, Long centro, String huella) {
+    // PostgreSQL resolves concurrent UUID retries without aborting the transaction.
+    return em.createNativeQuery(
+                "INSERT INTO"
+                    + " acopio.lote_leche(id_lote,id_proveedor,id_vehiculo,id_usuario,id_centro,fecha_hora,volumen_litros,huella_solicitud)"
+                    + " VALUES (:id,:proveedor,:vehiculo,:usuario,:centro,:fecha,:volumen,:huella)"
+                    + " ON CONFLICT (id_lote) DO NOTHING")
+            .setParameter("id", r.idLote())
+            .setParameter("proveedor", r.idProveedor())
+            .setParameter("vehiculo", r.idVehiculo())
+            .setParameter("usuario", usuario)
+            .setParameter("centro", centro)
+            .setParameter("fecha", r.fechaHora())
+            .setParameter("volumen", r.volumenLitros())
+            .setParameter("huella", huella)
+            .executeUpdate()
+        == 1;
+  }
 
-    private final RowMapper<EstadoLoteBD> estadoLoteMapper = (rs, rowNum) -> new EstadoLoteBD(
-        UUID.fromString(rs.getString("id_lote")),
-        rs.getString("huella_solicitud"),
-        rs.getString("codigo_qr"),
-        rs.getObject("recibido_en", OffsetDateTime.class),
-        rs.getString("estado_evaluacion"),
-        rs.getString("version_reglas"),
-        rs.getString("motivo"),
-        rs.getObject("fecha_evaluacion", OffsetDateTime.class)
-    );
+  public void insertarRegistroCalidadPendiente(LoteRecepcionRequest r) {
+    var calidad = new RegistroCalidad();
+    calidad.setLote(em.getReference(LoteLeche.class, r.idLote()));
+    calidad.setTemperaturaC(r.mediciones().temperaturaC());
+    calidad.setAcidezDornic(r.mediciones().acidezDornic());
+    calidad.setDensidadGml(r.mediciones().densidadGml());
+    calidad.setEstadoEvaluacion("PENDIENTE");
+    em.persist(calidad);
+    em.flush();
+  }
 
-    public boolean referenciasActivas(Long proveedor, Long vehiculo, Long usuario, Long centro) {
-        return Boolean.TRUE.equals(jdbcTemplate.queryForObject("""
-            SELECT EXISTS(SELECT 1 FROM acopio.proveedor WHERE id_proveedor=? AND activo)
-               AND EXISTS(SELECT 1 FROM acopio.vehiculo WHERE id_vehiculo=? AND activo)
-               AND EXISTS(SELECT 1 FROM acopio.usuario u JOIN acopio.rol r USING(id_rol)
-                          JOIN acopio.centro_acopio c USING(id_centro)
-                          WHERE u.id_usuario=? AND u.id_centro=? AND u.activo AND c.activo AND r.nombre='OPERARIO')
-            """, Boolean.class, proveedor, vehiculo, usuario, centro));
-    }
+  public int actualizarEvaluacionCalidad(UUID id, String estado, String version, String motivo) {
+    // Bulk JPQL plus clear prevents stale entities after the QR/incidence trigger.
+    em.flush();
+    int rows =
+        em.createQuery(
+                "update RegistroCalidad r set"
+                    + " r.estadoEvaluacion=:estado,r.fechaEvaluacion=:fecha,r.versionReglas=:version,r.motivo=:motivo"
+                    + " where r.lote.id=:id and r.estadoEvaluacion='PENDIENTE'")
+            .setParameter("estado", estado)
+            .setParameter("fecha", OffsetDateTime.now(java.time.ZoneOffset.UTC))
+            .setParameter("version", version)
+            .setParameter("motivo", motivo)
+            .setParameter("id", id)
+            .executeUpdate();
+    em.clear();
+    return rows;
+  }
 
-    public boolean insertarLoteSiNoExiste(LoteRecepcionRequest req, Long idUsuario, Long idCentro, String huella) {
-        String sql = """
-            INSERT INTO acopio.lote_leche (
-                id_lote, id_proveedor, id_vehiculo, id_usuario, id_centro,
-                fecha_hora, volumen_litros, huella_solicitud
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT (id_lote) DO NOTHING
-            """;
-        int filas = jdbcTemplate.update(
-            sql,
-            req.idLote(),
-            req.idProveedor(),
-            req.idVehiculo(),
-            idUsuario,
-            idCentro,
-            req.fechaHora(),
-            req.volumenLitros(),
-            huella
-        );
-        return filas > 0;
-    }
-
-    public void insertarRegistroCalidadPendiente(LoteRecepcionRequest req) {
-        String sql = """
-            INSERT INTO acopio.registro_calidad (
-                id_lote, temperatura_c, acidez_dornic, densidad_g_ml, estado_evaluacion
-            ) VALUES (?, ?, ?, ?, 'PENDIENTE')
-            ON CONFLICT (id_lote) DO NOTHING
-            """;
-        jdbcTemplate.update(
-            sql,
-            req.idLote(),
-            req.mediciones().temperaturaC(),
-            req.mediciones().acidezDornic(),
-            req.mediciones().densidadGml()
-        );
-    }
-
-    public int actualizarEvaluacionCalidad(UUID idLote, String estado, String versionReglas, String motivo) {
-        String sql = """
-            UPDATE acopio.registro_calidad
-            SET estado_evaluacion = ?,
-                fecha_evaluacion = CURRENT_TIMESTAMP,
-                version_reglas = ?,
-                motivo = ?
-            WHERE id_lote = ? AND estado_evaluacion = 'PENDIENTE'
-            """;
-        return jdbcTemplate.update(sql, estado, versionReglas, motivo, idLote);
-    }
-
-    public Optional<EstadoLoteBD> buscarEstadoLote(UUID idLote) {
-        String sql = """
-            SELECT l.id_lote,
-                   l.huella_solicitud,
-                   l.codigo_qr,
-                   l.recibido_en,
-                   r.estado_evaluacion,
-                   r.version_reglas,
-                   r.motivo,
-                   r.fecha_evaluacion
-            FROM acopio.lote_leche l
-            INNER JOIN acopio.registro_calidad r ON l.id_lote = r.id_lote
-            WHERE l.id_lote = ?
-            """;
-        List<EstadoLoteBD> lista = jdbcTemplate.query(sql, estadoLoteMapper, idLote);
-        return lista.stream().findFirst();
-    }
+  public Optional<EstadoLoteBD> buscarEstadoLote(UUID id) {
+    return em.createQuery(
+            "select new"
+                + " pe.edu.utp.acopio.repository.LoteRepository$EstadoLoteBD(l.id,l.huellaSolicitud,l.codigoQr,l.recibidoEn,r.estadoEvaluacion,r.versionReglas,r.motivo,r.fechaEvaluacion)"
+                + " from RegistroCalidad r join r.lote l where l.id=:id",
+            EstadoLoteBD.class)
+        .setParameter("id", id)
+        .getResultStream()
+        .findFirst();
+  }
 }

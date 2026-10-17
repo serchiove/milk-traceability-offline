@@ -108,8 +108,8 @@
 <h2>Propósito y alcance</h2>
 <p>El backend centraliza el acceso de la aplicación móvil y el dashboard a PostgreSQL. Debe autenticar usuarios, aplicar permisos, recibir lotes, evaluar calidad y coordinar transacciones. Hoy implementa conexión de diagnóstico y migraciones del esquema; los servicios de negocio todavía están pendientes.</p>
 <h2>Qué tenemos implementado</h2>
-<p>La aplicación usa Java 17, Spring Boot 4.1.1 y Maven. Integra Spring JDBC, validación, Flyway y Actuator. La estructura inicial separa Controller, Service y Repository, con inyección de dependencias.</p>
-<p>EntornoController recibe GET /api/estado; EntornoService arma la respuesta; EntornoRepository consulta information_schema para contar las tablas de acopio y recupera los centros activos mediante JdbcTemplate.</p>
+<p>La aplicación usa Java 17, Spring Boot 4.1.1 y Maven. Integra JPA/Hibernate, validación, Flyway y Actuator. La estructura inicial separa Controller, Service y Repository, con inyección de dependencias.</p>
+<p>EntornoController recibe GET /api/estado; EntornoService arma la respuesta; EntornoRepository consulta information_schema para contar las tablas de acopio y recupera los centros activos mediante EntityManager y entidades JPA.</p>
 <p>La respuesta contiene estado, baseDatos, tablas, centros y alcance. Los datos proceden de consultas reales, pero el diagnóstico no evalúa todas las funciones de negocio. /actuator/health permite verificar la salud del servicio.</p>
 <p>El servidor escucha en 127.0.0.1:18080. La configuración toma host, puerto, nombre, usuario y contraseña de base mediante variables de entorno. Flyway crea el esquema con V1 y carga dos roles y un centro ficticio con V2. La limpieza de Flyway está deshabilitada.</p>
 <h2>Evidencia y límites</h2>

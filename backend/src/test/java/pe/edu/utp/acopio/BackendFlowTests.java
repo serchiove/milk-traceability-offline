@@ -120,6 +120,12 @@ class BackendFlowTests {
         assertThat(count("lote_leche",id)).isEqualTo(1);
     }
 
+    @Test void lotWithoutQualityStillAppearsAsPendingInJpaProjection() throws Exception {
+        UUID id=UUID.randomUUID();
+        db.update("INSERT INTO acopio.lote_leche(id_lote,id_proveedor,id_vehiculo,id_usuario,id_centro,fecha_hora,volumen_litros,huella_solicitud) VALUES (?,?,?,?,?,CURRENT_TIMESTAMP,10,?)",id,proveedor,vehiculo,usuario,centro,"a".repeat(64));
+        assertThat(get("/api/lotes/"+id,token()).body()).contains("\"estadoEvaluacion\":\"PENDIENTE\"");
+        assertThat(get("/api/lotes?estado=PENDIENTE",token()).body()).contains(id.toString());
+    }
     @Test void loginUsesDatabaseAndMatchesMobileContract() throws Exception {
         var response=post("/api/auth/login",null,"{\"email\":\""+email+"\",\"password\":\""+PASSWORD+"\"}");
         assertThat(response.statusCode()).isEqualTo(200);
