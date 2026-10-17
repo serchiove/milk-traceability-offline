@@ -1,12 +1,43 @@
 package pe.edu.utp.acopio.repository;
-import java.util.List;
-import java.util.Map;
-import org.springframework.jdbc.core.JdbcTemplate;
+
+import jakarta.persistence.EntityManager;
+import java.util.*;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+import pe.edu.utp.acopio.model.CentroAcopio;
+
 @Repository
+@Transactional(readOnly = true)
 public class EntornoRepository {
- private final JdbcTemplate jdbc;
- public EntornoRepository(JdbcTemplate jdbc) { this.jdbc=jdbc; }
- public Integer tablas() { return jdbc.queryForObject("SELECT count(*) FROM information_schema.tables WHERE table_schema='acopio' AND table_type='BASE TABLE'", Integer.class); }
- public List<Map<String,Object>> centros() { return jdbc.queryForList("SELECT id_centro, nombre, region, capacidad_litros FROM acopio.centro_acopio WHERE activo ORDER BY id_centro"); }
+  @jakarta.persistence.PersistenceContext private EntityManager em;
+
+  public Integer tablas() {
+    return ((Number)
+            em.createNativeQuery(
+                    "SELECT count(*) FROM information_schema.tables WHERE table_schema='acopio' AND"
+                        + " table_type='BASE TABLE'",
+                    Long.class)
+                .getSingleResult())
+        .intValue();
+  }
+
+  public List<Map<String, Object>> centros() {
+    return em
+        .createQuery(
+            "select c from CentroAcopio c where c.activo=true order by c.id", CentroAcopio.class)
+        .getResultList()
+        .stream()
+        .map(
+            c ->
+                Map.<String, Object>of(
+                    "id_centro",
+                    c.getId(),
+                    "nombre",
+                    c.getNombre(),
+                    "region",
+                    c.getRegion(),
+                    "capacidad_litros",
+                    c.getCapacidadLitros()))
+        .toList();
+  }
 }
