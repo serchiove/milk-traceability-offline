@@ -6,7 +6,7 @@ export function BottomNavigation({ actual, cambiar }: {
   actual: string;
   cambiar: (destino: DestinoPrincipal) => void;
 }) {
-  const seleccionado = actual === 'registro' ? 'inicio' : ['conexion', 'pendientes', 'calidad', 'trazabilidad', 'tanque'].includes(actual) ? 'perfil' : actual;
+  const seleccionado = actual === 'registro' ? 'inicio' : ['conexion', 'pendientes', 'calidad', 'trazabilidad', 'tanque', 'catalogos'].includes(actual) ? 'perfil' : actual;
   return <View accessibilityRole="tablist" style={s.bar}>
 
     {([['inicio', 'Inicio', 'home'], ['lotes', 'Registros', 'clipboard'], ['perfil', 'Perfil', 'user']] as const).map(([id, titulo, icono]) => <Pressable

@@ -1,4 +1,6 @@
 export type FormularioLote = {
+  idProveedor?: string;
+  idVehiculo?: string;
   proveedor: string;
   vehiculo: string;
   centro: string;
@@ -19,6 +21,7 @@ export type DatosLote = {
 export type LoteLocal = DatosLote & {
   id: string;
   fecha: string;
+  enviado?: boolean;
 };
 export type ErroresLote = Partial<Record<keyof FormularioLote, string>>;
 export const formularioVacio = (): FormularioLote => ({

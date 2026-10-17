@@ -1,47 +1,49 @@
 package pe.edu.utp.acopio.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.time.LocalDate;
+import java.util.UUID;
+import org.springframework.format.annotation.DateTimeFormat;
+import pe.edu.utp.acopio.service.ConsultaLoteService;
+import pe.edu.utp.acopio.DTO.consulta.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.utp.acopio.DTO.lote.LoteRecepcionRequest;
-import pe.edu.utp.acopio.DTO.lote.LoteRecepcionResponse;
-import pe.edu.utp.acopio.security.JwtTokenProvider;
+import pe.edu.utp.acopio.security.OperarioPrincipal;
 import pe.edu.utp.acopio.service.LoteService;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/lotes")
 public class LoteController {
-
-    private final LoteService loteService;
-    private final JwtTokenProvider tokenProvider;
-
-    public LoteController(LoteService loteService, JwtTokenProvider tokenProvider) {
-        this.loteService = loteService;
-        this.tokenProvider = tokenProvider;
+    private final LoteService lotes;
+    private final ConsultaLoteService consultas;
+    public LoteController(LoteService lotes, ConsultaLoteService consultas) {
+        this.lotes = lotes; this.consultas = consultas;
+    }
+    @GetMapping
+    public Pagina<LoteDetalleDto> listar(@AuthenticationPrincipal OperarioPrincipal usuario,
+        @RequestParam(required=false) String estado,
+        @RequestParam(required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate desde,
+        @RequestParam(required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate hasta,
+        @RequestParam(defaultValue="") String buscar,
+        @RequestParam(defaultValue="0") int pagina, @RequestParam(defaultValue="25") int tamano) {
+        return consultas.listar(usuario.idCentro(),estado,desde,hasta,buscar,pagina,tamano);
+    }
+    @GetMapping("/por-qr")
+    public LoteDetalleDto porQr(@AuthenticationPrincipal OperarioPrincipal usuario, @RequestParam String codigo) {
+        return consultas.porQr(usuario.idCentro(),codigo);
+    }
+    @GetMapping("/{id}")
+    public LoteDetalleDto detalle(@AuthenticationPrincipal OperarioPrincipal usuario, @PathVariable UUID id) {
+        return consultas.detalle(usuario.idCentro(),id);
     }
 
     @PostMapping
-    public ResponseEntity<?> recibirLote(
-            @Valid @RequestBody LoteRecepcionRequest request,
-            HttpServletRequest httpRequest) {
-
-        String bearer = httpRequest.getHeader("Authorization");
-        String token = bearer.substring(7);
-
-        Long idUsuario = tokenProvider.getIdUsuarioFromToken(token);
-        Long idCentro = tokenProvider.getIdCentroFromToken(token);
-
-        try {
-            LoteRecepcionResponse response = loteService.registrarLote(request, idUsuario, idCentro);
-            HttpStatus status = response.idempotente() ? HttpStatus.OK : HttpStatus.CREATED;
-            return ResponseEntity.status(status).body(response);
-        } catch (LoteService.ConflictoHuellaException ex) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("mensaje", ex.getMessage()));
-        }
+    public ResponseEntity<?> recibirLote(@Valid @RequestBody LoteRecepcionRequest request,
+                                        @AuthenticationPrincipal OperarioPrincipal usuario) {
+        var resultado = lotes.registrarLote(request, usuario.idUsuario(), usuario.idCentro());
+        return ResponseEntity.status(resultado.idempotente() ? HttpStatus.OK : HttpStatus.CREATED).body(resultado);
     }
 }

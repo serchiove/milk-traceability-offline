@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import type { SesionOperario } from '../services/authService';
+import { autorizarDispositivo } from '../services/sesionLocal';
 import { iniciarSesion } from '../services/authService';
 export function useLoginViewModel() {
   const [email, setEmail] = useState('');
@@ -31,6 +32,7 @@ export function useLoginViewModel() {
     setOcupado(true);
     try {
       const sesion = await iniciarSesion(email.trim(), password);
+      await autorizarDispositivo(sesion);
       setPassword('');
       return sesion;
     }

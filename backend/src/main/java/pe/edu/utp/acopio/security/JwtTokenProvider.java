@@ -18,6 +18,12 @@ public class JwtTokenProvider {
     @Value("${app.jwt.expiration-ms}")
     private long jwtExpirationMs;
 
+    @jakarta.annotation.PostConstruct
+    void validarConfiguracion() {
+        if (jwtExpirationMs <= 0) throw new IllegalStateException("JWT_EXPIRATION_MS debe ser positivo");
+        getSigningKey();
+    }
+
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
@@ -39,10 +45,15 @@ public class JwtTokenProvider {
 
     public boolean validarToken(String authToken) {
         try {
-            Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(authToken);
-            return true;
+            Claims claims = obtenerClaims(authToken);
+            Long usuario = getIdUsuarioFromToken(authToken);
+            Long centro = getIdCentroFromToken(authToken);
+            String rol = getRolFromToken(authToken);
+            return claims.getSubject() != null && !claims.getSubject().isBlank() &&
+                usuario != null && usuario > 0 && centro != null && centro > 0 &&
+                ("OPERARIO".equals(rol) || "JEFATURA".equals(rol));
         } catch (JwtException | IllegalArgumentException e) {
-            System.err.println("Token JWT inválido: " + e.getMessage());
+            // Invalid/expired tokens are unauthenticated; never log their content.
             return false;
         }
     }

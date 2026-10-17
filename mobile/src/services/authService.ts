@@ -9,8 +9,7 @@ export type SesionOperario = {
   };
 };
 const API = process.env.EXPO_PUBLIC_API_URL || 'http://127.0.0.1:18080';
-// Activar solo cuando Patricio implemente y confirme el contrato.
-const RUTA = process.env.EXPO_PUBLIC_AUTH_PATH || '';
+const RUTA = process.env.EXPO_PUBLIC_AUTH_PATH || '/api/auth/login';
 export async function iniciarSesion(email: string, password: string): Promise<SesionOperario> {
   if(!RUTA)
     throw new Error('El acceso de usuarios aún no está habilitado. Falta conectar la API de autenticación.');

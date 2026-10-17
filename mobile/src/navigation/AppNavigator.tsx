@@ -1,3 +1,5 @@
+import { CentralScreen } from '../view/CentralScreen';
+import { CatalogosScreen } from '../view/CatalogosScreen';
 import { StatusBar } from 'expo-status-bar';
 import { KeyboardAvoidingView, Platform, RefreshControl, ScrollView, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,8 +15,6 @@ import { InicioScreen } from '../view/InicioScreen';
 import { PerfilScreen } from '../view/PerfilScreen';
 import { RegistroScreen } from '../view/RegistroScreen';
 import { RegistrosScreen } from '../view/RegistrosScreen';
-import { ServicioPendienteScreen } from '../view/ServicioPendienteScreen';
-import { TrazabilidadScreen } from '../view/TrazabilidadScreen';
 import { useEntornoViewModel } from '../viewmodel/useEntornoViewModel';
 import { useLotesViewModel } from '../viewmodel/useLotesViewModel';
 import { useOperarioNavigation } from './useOperarioNavigation';
@@ -22,7 +22,7 @@ export function AppNavigator({ sesion, salir }: {
   sesion: SesionOperario | null;
   salir: () => void;
 }) {
-  const vm = useLotesViewModel();
+  const vm = useLotesViewModel(sesion);
   const red = useEntornoViewModel();
   const nav = useOperarioNavigation(vm, sesion, salir);
   const { width, fontScale } = useWindowDimensions();
@@ -30,7 +30,9 @@ export function AppNavigator({ sesion, salir }: {
   function contenido() {
     if(nav.detalle)
       return <DetalleScreen
-        detalle={nav.detalle}
+        detalle={vm.lotes.find(lote => lote.id === nav.detalle?.id) ?? nav.detalle}
+        sesion={sesion}
+        actualizado={() => {void vm.recargar();}}
         guardado={nav.guardado}
         columnas={columnas}
         navegar={nav.navegar}
@@ -55,21 +57,15 @@ export function AppNavigator({ sesion, salir }: {
       />;
       case 'perfil': return <PerfilScreen
         sesion={sesion}
-        cantidad={vm.lotes.length}
+        cantidad={vm.lotes.filter(lote => !lote.enviado).length}
         navegar={nav.navegar}
         solicitarSalida={nav.solicitarSalida}
       />;
+      case 'catalogos': return <CatalogosScreen sesion={sesion} />;
       case 'conexion': return <ConexionScreen red={red} />;
-      case 'trazabilidad': return <TrazabilidadScreen
-        vm={vm}
-        codigo={nav.codigo}
-        consultado={nav.consultado}
-        setCodigo={nav.setCodigo}
-        setConsultado={nav.setConsultado}
-        abrir={nav.abrir}
-      />;
+      case 'trazabilidad':
       case 'calidad':
-      case 'tanque': return <ServicioPendienteScreen pantalla={nav.pantalla} navegar={nav.navegar} />;
+      case 'tanque': return sesion ? <CentralScreen key={nav.pantalla} sesion={sesion} modo={nav.pantalla}/> : <NoticeBox variant="warning" message="Inicia sesión para consultar el servidor."/>;
     }
   }
   const permiteRecarga = ['inicio', 'lotes', 'pendientes'].includes(nav.pantalla) && !nav.detalle;

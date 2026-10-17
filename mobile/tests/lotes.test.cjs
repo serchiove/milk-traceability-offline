@@ -166,3 +166,54 @@ test('discarding edition preserves existing confirmed lots', async () => {
     assert.deepEqual(await r.api.listarLotes(),[lot]);
   } finally {r.db.close();}
 });
+const result = id => ({idLote:id, estadoEvaluacion:'APROBADO', motivo:null, codigoQr:`ACOPIO:${id}`, versionReglas:'DEMO-1', recibidoEn:'2026-10-16T12:00:00Z', idempotente:false});
+const request = lote => ({idLote:lote.id, idProveedor:1, idVehiculo:2, volumenLitros:lote.volumen, fechaHora:lote.fecha, mediciones:{temperaturaC:lote.temperatura, acidezDornic:lote.acidez, densidadGml:lote.densidad}});
+test('prepared send survives reload, freezes identity and payload, and confirmation keeps local record', async () => {
+  const r = repository();
+  try {
+    const lote = await r.api.guardarLote(validarLote(valid()).datos);
+    const body = request(lote);
+    await r.api.prepararEnvio(body, 4, 5);
+    assert.deepEqual((await r.api.leerEnvio(lote.id)).solicitud, body);
+    await assert.rejects(r.api.prepararEnvio(body, 9, 5), /otro operario/);
+    await assert.rejects(r.api.prepararEnvio(body, 4, 8), /otro operario/);
+    await assert.rejects(r.api.prepararEnvio({...body, idProveedor:3}, 4, 5), /datos originales/);
+    assert.equal((await r.api.listarLotes())[0].enviado, undefined);
+    await r.api.confirmarEnvio(lote.id, result(lote.id));
+    assert.equal((await r.api.listarLotes())[0].enviado, true);
+    assert.equal((await r.api.listarLotes())[0].id, lote.id);
+    assert.equal((await r.api.prepararEnvio(body, 4, 5)).resultado.estadoEvaluacion, 'APROBADO');
+  } finally {r.db.close();}
+});
+test('concurrent preparations cannot change the first sending identity', async () => {
+  const r = repository();
+  try {
+    const lote = await r.api.guardarLote(validarLote(valid()).datos);
+    const results = await Promise.allSettled([r.api.prepararEnvio(request(lote), 1, 2), r.api.prepararEnvio(request(lote), 3, 2)]);
+    assert.equal(results[0].status, 'fulfilled');
+    assert.equal(results[1].status, 'rejected');
+    assert.equal((await r.api.leerEnvio(lote.id)).usuario, 1);
+  } finally {r.db.close();}
+});
+test('capture binds owner and catalog IDs atomically; editions are isolated by operator', async () => {
+ const r=repository();try{
+  const form={...valid(),idProveedor:'4',idVehiculo:'5'};
+  await r.api.guardarEdicion(form,'1:2');
+  await r.api.guardarEdicion({...form,volumen:'80'},'3:2');
+  assert.equal((await r.api.leerEdicion('1:2')).idProveedor,'4');
+  assert.equal((await r.api.leerEdicion('3:2')).volumen,'80');
+  const lote=await r.api.guardarLote(validarLote(form).datos,{usuario:1,centro:2,idProveedor:4,idVehiculo:5,clave:'1:2'});
+  const envio=await r.api.leerEnvio(lote.id);
+  assert.equal(envio.usuario,1);assert.equal(envio.centro,2);assert.equal(envio.solicitud.idProveedor,4);
+  assert.equal(envio.resultado,null);assert.equal(await r.api.leerEdicion('1:2'),null);
+  assert.equal((await r.api.leerEdicion('3:2')).volumen,'80');
+ }finally{r.db.close();}
+});
+test('failed identity write rolls back lot and retains operator edition', async () => {
+ const r=repository();try{
+  await r.api.guardarEdicion(valid(),'1:2');
+  r.db.exec("CREATE TRIGGER fail_owner BEFORE INSERT ON envio_lote_v1 BEGIN SELECT RAISE(ABORT,'test failure'); END;");
+  await assert.rejects(r.api.guardarLote(validarLote(valid()).datos,{usuario:1,centro:2,idProveedor:4,idVehiculo:5,clave:'1:2'}));
+  assert.equal((await r.api.listarLotes()).length,0);assert.ok(await r.api.leerEdicion('1:2'));
+ }finally{r.db.close();}
+});

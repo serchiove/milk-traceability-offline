@@ -1,19 +1,26 @@
 package pe.edu.utp.acopio.calidad;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import pe.edu.utp.acopio.DTO.lote.MedicionesDto;
 import java.math.BigDecimal;
 import java.util.Optional;
 
+/** Rangos configurables de demostracion, no una certificacion normativa. */
 @Component
 public class ReglaTemperatura implements ReglaCalidad {
-    private static final BigDecimal MIN = new BigDecimal("2.00");
-    private static final BigDecimal MAX = new BigDecimal("8.00");
-
-    @Override
-    public Optional<String> evaluar(MedicionesDto m) {
-        if (m.temperaturaC().compareTo(MIN) < 0 || m.temperaturaC().compareTo(MAX) > 0) {
-            return Optional.of("Temperatura fuera de rango permitido (2.00 °C - 8.00 °C): " + m.temperaturaC() + " °C");
+    private final BigDecimal minimo;
+    private final BigDecimal maximo;
+    public ReglaTemperatura(@Value("${app.calidad.temperatura.min:2.00}") BigDecimal minimo,
+                          @Value("${app.calidad.temperatura.max:8.00}") BigDecimal maximo) {
+        if (minimo.compareTo(maximo) > 0) throw new IllegalArgumentException("Rango de temperatura invalido");
+        this.minimo = minimo;
+        this.maximo = maximo;
+    }
+    @Override public Optional<String> evaluar(MedicionesDto mediciones) {
+        BigDecimal valor = mediciones.temperaturaC();
+        if (valor.compareTo(minimo) < 0 || valor.compareTo(maximo) > 0) {
+            return Optional.of("Temperatura fuera del rango configurado (" + minimo + " - " + maximo + " °C): " + valor);
         }
         return Optional.empty();
     }

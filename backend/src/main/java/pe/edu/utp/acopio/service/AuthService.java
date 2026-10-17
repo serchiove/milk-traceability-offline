@@ -55,7 +55,8 @@ public class AuthService {
             usuario.idUsuario(),
             usuario.idCentro(),
             usuario.rol(),
-            usuario.nombre()
+            usuario.nombre(),
+            usuario.centro()
         );
 
         return Optional.of(new LoginResponse(token, usuarioDto));

@@ -16,6 +16,8 @@ type Props = {
   abrir: (lote: LoteLocal) => void;
 };
 export function RegistrosScreen({ vm, pendientes, navegar, abrir }: Props) {
+  const visibles = vm.visibles.filter(lote => !pendientes || !lote.enviado);
+  const litros = visibles.reduce((total, lote) => total + Math.round(lote.volumen * 100), 0) / 100;
   return <>
 
     <Text style={s.title}>{pendientes ? 'Pendientes de envío' : 'Tus recepciones'}</Text>
@@ -36,15 +38,15 @@ export function RegistrosScreen({ vm, pendientes, navegar, abrir }: Props) {
 
     {!!vm.busqueda && <Button title="Limpiar búsqueda" onPress={() => vm.setBusqueda('')} variant="ghost" />}
 
-    <Text style={s.listCaption}>{vm.visibles.length} registros · {numero(vm.litrosVisibles)} L</Text>
+    <Text style={s.listCaption}>{visibles.length} registros · {numero(litros)} L</Text>
 
-    {vm.cargando ? <ActivityIndicator color={theme.colors.primary} /> : !vm.error && vm.visibles.length === 0 ? <EmptyState
+    {vm.cargando ? <ActivityIndicator color={theme.colors.primary} /> : !vm.error && visibles.length === 0 ? <EmptyState
       title={vm.busqueda ? 'Sin coincidencias' : 'Todavía no hay recepciones'}
       description={vm.busqueda ? 'Prueba con otro proveedor o placa.' : 'Registra una recepción para verla aquí.'}
       actionTitle={vm.busqueda ? 'Limpiar búsqueda' : 'Nueva recepción'}
       onAction={() => vm.busqueda ? vm.setBusqueda('') : navegar('registro')}
     /> : <View style={s.list}>
-      {vm.visibles.map(lote => <LoteRow key={lote.id} lote={lote} abrir={abrir} />)}
+      {visibles.map(lote => <LoteRow key={lote.id} lote={lote} abrir={abrir} />)}
     </View>}
 
     <Text style={s.footnote}>Desliza hacia abajo para actualizar.</Text>

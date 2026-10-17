@@ -68,16 +68,6 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Preparar.ps1
 
 El script instala versiones de los archivos lock, genera una contraseña distinta, crea la instancia local y ejecuta las comprobaciones. PostgreSQL se busca en `C:\Program Files\PostgreSQL\18\bin`; si está en otra carpeta, define `ACOPIO_PG_BIN`. La base utiliza puerto 55440 y no toca los servidores de 5432.
 
-## Qué pueden presentar hoy
-
-Una vez que `Verificar.cmd` confirme la conexión, mostrar:
-
-1. La organización de las tres aplicaciones y sus responsabilidades.
-2. El endpoint `http://127.0.0.1:18080/api/estado` con información real de PostgreSQL.
-3. El dashboard y el catálogo del centro académico.
-4. Si ya se probó el dispositivo, las comprobaciones de API y SQLite de la app.
-
-Frase sugerida: «Preparamos el entorno e iniciamos la estructura del proyecto. Estamos verificando la comunicación web–backend–base de datos y la persistencia local móvil. Las funciones de recepción y calidad se implementarán sobre esta base».
 
 ## Siguiente parte a programar
 

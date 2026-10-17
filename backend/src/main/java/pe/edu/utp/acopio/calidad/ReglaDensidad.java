@@ -1,19 +1,26 @@
 package pe.edu.utp.acopio.calidad;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import pe.edu.utp.acopio.DTO.lote.MedicionesDto;
 import java.math.BigDecimal;
 import java.util.Optional;
 
+/** Rangos configurables de demostracion, no una certificacion normativa. */
 @Component
 public class ReglaDensidad implements ReglaCalidad {
-    private static final BigDecimal MIN = new BigDecimal("1.0280");
-    private static final BigDecimal MAX = new BigDecimal("1.0340");
-
-    @Override
-    public Optional<String> evaluar(MedicionesDto m) {
-        if (m.densidadGml().compareTo(MIN) < 0 || m.densidadGml().compareTo(MAX) > 0) {
-            return Optional.of("Densidad fuera de rango permitido (1.0280 g/mL - 1.0340 g/mL): " + m.densidadGml() + " g/mL");
+    private final BigDecimal minimo;
+    private final BigDecimal maximo;
+    public ReglaDensidad(@Value("${app.calidad.densidad.min:1.0280}") BigDecimal minimo,
+                          @Value("${app.calidad.densidad.max:1.0340}") BigDecimal maximo) {
+        if (minimo.compareTo(maximo) > 0) throw new IllegalArgumentException("Rango de densidad invalido");
+        this.minimo = minimo;
+        this.maximo = maximo;
+    }
+    @Override public Optional<String> evaluar(MedicionesDto mediciones) {
+        BigDecimal valor = mediciones.densidadGml();
+        if (valor.compareTo(minimo) < 0 || valor.compareTo(maximo) > 0) {
+            return Optional.of("Densidad fuera del rango configurado (" + minimo + " - " + maximo + " g/mL): " + valor);
         }
         return Optional.empty();
     }
