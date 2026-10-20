@@ -128,14 +128,14 @@ Usamos estas cuentas únicamente para desarrollo. Cada computadora tiene una con
 
 ## Equipo
 
-Nos organizamos por componentes y colaboramos en su integración. En esta tabla resumimos las entregas que hemos registrado en Git hasta el 17/10/2026:
+Nos organizamos por componentes y colaboramos en su integración. En esta tabla resumimos las entregas que hemos registrado en Git hasta el 20/10/2026:
 
 | Integrante | Trabajo realizado | Referencias |
 | :--- | :--- | :--- |
 | Sergio | Entorno y esquema inicial; app móvil; integración, ampliaciones backend y migración JPA, con apoyo de Codex durante el desarrollo | `1489916`, `3bf07c9`, `c87f7c1`, `8f559fa` |
 | Patricio | Base JWT, DTO, autenticación, recepción, reglas de calidad, repositorios y datos V3 | `17cc591`, `356ac1b` |
 | Fernando | Interfaz y estilos del dashboard; aún utiliza datos operativos demo | `570d667`, PR #4 |
-| Elías | Documentos de datos ficticios y matriz de 15 casos, aún pendientes de ejecución en su rama | `7d40673`, `2bbdf91`, `efb4135` |
+| Elías | Datos de prueba alineados, matriz ampliada a 20 casos y ejecución automatizada parcial registrada | `7d40673`, `2bbdf91`, `efb4135`; [matriz](docs/pruebas/MATRIZ_PRUEBAS_ELIAS.md) y [evidencia](docs/pruebas/EJECUCION_AUTOMATIZADA_2026-10-20.md) |
 
 Sergio está a cargo del móvil y la coordinación; Patricio, del backend; Fernando, del dashboard; y Elías, de base de datos y pruebas. Conservamos las referencias de cada entrega porque también hemos colaborado fuera de nuestra parte principal. En el informe de aportes detallamos los cambios por commit, las correcciones y el trabajo que sigue pendiente.
 
@@ -326,11 +326,14 @@ Tenemos pendientes la auditoría completa, la renovación y recuperación de acc
 
 | Fecha | Alcance | Resultado registrado |
 |---|---|---|
+| 20/10/2026 | Revisión de Elías sobre `a59788d` | 29/29 pruebas móviles y typecheck aprobados; dashboard compilado; backend bloqueado en ese entorno y no atribuido como ejecución propia |
 | 17/10/2026 | Backend migrado a JPA, HTTP + PostgreSQL aislado | 33 pruebas aprobadas, JAR generado |
 | 17/10/2026 | Suite móvil | 29 pruebas aprobadas; almacenamiento SQLite en memoria y HTTP simulado |
 | 16/10/2026 | TypeScript y exportación Android | Correctos en la revisión de integración; no equivale a APK distribuible |
 | 16/10/2026 | Android conectado | Calidad y tanque TQ-01 consultados desde el teléfono; no se confirmó asignación en esa comprobación |
 | 17/10/2026 | Rama Elías efb4135 | 15 casos preparados; resultados/evidencias figuran pendientes |
+
+La revisión actual de Elías se encuentra en la [matriz de 20 casos](docs/pruebas/MATRIZ_PRUEBAS_ELIAS.md), los [datos de prueba alineados](docs/pruebas/DATOS_FICTICIOS_ELIAS.md) y la [evidencia del 20/10/2026](docs/pruebas/EJECUCION_AUTOMATIZADA_2026-10-20.md).
 
 Conservamos las fechas y el alcance de cada ejecución para distinguir lo que probamos de lo que todavía debemos validar. Las pruebas están en `backend/src/test` y `mobile/tests`; completamos su seguimiento con los logs locales y la [bitácora de incidencias](docs/informes/Incidencias_y_aportes_verificados.docx). Antes de compartir evidencia retiramos los datos sensibles.
 
