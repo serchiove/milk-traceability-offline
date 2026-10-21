@@ -8,6 +8,8 @@
 | Commit base probado | `a59788d` |
 | Rama de preparación | `feature/elias-pruebas-actualizadas` |
 | Responsable del registro | Elías |
+| Entorno de ejecución | Entorno de Codex; pendiente repetir las pruebas en mi computadora |
+| Rama de entrega | `feature/elias-pruebas-actualizadas-3` |
 | Node.js | 24.19.0 |
 | Java | OpenJDK 17.0.20 |
 
