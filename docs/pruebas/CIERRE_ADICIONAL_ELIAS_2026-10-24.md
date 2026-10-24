@@ -38,3 +38,15 @@
 ## Evidencias
 Los informes, capturas y CSV de esta verificacion estan en evidencias/2026-10-24.
 Las evidencias anteriores permanecen en evidencias/2026-10-23.
+## Recorrido nuevo comprobado - 24/10/2026
+- Se guardo un nuevo lote en el celular mientras la API estaba inaccesible al retirar la redireccion USB del puerto 18080. No se simulo desconexion total de internet.
+- El envio fallo mientras la API no estaba disponible. Al restaurar la redireccion, se envio el mismo registro.
+- UUID comprobado: af77a42b-7b39-46a3-91db-6e370f004b08.
+- Resultado esperado y obtenido en movil, API, PostgreSQL, dashboard y CSV: 50.00 L, temperatura 4.00 C, acidez 16.00 D, densidad 1.0300 g/mL, APROBADO y tanque TQ-01.
+- PostgreSQL devolvio una fila en la consulta del lote con su calidad y tanque.
+- La ocupacion de TQ-01 paso de 220.50 L a 270.50 L despues de asignar los 50.00 L desde el movil.
+- El dashboard mantuvo la ocupacion anterior durante la observacion; mostro 270.50 L despues de recargar la pagina.
+- Evidencias directas: movil-nuevo-lote-api-con-tanque.json y movil-nuevo-lote-postgresql-con-tanque.txt, en evidencias/2026-10-24.
+- Esta comprobacion completa el recorrido nuevo que figuraba pendiente en el apartado anterior. La actualizacion de ocupacion se comprobo despues de recargar, sin confirmar actualizacion automatica.
+- La aceptacion web sigue abierta por los problemas registrados de periodos, detalle por UUID, QR y aviso de error de exportacion.
+- La consulta de mas de 25 tanques sigue sin probarse: el codigo revisado solicita solamente pagina=0 y tamano=25.

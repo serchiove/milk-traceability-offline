@@ -1,0 +1,37 @@
+﻿
+  dashboard\src\main.jsx:286:    if (!accessToken) {
+  dashboard\src\main.jsx:287:      setTanks([]);
+  dashboard\src\main.jsx:288:      setTanksError('');
+  dashboard\src\main.jsx:289:      return;
+  dashboard\src\main.jsx:290:    }
+  dashboard\src\main.jsx:291:    const controller = new AbortController();
+  dashboard\src\main.jsx:292:    async function loadTanks() {
+  dashboard\src\main.jsx:293:      setTanksLoading(true);
+  dashboard\src\main.jsx:294:      setTanksError('');
+  dashboard\src\main.jsx:295:      try {
+> dashboard\src\main.jsx:296:        const response = await apiFetch('/api/tanques?pagina=0&tamano=25', { signal: 
+controller.signal });
+  dashboard\src\main.jsx:297:        if (!response.ok) throw new Error(`No se pudieron cargar los tanques (HTTP 
+${response.status}).`);
+  dashboard\src\main.jsx:298:        const data = await response.json();
+  dashboard\src\main.jsx:299:        setTanks(Array.isArray(data?.elementos) ? data.elementos : []);
+  dashboard\src\main.jsx:300:      } catch (error) {
+  dashboard\src\main.jsx:301:        if (error.name !== 'AbortError') setTanksError(error.message || 'No se pudieron 
+cargar los tanques.');
+  dashboard\src\main.jsx:302:      } finally {
+  dashboard\src\main.jsx:303:        if (!controller.signal.aborted) setTanksLoading(false);
+  dashboard\src\main.jsx:304:      }
+  dashboard\src\main.jsx:305:    }
+  dashboard\src\main.jsx:306:    loadTanks();
+  dashboard\src\main.jsx:307:    return () => controller.abort();
+  dashboard\src\main.jsx:308:  }, [accessToken, refreshKey]);
+  dashboard\src\main.jsx:309:
+  dashboard\src\main.jsx:310:  async function exportReport(format) {
+  dashboard\src\main.jsx:311:    setExporting(format);
+  dashboard\src\main.jsx:312:    try {
+  dashboard\src\main.jsx:313:      const params = new URLSearchParams();
+  dashboard\src\main.jsx:314:      if (statusFilter !== 'Todos') params.set('estado', statusFilter);
+  dashboard\src\main.jsx:315:      if (fromDate) params.set('desde', fromDate);
+  dashboard\src\main.jsx:316:      if (toDate) params.set('hasta', toDate);
+
+
