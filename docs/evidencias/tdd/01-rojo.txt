@@ -1,0 +1,33 @@
+Etapa TDD: ROJO
+Fecha: 23/10/2026
+Base: a59788d
+Entorno: Java 17 y PostgreSQL 18, base aislada acopio_test_apf3 en puerto 55449
+Comando: mvn --batch-mode -Dtest=BackendFlowTests#excel* test
+Salida del proceso: 1
+Las tres pruebas compilan y fallan porque JEFATURA recibe 403 en la ruta XLSX aun inexistente.
+No se incluyen contraseñas, tokens ni logs de arranque.
+
+[INFO] Building Acopio 0.0.1-SNAPSHOT
+[ERROR] Tests run: 3, Failures: 3, Errors: 0, Skipped: 0, Time elapsed: 11.26 s <<< FAILURE! -- in pe.edu.utp.acopio.BackendFlowTests
+[ERROR] pe.edu.utp.acopio.BackendFlowTests.excelRequiresJefaturaAndExportsFilteredNumericRows -- Time elapsed: 2.135 s <<< FAILURE!
+expected: 200
+ but was: 403
+[ERROR] pe.edu.utp.acopio.BackendFlowTests.excelHasHeadersForEmptyReportAndRejectsInvalidFilters -- Time elapsed: 0.091 s <<< FAILURE!
+expected: 200
+ but was: 403
+[ERROR] pe.edu.utp.acopio.BackendFlowTests.excelDoesNotExposeLotsFromAnotherCenter -- Time elapsed: 0.213 s <<< FAILURE!
+expected: 200
+ but was: 403
+[ERROR] Failures: 
+[ERROR]   BackendFlowTests.excelDoesNotExposeLotsFromAnotherCenter:461 
+expected: 200
+ but was: 403
+[ERROR]   BackendFlowTests.excelHasHeadersForEmptyReportAndRejectsInvalidFilters:470 
+expected: 200
+ but was: 403
+[ERROR]   BackendFlowTests.excelRequiresJefaturaAndExportsFilteredNumericRows:437 
+expected: 200
+ but was: 403
+[ERROR] Tests run: 3, Failures: 3, Errors: 0, Skipped: 0
+[INFO] BUILD FAILURE
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.5.6:test (default-test) on project acopio: There are test failures.

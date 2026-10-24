@@ -9,6 +9,7 @@ import pe.edu.utp.acopio.service.ReporteService;
 
 @RestController
 @RequestMapping("/api/reportes")
+/** Expone indicadores, CSV y XLSX bajo /api/reportes. Spring Security exige JEFATURA; los filtros conservan el centro autenticado. */
 public class ReporteController {
     private final ReporteService reportes;
     public ReporteController(ReporteService reportes){this.reportes=reportes;}
@@ -19,6 +20,15 @@ public class ReporteController {
         @RequestParam(required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate hasta,
         @RequestParam(defaultValue="") String buscar) {
         return reportes.consultar(usuario.idCentro(),estado,desde,hasta,buscar);
+    }
+    @GetMapping(value="/xlsx",produces="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    public ResponseEntity<byte[]> exportarExcel(@AuthenticationPrincipal OperarioPrincipal usuario,
+        @RequestParam(required=false) String estado,
+        @RequestParam(required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate desde,
+        @RequestParam(required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate hasta,
+        @RequestParam(defaultValue="") String buscar) {
+        return ResponseEntity.ok().header("Content-Disposition","attachment; filename=acopio-reporte.xlsx")
+            .body(reportes.xlsx(reportes.consultar(usuario.idCentro(),estado,desde,hasta,buscar)));
     }
     @GetMapping(value="/csv",produces="text/csv;charset=UTF-8")
     public ResponseEntity<String> exportar(@AuthenticationPrincipal OperarioPrincipal usuario,

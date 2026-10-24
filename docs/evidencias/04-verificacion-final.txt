@@ -1,0 +1,39 @@
+Verificacion APF3
+Fecha: 23/10/2026
+Entorno: Java 17, Node 24, PostgreSQL 18 aislado en 55449; acopio_test_apf3.
+No se modifico la base de desarrollo.
+
+Archivo de ejecucion: 04-verificacion-final.log
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 8.586 s -- in pe.edu.utp.acopio.AcopioApplicationTests
+[INFO] Tests run: 35, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 11.50 s -- in pe.edu.utp.acopio.BackendFlowTests
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.261 s -- in pe.edu.utp.acopio.ExportadorReporteTests
+[INFO] Tests run: 40, Failures: 0, Errors: 0, Skipped: 0
+[INFO] >>> javadoc:3.12.0:javadoc (default-cli) > generate-sources @ acopio >>>
+[INFO] <<< javadoc:3.12.0:javadoc (default-cli) < generate-sources @ acopio <<<
+[INFO] --- javadoc:3.12.0:javadoc (default-cli) @ acopio ---
+[INFO] BUILD SUCCESS
+
+Archivo de ejecucion: 05-mobile.log
+ℹ tests 29
+ℹ pass 29
+ℹ fail 0
+
+Archivo de ejecucion: 06-mobile-typecheck.log
+> tsc --noEmit
+
+Archivo de ejecucion: 07-dashboard-build.log
+✓ built in 477ms
+
+Archivo de ejecucion: 08-javadoc.log
+[INFO] >>> javadoc:3.12.0:javadoc (default-cli) > generate-sources @ acopio >>>
+[INFO] <<< javadoc:3.12.0:javadoc (default-cli) < generate-sources @ acopio <<<
+[INFO] --- javadoc:3.12.0:javadoc (default-cli) @ acopio ---
+[INFO] BUILD SUCCESS
+
+Muestras HTTP: CSV y XLSX contienen el mismo UUID aprobado y 100 L.
+XLSX: 15 columnas, una recepcion, medicion numerica y ningun elemento de formula.
+CSV: comillas y saltos leidos correctamente; prefijo de formula neutralizado.
+
+Javadoc: 199 archivos HTML, destinos internos comprobados y sin enlaces locales ausentes.
+Navegador: login JEFATURA, dos recepciones ficticias, filtro APROBADO y avisos de descarga CSV/XLSX comprobados.
+Limite: no se repitio una recepcion desde Android fisico.

@@ -1,0 +1,9 @@
+Eventos tecnicos de pruebas y demostracion; datos ficticios.
+2026-10-23T23:29:12.031-05:00 INFO  p.e.utp.acopio.report.ExportadorReporte - reporte_generado formato=XLSX filas=1
+2026-10-23T23:31:34.461-05:00 INFO  pe.edu.utp.acopio.service.LoteService - recepcion_confirmada uuid=fbbc9a03-52be-4536-9c16-b52b91c2c19e estado=APROBADO idempotente=false
+2026-10-23T23:31:34.524-05:00 INFO  pe.edu.utp.acopio.service.LoteService - recepcion_confirmada uuid=40e21c86-6088-401c-a1b2-a4653a1357dd estado=RECHAZADO idempotente=false
+2026-10-23T23:33:30.080-05:00 INFO  p.e.utp.acopio.report.ExportadorReporte - reporte_generado formato=XLSX filas=2
+2026-10-23T23:34:28.405-05:00 INFO  p.e.utp.acopio.report.ExportadorReporte - reporte_generado formato=XLSX filas=1
+2026-10-23T23:34:28.450-05:00 INFO  p.e.utp.acopio.report.ExportadorReporte - reporte_generado formato=CSV filas=1
+2026-10-23T23:35:13.268-05:00 INFO  p.e.utp.acopio.report.ExportadorReporte - reporte_generado formato=CSV filas=2
+2026-10-23T23:35:32.633-05:00 INFO  p.e.utp.acopio.report.ExportadorReporte - reporte_generado formato=XLSX filas=1

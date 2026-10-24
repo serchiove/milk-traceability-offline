@@ -8,6 +8,7 @@ import pe.edu.utp.acopio.DTO.lote.LoteRecepcionRequest;
 import pe.edu.utp.acopio.model.*;
 
 @Repository
+/** Persiste recepciones y calidad con EntityManager. La inserción nativa ON CONFLICT permite comparar reintentos concurrentes del mismo UUID sin abortar la transacción. */
 public class LoteRepository {
   @jakarta.persistence.PersistenceContext private EntityManager em;
 

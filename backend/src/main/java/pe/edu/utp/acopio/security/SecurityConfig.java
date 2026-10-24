@@ -15,6 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+/** Configura JWT sin sesión del servidor, roles por ruta, CORS y respuestas 401/403. Las rutas no declaradas se rechazan. */
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -35,7 +36,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/estado").permitAll()     // Ruta pública de Diagnóstico
                 .requestMatchers("/actuator/health").permitAll() // Ruta pública de Actuator
                 .requestMatchers(HttpMethod.POST, "/api/lotes", "/api/lotes/*/asignacion-tanque").hasRole("OPERARIO")
-                .requestMatchers(HttpMethod.GET, "/api/reportes", "/api/reportes/csv").hasRole("JEFATURA")
+                .requestMatchers(HttpMethod.GET, "/api/reportes", "/api/reportes/csv", "/api/reportes/xlsx").hasRole("JEFATURA")
                 .requestMatchers(HttpMethod.GET, "/api/catalogos/proveedores", "/api/catalogos/vehiculos", "/api/catalogos/centro",
                                  "/api/lotes", "/api/lotes/*", "/api/tanques").hasAnyRole("OPERARIO", "JEFATURA")
                 .anyRequest().denyAll()                   // Todo lo demás, bloqueado
