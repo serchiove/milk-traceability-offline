@@ -135,7 +135,7 @@ Nos organizamos por componentes y colaboramos en su integración. En esta tabla 
 | Sergio | Entorno y esquema inicial; app móvil; integración, ampliaciones backend y migración JPA | `1489916`, `3bf07c9`, `c87f7c1`, `8f559fa` |
 | Patricio | Base JWT, DTO, autenticación, recepción, reglas de calidad, repositorios y datos V3 | `17cc591`, `356ac1b` |
 | Fernando | Interfaz y consumo de API del dashboard, incorporado en esta rama conservando su autoría | `570d667`, `73a9294` → `7da8c00` |
-| Elías | Matriz de 24 casos: 22 aprobados y 2 parciales; evidencias de backend, PostgreSQL, móvil, migraciones y JPA. Aceptación web integrada pendiente | `ac6bda4`; [matriz](docs/pruebas/MATRIZ_PRUEBAS_ELIAS.md) y [resumen](docs/pruebas/RESUMEN_PRUEBAS_2026-10-24.md) |
+| Elías | Matriz de 24 casos aprobados segun el alcance y la version de cada caso. Recorrido movil, API, PostgreSQL, dashboard y CSV comprobado; aceptacion web completa abierta por incidencias documentadas | `f11751f`, `261ad52`; [matriz](docs/pruebas/MATRIZ_PRUEBAS_ELIAS.md) y [verificacion adicional](docs/pruebas/CIERRE_ADICIONAL_ELIAS_2026-10-24.md) |
 
 Sergio está a cargo del móvil y la coordinación; Patricio, del backend; Fernando, del dashboard; y Elías, de base de datos y pruebas. Conservamos las referencias de cada entrega porque también hemos colaborado fuera de nuestra parte principal. En el informe de aportes detallamos los cambios por commit, las correcciones y el trabajo que sigue pendiente.
 

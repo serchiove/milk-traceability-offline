@@ -2,7 +2,7 @@
 
 ## Version y entorno
 - Proyecto descargado en ZIP de feature/elias-pruebas-actualizadas-3, actualizada con main.
-- Se agregaron dos pruebas locales a BackendFlowTests.java. Falta registrar el commit de publicacion.
+- Se agregaron dos pruebas locales a BackendFlowTests.java. Las dos pruebas se publicaron en f11751f; su ejecucion local fue anterior a la publicacion y se identifica por el SHA-256 adjunto.
 - La huella SHA-256 del archivo probado esta en evidencias/2026-10-24/pruebas-adicionales-sha256.txt.
 - PostgreSQL real: 18.6; base automatizada acopio_test; Java 17.0.20.1.
 
@@ -50,3 +50,19 @@ Las evidencias anteriores permanecen en evidencias/2026-10-23.
 - Esta comprobacion completa el recorrido nuevo que figuraba pendiente en el apartado anterior. La actualizacion de ocupacion se comprobo despues de recargar, sin confirmar actualizacion automatica.
 - La aceptacion web sigue abierta por los problemas registrados de periodos, detalle por UUID, QR y aviso de error de exportacion.
 - La consulta de mas de 25 tanques sigue sin probarse: el codigo revisado solicita solamente pagina=0 y tamano=25.
+
+## Publicacion de evidencias
+- f11751f: publicacion de las dos pruebas adicionales y primera verificacion web.
+- 261ad52fa06cf4fdb9a9176af141556770a78457: publicacion del recorrido nuevo y sus evidencias.
+- Los commits anteriores identifican las entregas publicadas; no significan que se haya repetido toda la suite despues de cada publicacion.
+## Prueba de 30 tanques
+- Fecha: 24/10/2026, finalizada a las 14:31:08 -05:00.
+- Prueba: eliasConsultaTreintaTanquesPaginados.
+- Entorno: HTTP real y PostgreSQL 18.6, base aislada acopio_test.
+- Se crearon 30 tanques para el centro de prueba.
+- Resultado esperado y obtenido: primera pagina con 25 tanques, segunda con 5; total 30, sin identificadores repetidos ni faltantes.
+- Ejecucion focalizada: 1 prueba aprobada, 0 fallos, 0 errores y 0 omitidas; BUILD SUCCESS.
+- Evidencia: evidencias/2026-10-24/tanques-30-prueba-api.txt.
+- Esta prueba verifica la API. No aprueba la consulta de mas de 25 tanques desde el dashboard, cuyo codigo revisado solo solicita la primera pagina.
+- Este resultado sustituye el pendiente de ejecutar la prueba de paginacion de la API; la comprobacion completa del dashboard sigue abierta.
+- La prueba se agrego localmente; su commit de publicacion se registrara al subirla.

@@ -1,0 +1,9 @@
+﻿
+
+Algorithm : SHA256
+Hash      : 621D027CD08C8A1407ED44A511D03DF96F99B58EFAA081C79AE09C5E5631BCCB
+Path      : C:\Users\Admin\Downloads\milk-traceability-offline-feature-elias-pruebas-actualizadas-3\milk-traceability-o
+            ffline-feature-elias-pruebas-actualizadas-3\backend\src\test\java\pe\edu\utp\acopio\BackendFlowTests.java
+
+
+

@@ -558,4 +558,36 @@ class BackendFlowTests {
             }
         }
     }
+
+    @Test void eliasConsultaTreintaTanquesPaginados() throws Exception {
+        var esperados = new java.util.HashSet<Long>();
+        for (int i = 0; i < 30; i++) {
+            esperados.add(tanque("100", "DISPONIBLE"));
+        }
+
+        db.update("UPDATE acopio.usuario SET id_rol=(SELECT id_rol FROM acopio.rol WHERE nombre='JEFATURA') WHERE id_usuario=?", usuario);
+        String jwt = tokens.generarToken(email, usuario, centro, "JEFATURA");
+        var encontrados = new java.util.HashSet<Long>();
+
+        for (int pagina = 0; pagina < 2; pagina++) {
+            var respuesta = get("/api/tanques?pagina=" + pagina + "&tamano=25", jwt);
+            assertThat(respuesta.statusCode()).isEqualTo(200);
+            assertThat(respuesta.body()).containsPattern("\"total\"\\s*:\\s*30\\b");
+
+            var patron = java.util.regex.Pattern.compile("\"id\"\\s*:\\s*(\\d+)");
+            var coincidencias = patron.matcher(respuesta.body());
+            int cantidad = 0;
+
+            while (coincidencias.find()) {
+                long id = Long.parseLong(coincidencias.group(1));
+                assertThat(encontrados.add(id)).as("Tanque sin repetir: " + id).isTrue();
+                cantidad++;
+            }
+
+            assertThat(cantidad).as("Cantidad en pagina " + pagina)
+                .isEqualTo(pagina == 0 ? 25 : 5);
+        }
+
+        assertThat(encontrados).containsExactlyInAnyOrderElementsOf(esperados);
+    }
 }
