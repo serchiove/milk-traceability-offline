@@ -11,10 +11,12 @@ import pe.edu.utp.acopio.DTO.consulta.LoteDetalleDto;
 @Service
 public class ReporteService {
   private final ConsultaLoteService consultas;
+  private final pe.edu.utp.acopio.report.ExportadorReporte exportador;
   @jakarta.persistence.PersistenceContext private jakarta.persistence.EntityManager em;
 
-  public ReporteService(ConsultaLoteService consultas) {
+  public ReporteService(ConsultaLoteService consultas, pe.edu.utp.acopio.report.ExportadorReporte exportador) {
     this.consultas = consultas;
+    this.exportador = exportador;
   }
 
   public record Incidencia(
@@ -90,78 +92,21 @@ public class ReporteService {
         volumen.signum() == 0 ? 0 : 100.0 * volumenRechazado.doubleValue() / volumen.doubleValue());
   }
 
+  /**
+   * Exporta el resultado autorizado sin volver a consultar ni cambiar sus filtros.
+   * @param reporte resultado de consultar
+   * @return CSV con encabezados y texto protegido
+   */
   public String csv(Reporte reporte) {
-    StringBuilder csv =
-        new StringBuilder(
-            "\ufeffUUID,Fecha captura,Centro,Proveedor,Placa,Operario,Volumen L,Temperatura"
-                + " C,Acidez D,Densidad g mL,Estado,Motivo,Reglas,Tanque,QR\r\n");
-    for (var f : reporte.registros()) {
-      Object[] valores = {
-        f.idLote(),
-        f.fechaHora(),
-        f.centro(),
-        f.proveedor(),
-        f.placa(),
-        f.operario(),
-        f.volumenLitros(),
-        f.temperaturaC(),
-        f.acidezDornic(),
-        f.densidadGml(),
-        f.estadoEvaluacion(),
-        f.motivo(),
-        f.versionReglas(),
-        f.tanque(),
-        f.codigoQr()
-      };
-      csv.append(
-              Arrays.stream(valores)
-                  .map(ReporteService::celda)
-                  .collect(java.util.stream.Collectors.joining(",")))
-          .append("\r\n");
-    }
-    return csv.toString();
+    return exportador.csv(reporte);
   }
 
+  /**
+   * Exporta el mismo conjunto autorizado con mediciones numéricas en Excel.
+   * @param reporte resultado de consultar
+   * @return libro XLSX
+   */
   public byte[] xlsx(Reporte reporte) {
-    try (var libro = new org.apache.poi.xssf.usermodel.XSSFWorkbook();
-        var salida = new java.io.ByteArrayOutputStream()) {
-      var hoja = libro.createSheet("Recepciones");
-      String[] titulos = {"UUID", "Fecha captura", "Centro", "Proveedor", "Placa", "Operario",
-          "Volumen L", "Temperatura C", "Acidez D", "Densidad g mL", "Estado", "Motivo",
-          "Reglas", "Tanque", "QR"};
-      var cabecera = hoja.createRow(0);
-      for (int columna = 0; columna < titulos.length; columna++)
-        cabecera.createCell(columna).setCellValue(titulos[columna]);
-      int numero = 1;
-      for (var lote : reporte.registros()) {
-        Object[] valores = {lote.idLote(), lote.fechaHora(), lote.centro(), lote.proveedor(),
-            lote.placa(), lote.operario(), lote.volumenLitros(), lote.temperaturaC(),
-            lote.acidezDornic(), lote.densidadGml(), lote.estadoEvaluacion(), lote.motivo(),
-            lote.versionReglas(), lote.tanque(), lote.codigoQr()};
-        var fila = hoja.createRow(numero++);
-        for (int columna = 0; columna < valores.length; columna++) {
-          var celda = fila.createCell(columna);
-          Object valor = valores[columna];
-          if (valor instanceof Number numeroValor) celda.setCellValue(numeroValor.doubleValue());
-          else if (valor != null) celda.setCellValue(valor.toString());
-        }
-      }
-      libro.write(salida);
-      return salida.toByteArray();
-    } catch (java.io.IOException error) {
-      throw new IllegalStateException("No se pudo generar el archivo Excel", error);
-    }
-  }
-
-  public static String celda(Object valor) {
-    String texto = valor == null ? "" : valor.toString();
-    // Prevent spreadsheet formula execution while keeping numeric measurements numeric.
-    if (valor instanceof String
-        && !texto.stripLeading().isEmpty()
-        && "=+@-".indexOf(texto.stripLeading().charAt(0)) >= 0) texto = "'" + texto;
-    if (valor instanceof String
-        && (texto.startsWith("\t") || texto.startsWith("\r") || texto.startsWith("\n")))
-      texto = "'" + texto;
-    return "\"" + texto.replace("\"", "\"\"") + "\"";
+    return exportador.xlsx(reporte);
   }
 }
