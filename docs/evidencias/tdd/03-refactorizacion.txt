@@ -1,0 +1,14 @@
+Etapa TDD: REFACTORIZACION
+Fecha: 23/10/2026
+Etapa roja: 455200c; etapa verde: 71709df
+Comando: mvn --batch-mode test
+Salida del proceso: 0
+Se extrae ExportadorReporte, se comparte el orden de columnas y se usa Commons CSV.
+Se conservan filtros, permisos, tipos numericos y proteccion frente a formulas.
+
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 8.316 s -- in pe.edu.utp.acopio.AcopioApplicationTests
+[INFO] Tests run: 34, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 11.19 s -- in pe.edu.utp.acopio.BackendFlowTests
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.331 s -- in pe.edu.utp.acopio.ExportadorReporteTests
+[INFO] Tests run: 39, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+[INFO] Total time:  29.857 s

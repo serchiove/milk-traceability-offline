@@ -9,12 +9,15 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.edu.utp.acopio.DTO.consulta.LoteDetalleDto;
 
 @Service
+/** Consulta un conjunto filtrado y consistente por centro para indicadores, CSV y XLSX. Limita la exportación a 10000 registros. */
 public class ReporteService {
   private final ConsultaLoteService consultas;
+  private final pe.edu.utp.acopio.report.ExportadorReporte exportador;
   @jakarta.persistence.PersistenceContext private jakarta.persistence.EntityManager em;
 
-  public ReporteService(ConsultaLoteService consultas) {
+  public ReporteService(ConsultaLoteService consultas, pe.edu.utp.acopio.report.ExportadorReporte exportador) {
     this.consultas = consultas;
+    this.exportador = exportador;
   }
 
   public record Incidencia(
@@ -36,6 +39,16 @@ public class ReporteService {
       double porcentajeVolumenAprobado,
       double porcentajeVolumenRechazado) {}
 
+  /**
+   * Reúne páginas, totales e incidencias en una lectura consistente.
+   * @param centro centro de la identidad autenticada
+   * @param estado estado de calidad o null para todos
+   * @param desde primera fecha local inclusiva, opcional
+   * @param hasta última fecha local inclusiva, opcional
+   * @param buscar texto de búsqueda; cadena vacía para no restringir
+   * @return registros y métricas calculados con los mismos filtros
+   * @throws IllegalArgumentException si los filtros son inválidos o excede 10000 lotes
+   */
   @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
   public Reporte consultar(
       Long centro, String estado, LocalDate desde, LocalDate hasta, String buscar) {
@@ -90,47 +103,21 @@ public class ReporteService {
         volumen.signum() == 0 ? 0 : 100.0 * volumenRechazado.doubleValue() / volumen.doubleValue());
   }
 
+  /**
+   * Exporta el resultado autorizado sin volver a consultar ni cambiar sus filtros.
+   * @param reporte resultado de consultar
+   * @return CSV con encabezados y texto protegido
+   */
   public String csv(Reporte reporte) {
-    StringBuilder csv =
-        new StringBuilder(
-            "\ufeffUUID,Fecha captura,Centro,Proveedor,Placa,Operario,Volumen L,Temperatura"
-                + " C,Acidez D,Densidad g mL,Estado,Motivo,Reglas,Tanque,QR\r\n");
-    for (var f : reporte.registros()) {
-      Object[] valores = {
-        f.idLote(),
-        f.fechaHora(),
-        f.centro(),
-        f.proveedor(),
-        f.placa(),
-        f.operario(),
-        f.volumenLitros(),
-        f.temperaturaC(),
-        f.acidezDornic(),
-        f.densidadGml(),
-        f.estadoEvaluacion(),
-        f.motivo(),
-        f.versionReglas(),
-        f.tanque(),
-        f.codigoQr()
-      };
-      csv.append(
-              Arrays.stream(valores)
-                  .map(ReporteService::celda)
-                  .collect(java.util.stream.Collectors.joining(",")))
-          .append("\r\n");
-    }
-    return csv.toString();
+    return exportador.csv(reporte);
   }
 
-  public static String celda(Object valor) {
-    String texto = valor == null ? "" : valor.toString();
-    // Prevent spreadsheet formula execution while keeping numeric measurements numeric.
-    if (valor instanceof String
-        && !texto.stripLeading().isEmpty()
-        && "=+@-".indexOf(texto.stripLeading().charAt(0)) >= 0) texto = "'" + texto;
-    if (valor instanceof String
-        && (texto.startsWith("\t") || texto.startsWith("\r") || texto.startsWith("\n")))
-      texto = "'" + texto;
-    return "\"" + texto.replace("\"", "\"\"") + "\"";
+  /**
+   * Exporta el mismo conjunto autorizado con mediciones numéricas en Excel.
+   * @param reporte resultado de consultar
+   * @return libro XLSX
+   */
+  public byte[] xlsx(Reporte reporte) {
+    return exportador.xlsx(reporte);
   }
 }

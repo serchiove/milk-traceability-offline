@@ -39,30 +39,30 @@ Nuestro proyecto forma parte del curso **Proyecto Integrador** y toma como conte
 
 ## Estado del proyecto
 
-**Última actualización: 17 de octubre de 2026.**
+**Última actualización: 23 de octubre de 2026 · rama `sergio/apf3-reportes-documentacion`.**
 
-Hasta esta versión hemos implementado el backend y el recorrido principal de la app móvil. Tenemos la interfaz del dashboard y nos falta conectarla a las APIs para completar la validación conjunta.
+Implementamos el backend y el recorrido principal de la app móvil. En esta rama incorporamos el consumo de API del dashboard de Fernando y añadimos exportación Excel, Commons CSV, Guava, Logback, Javadoc y evidencia TDD. El detalle completo de trazabilidad web y la aceptación conjunta con teléfono físico siguen pendientes.
 
 | Componente | Estado | Alcance actual |
 | :--- | :--- | :--- |
 | **Backend** | ✅ Implementado | Login, permisos, recepción, calidad, tanques, reportes y administración |
 | **App móvil** | ✅ Implementada | Captura local, sesión, envío manual, calidad, QR y tanques |
-| **Dashboard** | 🟡 Integración pendiente | Interfaz incorporada; operación aún con datos ficticios |
+| **Dashboard** | ✅ API y exportación | Login JEFATURA, lotes, indicadores, tanques, CSV y Excel; detalle completo pendiente |
 | **Aceptación integral** | 🟡 Por completar | Evidencia del mismo lote entre móvil, servidor y web |
 
 > [!IMPORTANT]
-> Por ahora, nuestro dashboard utiliza un acceso local y datos de demostración. Ya consulta `/api/estado`; nos falta integrar las demás pantallas con las APIs del backend.
+> El dashboard de esta rama autentica y consulta la API. Las pruebas utilizan datos ficticios del entorno aislado. El detalle de trazabilidad todavía no está cerrado y esta rama no equivale a una fusión en `main`.
 
-**Últimos resultados que registramos:** 33 pruebas backend y 29 móviles aprobadas. Corresponden a las ejecuciones indicadas en la sección de pruebas; todavía debemos completar la aceptación de todo el recorrido móvil, servidor y web. [Ver evidencias →](#pruebas)
+**Últimos resultados:** 40 pruebas backend y 29 móviles aprobadas, TypeScript y compilación web correctos. Generamos Javadoc y comprobamos CSV/XLSX desde el navegador. [Librerías, TDD y evidencias](docs/APF3_LIBRERIAS_JAVADOC_TDD.md).
 
 <details>
 <summary><strong>Explorar los componentes y carpetas</strong></summary>
 
 | Carpeta | Tecnología / responsabilidad | Estado |
 |---|---|---|
-| `backend/` | Java 17, Spring Boot 4.1.1, JPA/Hibernate, JWT, Flyway | API real; nueve entidades; 33 pruebas aprobadas en la última verificación |
+| `backend/` | Java 17, Spring Boot 4.1.1, JPA/Hibernate, JWT, Flyway | API real; nueve entidades; 40 pruebas aprobadas en la verificación de esta rama |
 | `mobile/` | React Native, Expo 57, TypeScript, MVVM, SQLite, SecureStore | Captura local, envío manual, calidad, QR y tanques |
-| `dashboard/` | React, Vite, Bootstrap | Interfaz web desarrollada; integración con APIs pendiente |
+| `dashboard/` | React, Vite, Bootstrap | API conectada y descarga CSV/XLSX; detalle completo pendiente |
 | `database/` | SQL de referencia del informe | No ejecutar sobre el esquema instalado por Flyway |
 | `scripts/` | Preparación y operación Windows | Entorno local con puertos separados |
 | `docs/` | Banner e informes PDF/Word | La documentación técnica está en este README |
@@ -120,22 +120,22 @@ Al terminar, cerramos Metro con Ctrl+C y ejecutamos `.\Detener.cmd`. Así detene
 |---|---|---|
 | API / app móvil OPERARIO | operario@gloria.com.pe | 123456 |
 | API JEFATURA | jefatura@gloria.com.pe | 123456 |
-| Dashboard actual de demostración | jefatura.demo | Cualquier texto de prueba; no autentica en backend |
+| Dashboard conectado a API | jefatura@gloria.com.pe | 123456 · solo desarrollo |
 
-Usamos estas cuentas únicamente para desarrollo. Cada computadora tiene una contraseña privada de PostgreSQL, distinta de las cuentas de la aplicación. Para completar el dashboard reemplazaremos el acceso local por la autenticación JEFATURA descrita en el [contrato compartido](#contrato-compartido).
+Usamos estas cuentas únicamente para desarrollo. Cada computadora tiene una contraseña privada de PostgreSQL, distinta de las cuentas de la aplicación. El dashboard utiliza la autenticación JEFATURA descrita en el [contrato compartido](#contrato-compartido).
 
 </details>
 
 ## Equipo
 
-Nos organizamos por componentes y colaboramos en su integración. En esta tabla resumimos las entregas que hemos registrado en Git hasta el 20/10/2026:
+Nos organizamos por componentes y colaboramos en su integración. En esta tabla resumimos las entregas que hemos registrado en Git hasta el 24/10/2026:
 
 | Integrante | Trabajo realizado | Referencias |
 | :--- | :--- | :--- |
-| Sergio | Entorno y esquema inicial; app móvil; integración, ampliaciones backend y migración JPA, con apoyo de Codex durante el desarrollo | `1489916`, `3bf07c9`, `c87f7c1`, `8f559fa` |
+| Sergio | Entorno y esquema inicial; app móvil; integración, ampliaciones backend y migración JPA | `1489916`, `3bf07c9`, `c87f7c1`, `8f559fa` |
 | Patricio | Base JWT, DTO, autenticación, recepción, reglas de calidad, repositorios y datos V3 | `17cc591`, `356ac1b` |
-| Fernando | Interfaz y estilos del dashboard; aún utiliza datos operativos demo | `570d667`, PR #4 |
-| Elías | Datos de prueba alineados, matriz ampliada a 24 casos y ejecución automatizada parcial registrada | `7d40673`, `2bbdf91`, `efb4135`; [matriz](docs/pruebas/MATRIZ_PRUEBAS_ELIAS.md) y [evidencia](docs/pruebas/EJECUCION_AUTOMATIZADA_2026-10-20.md) |
+| Fernando | Interfaz y consumo de API del dashboard, incorporado en esta rama conservando su autoría | `570d667`, `73a9294` → `7da8c00` |
+| Elías | Matriz de 24 casos: 22 aprobados y 2 parciales; evidencias de backend, PostgreSQL, móvil, migraciones y JPA. Aceptación web integrada pendiente | `ac6bda4`; [matriz](docs/pruebas/MATRIZ_PRUEBAS_ELIAS.md) y [resumen](docs/pruebas/RESUMEN_PRUEBAS_2026-10-24.md) |
 
 Sergio está a cargo del móvil y la coordinación; Patricio, del backend; Fernando, del dashboard; y Elías, de base de datos y pruebas. Conservamos las referencias de cada entrega porque también hemos colaborado fuera de nuestra parte principal. En el informe de aportes detallamos los cambios por commit, las correcciones y el trabajo que sigue pendiente.
 
@@ -242,7 +242,7 @@ Organizamos el sistema con este flujo:
 
 **Móvil (React Native / TypeScript / MVVM) → API REST Spring Boot → JPA/Hibernate → PostgreSQL.**
 
-En el teléfono conservamos borradores y catálogos en SQLite, y la sesión en SecureStore. Para la web utilizamos React y el perfil JEFATURA. Compartimos la API entre ambos clientes, aunque todavía tenemos pendiente conectar las pantallas operativas del dashboard.
+En el teléfono conservamos borradores y catálogos en SQLite, y la sesión en SecureStore. Para la web utilizamos React y el perfil JEFATURA. Compartimos la API entre ambos clientes; el dashboard consume login, lotes, reportes y tanques en esta rama. Su detalle completo de trazabilidad sigue pendiente.
 
 ## Carpetas
 
@@ -286,7 +286,7 @@ Detalles: [JPA/Hibernate](#jpa) y [contrato compartido](#contrato-compartido).
 <details>
 <summary><strong>Estado y alcance pendiente</strong></summary>
 
-Al 17/10/2026 tenemos implementadas las funciones que marcamos a continuación. La aceptación conjunta sigue pendiente en los casos que indicamos más abajo.
+Al 23/10/2026 esta rama incorpora reportes CSV/XLSX y consumo de API web. El registro histórico de funciones se conserva a continuación; la aceptación completa con teléfono físico sigue pendiente.
 
 ## Lo que ya implementamos
 
@@ -298,13 +298,15 @@ Al 17/10/2026 tenemos implementadas las funciones que marcamos a continuación. 
 - [x] Administración de proveedores y vehículos por JEFATURA.
 - [x] Nueve entidades JPA/Hibernate; esquema administrado por Flyway.
 - [x] App móvil: captura SQLite, sesión autorizada, envío manual y consultas centrales.
-- [x] Interfaz del dashboard de Fernando incorporada a Git.
+- [x] Consumo de API de Fernando incorporado en esta rama y exportaciones CSV/XLSX comprobadas.
+- [x] Guava, POI, Commons CSV y Logback aplicados a funciones reales.
+- [x] Ciclo TDD de Excel y documentación Javadoc generada.
 
 ## Lo que nos falta para cerrar la integración
 
-- [ ] Fernando: sustituir login y datos ficticios por APIs reales.
+- [x] Fernando: consumo de API incorporado en esta rama; completar detalle de trazabilidad.
 - [ ] Elías: corregir y ejecutar su matriz, completar resultado/evidencia.
-- [ ] Equipo: aceptar un mismo lote móvil → PostgreSQL → dashboard con calidad, QR, tanque y CSV.
+- [ ] Equipo: aceptar un mismo lote desde teléfono físico → PostgreSQL → dashboard con calidad, QR, tanque, CSV y Excel.
 - [ ] Sergio/Elías: evidenciar offline, cierre/reapertura, reintento, sesión vencida y cámara.
 - [ ] Patricio/Elías: documentar una instalación limpia y una actualización sin pérdida de datos.
 
@@ -327,6 +329,8 @@ Tenemos pendientes la auditoría completa, la renovación y recuperación de acc
 | Fecha | Alcance | Resultado registrado |
 |---|---|---|
 | 20/10/2026 | Revisión de Elías sobre `a59788d` | 29/29 pruebas móviles y typecheck aprobados; dashboard compilado; backend bloqueado en ese entorno y no atribuido como ejecución propia |
+| 23/10/2026 | Ampliación APF3 con PostgreSQL aislado | 40 backend y 29 móviles aprobadas; Javadoc, build y descarga CSV/XLSX comprobados; ver docs/APF3_LIBRERIAS_JAVADOC_TDD.md |
+| 24/10/2026 | Pruebas de Elías sobre `a59788d` con PostgreSQL real y celular Redmi | Suite backend: 31 aprobadas; repetición de 9 pruebas críticas aprobada. Recorrido móvil–API–PostgreSQL, calidad, asignación de tanque, migraciones y validación JPA comprobados. Matriz: 22 aprobados y 2 parciales; aceptación web integrada pendiente |
 | 17/10/2026 | Backend migrado a JPA, HTTP + PostgreSQL aislado | 33 pruebas aprobadas, JAR generado |
 | 17/10/2026 | Suite móvil | 29 pruebas aprobadas; almacenamiento SQLite en memoria y HTTP simulado |
 | 16/10/2026 | TypeScript y exportación Android | Correctos en la revisión de integración; no equivale a APK distribuible |
@@ -359,7 +363,7 @@ Cuando una fase falla, revisamos el primer error y registramos el resultado obte
 4. Verificamos APROBADO y QR con DEMO-1. Un dato bien formado fuera del rango produce RECHAZADO conservado, no HTTP 400 por calidad.
 5. Asignar un tanque disponible del mismo centro, verificar incremento único y reconsulta sin duplicación.
 6. Probamos rechazo, falta de capacidad, centro ajeno y rol no autorizado.
-7. Tras conectar el dashboard, consultar el mismo UUID como JEFATURA y contrastar litros, estado, destino, indicadores y CSV con PostgreSQL.
+7. En el dashboard conectado, consultar el mismo UUID como JEFATURA y contrastar litros, estado, destino, indicadores, CSV y Excel con PostgreSQL.
 8. Probamos captura sin backend manteniendo Metro disponible por USB; cerrar/reabrir y enviar al recuperar conexión. No confundir caída de Metro con modo offline de negocio.
 9. Probamos escaneo QR, permiso denegado e ingreso manual; sesión vencida y entrada inválida.
 10. Completamos la [plantilla](#entrega) con obtenido y evidencia. No marcar aprobado por inferencia.
@@ -593,7 +597,7 @@ El detalle incluye IDs y nombres de origen, operario y centro; fecha de captura/
 
 En la entrega de consultas ejecutamos `mvn verify`: obtuvimos 19 pruebas sin fallos y generamos el JAR. Las pruebas utilizan HTTP real y PostgreSQL en la base aislada acopio_revision_20261016. Comprobamos autenticación, catálogos activos, aislamiento por centro, consulta por UUID/QR, paginación, fechas en límites de día, validación de filtros y los flujos anteriores de recepción/idempotencia/rollback.
 
-Esta ampliación no modificó migraciones ni registros de acopio_dev. Posteriormente se integraron las consultas al móvil y se implementaron tanques, indicadores, incidencias y reportes. Estado actualizado en [Alineación con el informe oficial](#informe-oficial); administración de proveedores y vehículos en [Administración de catálogos](#administracion). Nos queda completar el consumo de estas APIs desde el dashboard.
+Esta ampliación no modificó migraciones ni registros de acopio_dev. Posteriormente se integraron las consultas al móvil y se implementaron tanques, indicadores, incidencias y reportes. Estado actualizado en [Alineación con el informe oficial](#informe-oficial); administración de proveedores y vehículos en [Administración de catálogos](#administracion). Esta rama incorpora su consumo desde el dashboard; falta completar su detalle de trazabilidad.
 
 [Volver al índice](#guia-completa)
 
@@ -679,7 +683,7 @@ Tomamos como referencia nuestro informe **INTEGRADOR AVANCE 2 FINAL (1).pdf**, d
 - CU-02 (pp. 45–46): envío manual con UUID y huella SHA-256, conservación ante fallos e idempotencia. La huella se calcula en el móvil; Java la recalcula y verifica. El campo es opcional en la API para compatibilidad con clientes antiguos. La respuesta del servidor distingue recepción de aprobación.
 - CU-03 (pp. 47–48): Perfil → Tanques de destino muestra lotes aprobados. El operario consulta tanques de su centro y confirma uno. El servidor valida disponibilidad y capacidad y reserva volumen transaccionalmente. La app consulta la asignación actual antes de repetir; un error no se presenta como éxito. Dejamos fuera de este alcance la mezcla, el vaciado, el trasvase y la reasignación.
 - CU-04 (pp. 48–49): Perfil → Resultados de calidad o Buscar por identificador permite consultar información central, mediciones, estado, motivo, QR y destino. La cámara lee QR; si no se autoriza o no es legible, queda disponible el ingreso manual de UUID o ACOPIO:UUID.
-- CU-05 (p. 50): el backend expone indicadores e incidencias para JEFATURA mediante /api/reportes y ocupación mediante /api/tanques. Tenemos pendiente conectar las pantallas del dashboard a estas rutas.
+- CU-05 (p. 50): el backend expone indicadores e incidencias para JEFATURA mediante /api/reportes y ocupación mediante /api/tanques. Esta rama incorpora su consulta desde el dashboard.
 - CU-06 (pp. 51–52): API JSON para vista previa filtrada por periodo de captura, estado y búsqueda de proveedor/placa/UUID; API CSV para exportación desde PostgreSQL. Hasta 10 000 registros por consulta; se exige acotar el periodo si se supera. El centro se restringe al autorizado en la cuenta; el esquema actual no tiene autorización multicentro.
 - QR (p. 74): PostgreSQL conserva el contenido ACOPIO:UUID, exclusivamente para aprobados. La app genera la matriz visual, con margen blanco, usando qrcode-generator. No se almacena una imagen binaria en PostgreSQL.
 
@@ -795,7 +799,7 @@ Definimos este contrato para conectar nuestro dashboard con la misma API que uti
 
 ## Punto de partida
 
-En la versión actual conectamos únicamente GET `/api/estado`. El acceso `signIn` valida `jefatura.demo` de forma local; las pantallas utilizan `DEMO_LOTS`, los indicadores son constantes y el CSV contiene datos de demostración. Nuestro siguiente paso es sustituir esas fuentes por las peticiones autenticadas que describimos a continuación, conservando el diseño del dashboard.
+La rama actual incorpora el aporte de Fernando: login real JEFATURA y consultas de lotes, reportes y tanques. Las descargas CSV y XLSX usan los filtros de la API. Aplicar filtros actualiza los datos del servidor. El detalle completo de cada lote permanece pendiente.
 
 La app móvil ya usa login, catálogos, envío de lotes, consultas y asignación. Conservamos sus rutas y formatos. Los campos nuevos de reportes son aditivos y exclusivos de consultas JEFATURA.
 
@@ -886,7 +890,7 @@ Agregar estados de carga, error y vacío. La app móvil conserva SQLite y reinte
 
 ## Qué verificamos y qué queda pendiente
 
-Pruebas del backend con HTTP y PostgreSQL aislado cubren roles, centros, recepción/idempotencia, evaluación, QR, capacidad de tanques, catálogos, reportes/CSV y CORS. Con estas pruebas cubrimos las APIs. Cuando conectemos el dashboard, validaremos también el comportamiento de sus pantallas. Antes de pasar a producción configuraremos HTTPS, credenciales propias y pruebas de despliegue.
+Pruebas del backend con HTTP y PostgreSQL aislado cubren roles, centros, recepción/idempotencia, evaluación, QR, capacidad de tanques, catálogos, reportes/CSV y CORS. Con estas pruebas cubrimos las APIs. Comprobamos en el navegador el acceso JEFATURA, el filtro de aprobados y las descargas CSV/XLSX de esta rama; la aceptación completa de trazabilidad sigue pendiente. Antes de pasar a producción configuraremos HTTPS, credenciales propias y pruebas de despliegue.
 
 [Volver al índice](#guia-completa)
 
@@ -947,7 +951,7 @@ spring.jpa.properties.hibernate.jdbc.time_zone=UTC
 
 Flyway es el responsable del esquema. Hibernate valida que las tablas y columnas coincidan, pero no ejecuta `create`, `update` ni `create-drop`. `open-in-view=false` impide depender de una sesión abierta mientras se serializa la respuesta HTTP.
 
-Después de compilar, iniciar con `Iniciar.cmd`. No cambiar credenciales, reinstalar la app ni recrear PostgreSQL. Móvil y dashboard conservan las rutas y los formatos documentados en [Contrato dashboard y móvil](#contrato-compartido); todavía debemos conectar las APIs con las pantallas del dashboard.
+Después de compilar, iniciar con `Iniciar.cmd`. No cambiar credenciales, reinstalar la app ni recrear PostgreSQL. Móvil y dashboard conservan las rutas y los formatos documentados en [Contrato dashboard y móvil](#contrato-compartido); esta rama incorpora el consumo web y mantiene pendiente el detalle completo de trazabilidad.
 
 ## Cómo lo verificamos
 

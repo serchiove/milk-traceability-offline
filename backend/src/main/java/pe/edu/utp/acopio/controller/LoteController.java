@@ -16,6 +16,7 @@ import pe.edu.utp.acopio.service.LoteService;
 
 @RestController
 @RequestMapping("/api/lotes")
+/** Expone recepción y consultas de lotes bajo /api/lotes. Obtiene usuario y centro de la identidad autenticada, no del cuerpo recibido. */
 public class LoteController {
     private final LoteService lotes;
     private final ConsultaLoteService consultas;

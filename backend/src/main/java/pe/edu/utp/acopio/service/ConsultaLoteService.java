@@ -11,6 +11,7 @@ import pe.edu.utp.acopio.repository.ConsultaLoteRepository;
 
 @Service
 @Transactional(readOnly = true)
+/** Aplica paginación, filtros y aislamiento por centro. Convierte fechas locales inclusivas a un intervalo temporal de consulta. */
 public class ConsultaLoteService {
     private final ConsultaLoteRepository lotes;
     private final ZoneId zona;

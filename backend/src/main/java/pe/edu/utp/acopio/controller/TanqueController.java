@@ -12,6 +12,7 @@ import pe.edu.utp.acopio.service.TanqueService;
 
 @RestController
 @RequestMapping("/api")
+/** Expone la consulta de tanques y la asignación de destino. Devuelve 201 al asignar y 200 cuando se confirma el mismo destino por reintento. */
 public class TanqueController {
     private final TanqueService tanques;
     public TanqueController(TanqueService tanques) {this.tanques=tanques;}

@@ -4,8 +4,7 @@ $root=Split-Path $PSScriptRoot -Parent
 $local=Join-Path $root '.local'
 New-Item -ItemType Directory -Force $local | Out-Null
 $pgBin=if($env:ACOPIO_PG_BIN){$env:ACOPIO_PG_BIN}else{'C:\Program Files\PostgreSQL\18\bin'}
-$bundledNode=Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe'
-$node=if($env:ACOPIO_NODE){$env:ACOPIO_NODE}elseif(Test-Path $bundledNode){$bundledNode}else{(Get-Command node.exe).Source}
+$node=if($env:ACOPIO_NODE){$env:ACOPIO_NODE}else{(Get-Command node.exe).Source}
 $java=(Get-Command java.exe).Source
 $env:PATH=(Split-Path $node)+';'+$env:PATH
 $env:DB_HOST='127.0.0.1';$env:DB_PORT='55440';$env:DB_NAME='acopio_dev';$env:DB_USERNAME='acopio_dev'

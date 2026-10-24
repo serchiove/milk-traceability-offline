@@ -10,6 +10,7 @@ import java.security.Key;
 import java.util.Date;
 
 @Component
+/** Genera y valida los tokens firmados de acceso. La clave se configura fuera del repositorio y la expiración delimita el acceso offline del móvil. */
 public class JwtTokenProvider {
 
     @Value("${app.jwt.secret}")

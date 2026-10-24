@@ -1,0 +1,11 @@
+Etapa TDD: VERDE
+Fecha: 23/10/2026
+Pruebas definidas en: 455200c
+Comando: mvn --batch-mode -Dtest=BackendFlowTests#excel* test
+Salida del proceso: 0
+Implementacion minima XLSX con Apache POI, permisos JEFATURA y filtros del reporte existente.
+
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 11.78 s -- in pe.edu.utp.acopio.BackendFlowTests
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+[INFO] Total time:  21.183 s

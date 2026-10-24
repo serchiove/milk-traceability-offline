@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import pe.edu.utp.acopio.DTO.consulta.*;
 
 @Repository
+/** Proyecta lotes y mediciones a DTO sin serializar relaciones JPA. Todas las consultas se restringen al centro indicado por el servicio. */
 public class ConsultaLoteRepository {
   @jakarta.persistence.PersistenceContext private EntityManager em;
 

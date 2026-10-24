@@ -1,0 +1,2 @@
+# Conservar exactamente los bytes descargados y sus hashes de evidencia.
+docs/evidencias/muestras/* -text

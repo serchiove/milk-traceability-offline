@@ -1,0 +1,16 @@
+[
+  {
+    "idempotente": false,
+    "estado": "APROBADO",
+    "uuid": "fbbc9a03-52be-4536-9c16-b52b91c2c19e",
+    "origen": "Peticion HTTP real de demostracion",
+    "entorno": "PostgreSQL aislado de pruebas"
+  },
+  {
+    "idempotente": false,
+    "estado": "RECHAZADO",
+    "uuid": "40e21c86-6088-401c-a1b2-a4653a1357dd",
+    "origen": "Peticion HTTP real de demostracion",
+    "entorno": "PostgreSQL aislado de pruebas"
+  }
+]
