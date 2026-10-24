@@ -1,0 +1,2 @@
+﻿"UUID","Fecha captura","Centro","Proveedor","Placa","Operario","Volumen L","Temperatura C","Acidez D","Densidad g mL","Estado","Motivo","Reglas","Tanque","QR"
+"010aba18-ba9e-4c57-adb2-875abf7768f7","2026-10-24T11:42:53.581Z","Centro de prueba académico","Establo Lechero Los Andes S.A.C.","V1A-450","Juan Pérez","120.50","4.50","16.00","1.0300","APROBADO",,"DEMO-1","TQ-01","ACOPIO:010aba18-ba9e-4c57-adb2-875abf7768f7"
