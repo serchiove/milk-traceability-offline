@@ -418,6 +418,64 @@ class BackendFlowTests {
         assertThat(csv.body()).contains(id.toString(),"'=SUM(1,2)","\"\"Nombre\"\"");
         assertThat(get("/api/reportes/csv?estado=RECHAZADO",jwt).body()).doesNotContain(id.toString());
     }
+    HttpResponse<byte[]> excel(String query, String jwt) throws Exception {
+        var request = HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + port + "/api/reportes/xlsx" + query)).GET();
+        if (jwt != null) request.header("Authorization", "Bearer " + jwt);
+        return http.send(request.build(), HttpResponse.BodyHandlers.ofByteArray());
+    }
+
+    @Test void excelRequiresJefaturaAndExportsFilteredNumericRows() throws Exception {
+        assertThat(excel("", null).statusCode()).isEqualTo(401);
+        String op = token();
+        assertThat(excel("", op).statusCode()).isEqualTo(403);
+        String supplier = "=SUM(1,2)\n\"Lechería\"";
+        db.update("UPDATE acopio.proveedor SET razon_social=? WHERE id_proveedor=?", supplier, proveedor);
+        UUID aprobado = UUID.randomUUID(), rechazado = UUID.randomUUID();
+        assertThat(post("/api/lotes", op, lote(aprobado, "120.50", "4")).statusCode()).isEqualTo(201);
+        assertThat(post("/api/lotes", op, lote(rechazado, "50", "12")).statusCode()).isEqualTo(201);
+        var response = excel("?estado=APROBADO&desde=2026-10-15&hasta=2026-10-15", jefe());
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.headers().firstValue("Content-Type").orElse("")).contains("spreadsheetml.sheet");
+        assertThat(response.headers().firstValue("Content-Disposition").orElse("")).contains("acopio-reporte.xlsx");
+        try (var book = new org.apache.poi.xssf.usermodel.XSSFWorkbook(new java.io.ByteArrayInputStream(response.body()))) {
+            var sheet = book.getSheet("Recepciones");
+            assertThat(sheet).isNotNull();
+            assertThat(sheet.getLastRowNum()).isEqualTo(1);
+            assertThat(sheet.getRow(0).getCell(0).getStringCellValue()).isEqualTo("UUID");
+            var row = sheet.getRow(1);
+            assertThat(row.getCell(0).getStringCellValue()).isEqualTo(aprobado.toString());
+            assertThat(row.getCell(3).getCellType()).isEqualTo(org.apache.poi.ss.usermodel.CellType.STRING);
+            assertThat(row.getCell(3).getStringCellValue()).isEqualTo(supplier);
+            assertThat(row.getCell(6).getCellType()).isEqualTo(org.apache.poi.ss.usermodel.CellType.NUMERIC);
+            assertThat(row.getCell(6).getNumericCellValue()).isEqualTo(120.5);
+            assertThat(row.getCell(10).getStringCellValue()).isEqualTo("APROBADO");
+        }
+    }
+
+    @Test void excelDoesNotExposeLotsFromAnotherCenter() throws Exception {
+        UUID ajeno = UUID.randomUUID();
+        assertThat(post("/api/lotes", token(), lote(ajeno, "100", "4")).statusCode()).isEqualTo(201);
+        long centroAjeno = centro;
+        fixture();
+        var response = excel("?idCentro=" + centroAjeno, jefe());
+        assertThat(response.statusCode()).isEqualTo(200);
+        try (var book = new org.apache.poi.xssf.usermodel.XSSFWorkbook(new java.io.ByteArrayInputStream(response.body()))) {
+            assertThat(book.getSheet("Recepciones").getLastRowNum()).isZero();
+        }
+    }
+
+    @Test void excelHasHeadersForEmptyReportAndRejectsInvalidFilters() throws Exception {
+        String jwt = jefe();
+        var response = excel("?desde=2027-01-01", jwt);
+        assertThat(response.statusCode()).isEqualTo(200);
+        try (var book = new org.apache.poi.xssf.usermodel.XSSFWorkbook(new java.io.ByteArrayInputStream(response.body()))) {
+            var sheet = book.getSheet("Recepciones");
+            assertThat(sheet.getLastRowNum()).isZero();
+            assertThat(sheet.getRow(0).getLastCellNum()).isEqualTo((short) 15);
+        }
+        assertThat(excel("?desde=2026-10-16&hasta=2026-10-15", jwt).statusCode()).isEqualTo(400);
+    }
+
     @Test void suppliedFingerprintIsVerifiedAndCanonicalRetryWorks() throws Exception {
         UUID id=UUID.randomUUID();String body=lote(id,"120.50","4");
         String canonical=id+"|"+proveedor+"|"+vehiculo+"|"+usuario+"|"+centro+"|2026-10-15T15:30:00Z|120.5|4|16|1.03";
