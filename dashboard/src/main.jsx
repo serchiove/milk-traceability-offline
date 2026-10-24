@@ -79,6 +79,8 @@ function App() {
   const [notice, setNotice] = useState('');
   const [report, setReport] = useState(null);
   const [reportLoading, setReportLoading] = useState(false);
+  const [exporting, setExporting] = useState('');
+  const [refreshKey, setRefreshKey] = useState(0);
   const [reportError, setReportError] = useState('');
   const [tanks, setTanks] = useState([]);
   const [tanksLoading, setTanksLoading] = useState(false);
@@ -123,7 +125,7 @@ function App() {
 
       const data = await response.json().catch(() => null);
       if (!response.ok) {
-        throw new Error(data?.message || data?.error || `No se pudo iniciar sesión (HTTP ${response.status}).`);
+        throw new Error(data?.mensaje || data?.message || data?.error || `No se pudo iniciar sesión (HTTP ${response.status}).`);
       }
 
       const token = data?.accessToken;
@@ -246,7 +248,7 @@ function App() {
 
     loadLots();
     return () => controller.abort();
-  }, [accessToken, lotsPage, search, statusFilter, fromDate, toDate]);
+  }, [accessToken, lotsPage, search, statusFilter, fromDate, toDate, refreshKey]);
 
   // Indicadores e incidencias: mismos filtros que la tabla, calculados por el backend.
   useEffect(() => {
@@ -277,7 +279,7 @@ function App() {
     }
     loadReport();
     return () => controller.abort();
-  }, [accessToken, search, statusFilter, fromDate, toDate]);
+  }, [accessToken, search, statusFilter, fromDate, toDate, refreshKey]);
 
   // Tanques del centro autorizado de la sesión.
   useEffect(() => {
@@ -303,9 +305,10 @@ function App() {
     }
     loadTanks();
     return () => controller.abort();
-  }, [accessToken]);
+  }, [accessToken, refreshKey]);
 
-  async function exportCsv() {
+  async function exportReport(format) {
+    setExporting(format);
     try {
       const params = new URLSearchParams();
       if (statusFilter !== 'Todos') params.set('estado', statusFilter);
@@ -313,20 +316,22 @@ function App() {
       if (toDate) params.set('hasta', toDate);
       if (search.trim()) params.set('buscar', search.trim());
       const suffix = params.toString() ? `?${params.toString()}` : '';
-      const response = await apiFetch(`/api/reportes/csv${suffix}`);
-      if (!response.ok) throw new Error(`No se pudo descargar el CSV (HTTP ${response.status}).`);
+      const response = await apiFetch(`/api/reportes/${format}${suffix}`);
+      if (!response.ok) throw new Error(`No se pudo descargar el reporte (HTTP ${response.status}).`);
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement('a');
       anchor.href = url;
-      anchor.download = 'acopio-reporte.csv';
+      anchor.download = `acopio-reporte.${format}`;
       document.body.appendChild(anchor);
       anchor.click();
       anchor.remove();
       URL.revokeObjectURL(url);
-      setNotice('Reporte CSV descargado desde el servidor.');
+      setNotice(`Reporte ${format === 'xlsx' ? 'Excel' : 'CSV'} descargado desde el servidor.`);
     } catch (error) {
-      setNotice(error.message || 'No se pudo descargar el reporte CSV.');
+      setNotice(error.message || 'No se pudo descargar el reporte.');
+    } finally {
+      setExporting('');
     }
   }
 
@@ -518,7 +523,7 @@ function App() {
                 <label>Desde<input className="form-control" type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} /></label>
                 <label>Hasta<input className="form-control" type="date" value={toDate} onChange={e => setToDate(e.target.value)} /></label>
                 <label className="search-field">Buscar<input className="form-control" value={search} onChange={e => setSearch(e.target.value)} placeholder="Lote, proveedor, centro…" /></label>
-                <div className="filter-actions"><button className="btn btn-acopio" onClick={() => { setLotsPage(0); setNotice('Filtros consultados en el servidor.'); }}>Aplicar filtros</button><button className="btn btn-soft" onClick={exportCsv}>Exportar CSV</button></div>
+                <div className="filter-actions"><button className="btn btn-acopio" onClick={() => { setLotsPage(0); setRefreshKey(value => value + 1); setNotice('Filtros consultados en el servidor.'); }}>Aplicar filtros</button><button className="btn btn-soft" disabled={Boolean(exporting)} onClick={() => exportReport('csv')}>{exporting === 'csv' ? 'Descargando CSV…' : 'Exportar CSV'}</button><button className="btn btn-soft" disabled={Boolean(exporting)} onClick={() => exportReport('xlsx')}>{exporting === 'xlsx' ? 'Descargando Excel…' : 'Exportar Excel'}</button></div>
               </section>
               <section className="panel report-table-panel"><PanelTitle title="Resultados" subtitle={`${totalLots} registro(s) en el servidor`} /><LotTable lots={filteredLots} loading={lotsLoading} onSelect={id =>{ setActiveLotId(id); setPage('traceability'); }} emptyMessage="No hay lotes que coincidan con los filtros." /><Pagination page={lotsPage} pageSize={lotsPageSize} total={totalLots} onChange={setLotsPage} /></section>
             </>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <property name="LOG_DIR" value="${ACOPIO_LOG_DIR:-.local/logs}"/>
+  <property name="FORMATO" value="%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level %logger{40} - %msg%n"/>
+  <appender name="CONSOLA" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder><pattern>${FORMATO}</pattern><charset>UTF-8</charset></encoder>
+  </appender>
+  <appender name="ARCHIVO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_DIR}/acopio.log</file>
+    <encoder><pattern>${FORMATO}</pattern><charset>UTF-8</charset></encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_DIR}/acopio.%d{yyyy-MM-dd}.log</fileNamePattern>
+      <maxHistory>7</maxHistory>
+    </rollingPolicy>
+  </appender>
+  <root level="INFO"><appender-ref ref="CONSOLA"/><appender-ref ref="ARCHIVO"/></root>
+</configuration>

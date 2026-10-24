@@ -15,6 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+/** Configura JWT sin sesión del servidor, roles por ruta, CORS y respuestas 401/403. Las rutas no declaradas se rechazan. */
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;

@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.edu.utp.acopio.DTO.consulta.LoteDetalleDto;
 
 @Service
+/** Consulta un conjunto filtrado y consistente por centro para indicadores, CSV y XLSX. Limita la exportación a 10000 registros. */
 public class ReporteService {
   private final ConsultaLoteService consultas;
   private final pe.edu.utp.acopio.report.ExportadorReporte exportador;
@@ -38,6 +39,16 @@ public class ReporteService {
       double porcentajeVolumenAprobado,
       double porcentajeVolumenRechazado) {}
 
+  /**
+   * Reúne páginas, totales e incidencias en una lectura consistente.
+   * @param centro centro de la identidad autenticada
+   * @param estado estado de calidad o null para todos
+   * @param desde primera fecha local inclusiva, opcional
+   * @param hasta última fecha local inclusiva, opcional
+   * @param buscar texto de búsqueda; cadena vacía para no restringir
+   * @return registros y métricas calculados con los mismos filtros
+   * @throws IllegalArgumentException si los filtros son inválidos o excede 10000 lotes
+   */
   @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
   public Reporte consultar(
       Long centro, String estado, LocalDate desde, LocalDate hasta, String buscar) {

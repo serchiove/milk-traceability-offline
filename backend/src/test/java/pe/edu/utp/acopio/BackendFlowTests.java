@@ -418,6 +418,25 @@ class BackendFlowTests {
         assertThat(csv.body()).contains(id.toString(),"'=SUM(1,2)","\"\"Nombre\"\"");
         assertThat(get("/api/reportes/csv?estado=RECHAZADO",jwt).body()).doesNotContain(id.toString());
     }
+    @Test void logbackRecordsCommittedReceiptWithoutLoggingRolledBackReceipt() throws Exception {
+        var logger = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(pe.edu.utp.acopio.service.LoteService.class);
+        var appender = new ch.qos.logback.core.read.ListAppender<ch.qos.logback.classic.spi.ILoggingEvent>();
+        appender.setContext(logger.getLoggerContext());
+        appender.start();
+        logger.addAppender(appender);
+        UUID confirmado = UUID.randomUUID(), fallido = UUID.randomUUID();
+        try {
+            assertThat(post("/api/lotes", token(), lote(confirmado, "100", "4")).statusCode()).isEqualTo(201);
+            db.execute("ALTER TABLE acopio.registro_calidad ADD CONSTRAINT test_rollback_log CHECK (id_lote <> '" + fallido + "'::uuid)");
+            try {
+                assertThat(post("/api/lotes", token(), lote(fallido, "100", "4")).statusCode()).isEqualTo(400);
+            } finally { db.execute("ALTER TABLE acopio.registro_calidad DROP CONSTRAINT test_rollback_log"); }
+            var mensajes = appender.list.stream().map(ch.qos.logback.classic.spi.ILoggingEvent::getFormattedMessage).toList();
+            assertThat(mensajes).anyMatch(m -> m.contains("recepcion_confirmada") && m.contains(confirmado.toString()));
+            assertThat(mensajes).noneMatch(m -> m.contains(fallido.toString()) || m.contains(PASSWORD) || m.contains("Bearer"));
+        } finally { logger.detachAppender(appender); appender.stop(); }
+    }
+
     HttpResponse<byte[]> excel(String query, String jwt) throws Exception {
         var request = HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + port + "/api/reportes/xlsx" + query)).GET();
         if (jwt != null) request.header("Authorization", "Bearer " + jwt);

@@ -1,0 +1,3 @@
+﻿"UUID","Fecha captura","Centro","Proveedor","Placa","Operario","Volumen L","Temperatura C","Acidez D","Densidad g mL","Estado","Motivo","Reglas","Tanque","QR"
+"fbbc9a03-52be-4536-9c16-b52b91c2c19e","2026-10-24T04:31:34.195596Z","Centro de prueba académico","'=SUM(1,2)
+""Lechería""","T0089535","Juan Pérez","100.00","4.00","16.00","1.0300","APROBADO",,"DEMO-1",,"ACOPIO:fbbc9a03-52be-4536-9c16-b52b91c2c19e"

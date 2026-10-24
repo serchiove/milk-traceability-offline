@@ -8,13 +8,17 @@ import pe.edu.utp.acopio.DTO.lote.LoteRecepcionResponse;
 import pe.edu.utp.acopio.repository.LoteRepository;
 
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.ZoneOffset;
-import java.util.HexFormat;
+import com.google.common.hash.Hashing;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import pe.edu.utp.acopio.observability.EventosTransaccion;
 
 @Service
+/** Coordina recepción, evaluación e idempotencia dentro de una transacción. El usuario y el centro proceden de la identidad autenticada. */
 public class LoteService {
+
+    private static final Logger log = LoggerFactory.getLogger(LoteService.class);
 
     private final LoteRepository loteRepository;
     private final MotorCalidad motorCalidad;
@@ -30,6 +34,16 @@ public class LoteService {
         }
     }
 
+    /**
+     * Registra una recepción y evalúa sus mediciones una sola vez.
+     * Un reintento idéntico conserva el lote original, incluso si cambió un catálogo.
+     * @param req recepción validada, con UUID estable y huella opcional
+     * @param idUsuario operario obtenido del JWT
+     * @param idCentro centro autorizado del operario
+     * @return estado persistido y marca de reintento idempotente
+     * @throws IllegalArgumentException si las referencias o la huella no son válidas
+     * @throws ConflictoHuellaException si el UUID ya tiene otro contenido
+     */
     @Transactional
     public LoteRecepcionResponse registrarLote(LoteRecepcionRequest req, Long idUsuario, Long idCentro) {
         String huellaCalculada = calcularHuellaSha256(req, idUsuario, idCentro);
@@ -52,6 +66,7 @@ public class LoteService {
                 .orElseThrow(() -> new IllegalStateException("No se encontró el lote tras el registro"));
 
         if (!estadoActual.huellaSolicitud().equals(huellaCalculada)) {
+            log.warn("recepcion_conflictiva uuid={}", req.idLote());
             throw new ConflictoHuellaException(
                 "El idLote ya fue registrado previamente con datos distintos (conflicto de huella SHA-256)"
             );
@@ -73,7 +88,7 @@ public class LoteService {
             estadoActual = loteRepository.buscarEstadoLote(req.idLote()).orElseThrow();
         }
 
-        return new LoteRecepcionResponse(
+        var respuesta = new LoteRecepcionResponse(
             estadoActual.idLote(),
             estadoActual.estadoEvaluacion(),
             estadoActual.versionReglas(),
@@ -84,6 +99,10 @@ public class LoteService {
             estadoActual.fechaEvaluacion(),
             !esNuevo
         );
+        EventosTransaccion.despuesDeConfirmar(() -> log.info(
+            "recepcion_confirmada uuid={} estado={} idempotente={}",
+            respuesta.idLote(), respuesta.estadoEvaluacion(), respuesta.idempotente()));
+        return respuesta;
     }
 
     private String calcularHuellaSha256(LoteRecepcionRequest req, Long idUsuario, Long idCentro) {
@@ -101,12 +120,6 @@ public class LoteService {
             req.mediciones().densidadGml().stripTrailingZeros().toPlainString()
         );
 
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hashBytes = digest.digest(cadenaCanonica.getBytes(StandardCharsets.UTF_8));
-            return HexFormat.of().formatHex(hashBytes); // 64 caracteres hex en minúsculas
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("Algoritmo SHA-256 no disponible", e);
-        }
+        return Hashing.sha256().hashString(cadenaCanonica, StandardCharsets.UTF_8).toString();
     }
 }

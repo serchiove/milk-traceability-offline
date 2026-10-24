@@ -9,6 +9,7 @@ import pe.edu.utp.acopio.service.ReporteService;
 
 @RestController
 @RequestMapping("/api/reportes")
+/** Expone indicadores, CSV y XLSX bajo /api/reportes. Spring Security exige JEFATURA; los filtros conservan el centro autenticado. */
 public class ReporteController {
     private final ReporteService reportes;
     public ReporteController(ReporteService reportes){this.reportes=reportes;}

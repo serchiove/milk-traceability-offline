@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+/** Evalúa las mediciones con las reglas inyectadas. Devuelve APROBADO si no encuentra incumplimientos o RECHAZADO con los motivos y la versión aplicada. */
 public class MotorCalidad {
 
     private final String versionReglas;
@@ -19,6 +20,12 @@ public class MotorCalidad {
         this.reglas = reglas;
     }
 
+    /**
+     * Aplica todas las reglas y conserva sus motivos de incumplimiento.
+     * Los umbrales DEMO-1 son académicos y no certifican calidad comercial.
+     * @param mediciones temperatura, acidez y densidad ya validadas
+     * @return decisión con estado, versión y motivo opcional
+     */
     public ResultadoEvaluacion evaluar(MedicionesDto mediciones) {
         List<String> incumplimientos = reglas.stream()
             .map(regla -> regla.evaluar(mediciones))

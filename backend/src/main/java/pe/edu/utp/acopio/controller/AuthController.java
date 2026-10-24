@@ -12,6 +12,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
+/** Recibe credenciales en /api/auth/login y devuelve la sesión autorizada o el rechazo de autenticación. */
 public class AuthController {
 
     private final AuthService authService;

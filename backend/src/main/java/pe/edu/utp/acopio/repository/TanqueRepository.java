@@ -10,6 +10,7 @@ import pe.edu.utp.acopio.DTO.tanque.*;
 import pe.edu.utp.acopio.model.*;
 
 @Repository
+/** Consulta tanques y bloquea entidades mediante PESSIMISTIC_WRITE. El trigger de PostgreSQL mantiene el volumen asignado y Hibernate vuelve a leerlo. */
 public class TanqueRepository {
   @jakarta.persistence.PersistenceContext private EntityManager em;
 

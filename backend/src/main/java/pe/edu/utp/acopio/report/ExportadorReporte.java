@@ -9,6 +9,8 @@ import org.apache.commons.csv.QuoteMode;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pe.edu.utp.acopio.DTO.consulta.LoteDetalleDto;
 import pe.edu.utp.acopio.service.ReporteService.Reporte;
 
@@ -18,6 +20,7 @@ import pe.edu.utp.acopio.service.ReporteService.Reporte;
  */
 @Component
 public class ExportadorReporte {
+  private static final Logger log = LoggerFactory.getLogger(ExportadorReporte.class);
   private static final String[] COLUMNAS = {
     "UUID", "Fecha captura", "Centro", "Proveedor", "Placa", "Operario", "Volumen L",
     "Temperatura C", "Acidez D", "Densidad g mL", "Estado", "Motivo", "Reglas", "Tanque", "QR"
@@ -41,6 +44,7 @@ public class ExportadorReporte {
         csv.printRecord(fila);
       }
       csv.flush();
+      log.info("reporte_generado formato=CSV filas={}", reporte.registros().size());
       return "\ufeff" + salida;
     } catch (IOException error) {
       throw new IllegalStateException("No se pudo generar el archivo CSV", error);
@@ -90,6 +94,7 @@ public class ExportadorReporte {
       hoja.createFreezePane(0, 1);
       hoja.setAutoFilter(new CellRangeAddress(0, Math.max(0, numero - 1), 0, COLUMNAS.length - 1));
       libro.write(salida);
+      log.info("reporte_generado formato=XLSX filas={}", reporte.registros().size());
       return salida.toByteArray();
     } catch (IOException error) {
       throw new IllegalStateException("No se pudo generar el archivo Excel", error);
