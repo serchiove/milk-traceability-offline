@@ -1,0 +1,14 @@
+﻿{
+    "elementos":  [
+                      {
+                          "id":  1,
+                          "tipoDocumento":  "RUC",
+                          "numeroDocumento":  "20100190797",
+                          "razonSocial":  "Establo Lechero Los Andes S.A.C.",
+                          "estadoCert":  "VIGENTE"
+                      }
+                  ],
+    "total":  1,
+    "pagina":  0,
+    "tamano":  25
+}

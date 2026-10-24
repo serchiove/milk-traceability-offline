@@ -1,0 +1,12 @@
+﻿{
+    "elementos":  [
+                      {
+                          "id":  1,
+                          "placa":  "V1A-450",
+                          "capacidadLitros":  5000.00
+                      }
+                  ],
+    "total":  1,
+    "pagina":  0,
+    "tamano":  25
+}

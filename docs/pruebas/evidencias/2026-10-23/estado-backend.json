@@ -1,0 +1,1 @@
+{"baseDatos":"PostgreSQL","tablas":9,"estado":"CONECTADO","centros":[{"capacidad_litros":10000.00,"region":"Arequipa","nombre":"Centro de prueba académico","id_centro":1}],"alcance":"Entorno de desarrollo; funciones de negocio pendientes"}
