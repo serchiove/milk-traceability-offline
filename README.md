@@ -39,7 +39,7 @@ Nuestro proyecto forma parte del curso **Proyecto Integrador** y toma como conte
 
 ## Estado del proyecto
 
-**Última actualización: 23 de octubre de 2026 · rama `codex/apf3-reportes-documentacion`.**
+**Última actualización: 23 de octubre de 2026 · rama `sergio/apf3-reportes-documentacion`.**
 
 Implementamos el backend y el recorrido principal de la app móvil. En esta rama incorporamos el consumo de API del dashboard de Fernando y añadimos exportación Excel, Commons CSV, Guava, Logback, Javadoc y evidencia TDD. El detalle completo de trazabilidad web y la aceptación conjunta con teléfono físico siguen pendientes.
 
@@ -132,7 +132,7 @@ Nos organizamos por componentes y colaboramos en su integración. En esta tabla 
 
 | Integrante | Trabajo realizado | Referencias |
 | :--- | :--- | :--- |
-| Sergio | Entorno y esquema inicial; app móvil; integración, ampliaciones backend y migración JPA, con apoyo de Codex durante el desarrollo | `1489916`, `3bf07c9`, `c87f7c1`, `8f559fa` |
+| Sergio | Entorno y esquema inicial; app móvil; integración, ampliaciones backend y migración JPA | `1489916`, `3bf07c9`, `c87f7c1`, `8f559fa` |
 | Patricio | Base JWT, DTO, autenticación, recepción, reglas de calidad, repositorios y datos V3 | `17cc591`, `356ac1b` |
 | Fernando | Interfaz y consumo de API del dashboard, incorporado en esta rama conservando su autoría | `570d667`, `73a9294` → `7da8c00` |
 | Elías | Documentos de datos ficticios y matriz de 15 casos, aún pendientes de ejecución en su rama | `7d40673`, `2bbdf91`, `efb4135` |

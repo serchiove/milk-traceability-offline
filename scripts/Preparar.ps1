@@ -5,8 +5,7 @@ New-Item -ItemType Directory -Force $local | Out-Null
 $pgBin=if($env:ACOPIO_PG_BIN){$env:ACOPIO_PG_BIN}else{'C:\Program Files\PostgreSQL\18\bin'}
 foreach($tool in @('java.exe','mvn.cmd','npm.cmd','git.exe')){Get-Command $tool -ErrorAction Stop | Out-Null}
 if(!(Test-Path "$pgBin/initdb.exe")){throw 'Instala PostgreSQL 18 o define ACOPIO_PG_BIN con la carpeta bin.'}
-$bundledNode=Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe'
-if($env:ACOPIO_NODE){$env:PATH=(Split-Path $env:ACOPIO_NODE)+';'+$env:PATH}elseif(Test-Path $bundledNode){$env:PATH=(Split-Path $bundledNode)+';'+$env:PATH}
+if($env:ACOPIO_NODE){$env:PATH=(Split-Path $env:ACOPIO_NODE)+';'+$env:PATH}
 if(!(Test-Path "$local/db-password.txt")){
  $bytes=New-Object byte[] 32
  $rng=[System.Security.Cryptography.RandomNumberGenerator]::Create();$rng.GetBytes($bytes);$rng.Dispose()

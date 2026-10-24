@@ -1,6 +1,6 @@
 # Librerías documentación y pruebas del tercer avance
 
-Ampliamos los reportes con Excel y usamos las cuatro librerías solicitadas en funciones del backend. Esta entrega se desarrolla en `codex/apf3-reportes-documentacion`, a partir de `main` en `a59788d`. Conservamos el aporte web de Fernando mediante el cherry-pick de `73a9294` como `7da8c00`; la autoría original permanece en Git.
+Ampliamos los reportes con Excel y usamos las cuatro librerías solicitadas en funciones del backend. Esta entrega se desarrolla en `sergio/apf3-reportes-documentacion`, a partir de `main` en `a59788d`. Conservamos el aporte web de Fernando mediante el cherry-pick de `73a9294` como `7da8c00`; la autoría original permanece en Git.
 
 ## Uso de las librerías
 
