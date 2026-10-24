@@ -1,0 +1,8 @@
+Commit: a59788d02c3ebf7a6e1fe443ea4e9625d94ce1aa
+Origen: ZIP main; 68 archivos backend contrastados mediante SHA-256 durante la sesion.
+BackendFlowTests: 31 pruebas sin fallos; repeticion critica con PostgreSQL 18.6: 9 sin fallos.
+Movil real: recorrido offline, reintento, API, PostgreSQL y destino TQ-01 verificados el 24/10/2026.
+Calidad: rechazos por 22 grados Dornic y densidad 1.0200 confirmados en PostgreSQL.
+Migraciones: instalacion limpia, V3 a V4 y segundo arranque sin repetir migraciones.
+JPA: fallo esperado por columna ausente, esquema sin cambios.
+Pendientes: CP-15 y CP-17 parciales; aceptacion web integrada y lectura QR con otra camara.

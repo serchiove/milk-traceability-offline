@@ -1,0 +1,9 @@
+centro_acopio|1|5ee8520dcbdb748ea2e5cde7700f3466
+incidencia|1|894f317fc38b15c3255c5fbd2bf68d23
+lote_leche|2|cb300fe9f4fc2d176fe27ee4f782cd93
+proveedor|1|a3894baf27da7afbc82630c38a63d1ef
+registro_calidad|2|23122f9f0c47189441022f9ade03d3dc
+rol|2|7535bbaa0b381df9fb11b6060c48f673
+tanque|1|1a2b12828b6ce3914b23be5bd6a39836
+usuario|2|aeec5716e326d8ddd8e43bb2c94dbbf7
+vehiculo|1|48293c03af983224149ccd16ba3124cf
