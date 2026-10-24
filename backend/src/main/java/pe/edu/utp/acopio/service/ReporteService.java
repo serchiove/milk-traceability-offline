@@ -122,6 +122,37 @@ public class ReporteService {
     return csv.toString();
   }
 
+  public byte[] xlsx(Reporte reporte) {
+    try (var libro = new org.apache.poi.xssf.usermodel.XSSFWorkbook();
+        var salida = new java.io.ByteArrayOutputStream()) {
+      var hoja = libro.createSheet("Recepciones");
+      String[] titulos = {"UUID", "Fecha captura", "Centro", "Proveedor", "Placa", "Operario",
+          "Volumen L", "Temperatura C", "Acidez D", "Densidad g mL", "Estado", "Motivo",
+          "Reglas", "Tanque", "QR"};
+      var cabecera = hoja.createRow(0);
+      for (int columna = 0; columna < titulos.length; columna++)
+        cabecera.createCell(columna).setCellValue(titulos[columna]);
+      int numero = 1;
+      for (var lote : reporte.registros()) {
+        Object[] valores = {lote.idLote(), lote.fechaHora(), lote.centro(), lote.proveedor(),
+            lote.placa(), lote.operario(), lote.volumenLitros(), lote.temperaturaC(),
+            lote.acidezDornic(), lote.densidadGml(), lote.estadoEvaluacion(), lote.motivo(),
+            lote.versionReglas(), lote.tanque(), lote.codigoQr()};
+        var fila = hoja.createRow(numero++);
+        for (int columna = 0; columna < valores.length; columna++) {
+          var celda = fila.createCell(columna);
+          Object valor = valores[columna];
+          if (valor instanceof Number numeroValor) celda.setCellValue(numeroValor.doubleValue());
+          else if (valor != null) celda.setCellValue(valor.toString());
+        }
+      }
+      libro.write(salida);
+      return salida.toByteArray();
+    } catch (java.io.IOException error) {
+      throw new IllegalStateException("No se pudo generar el archivo Excel", error);
+    }
+  }
+
   public static String celda(Object valor) {
     String texto = valor == null ? "" : valor.toString();
     // Prevent spreadsheet formula execution while keeping numeric measurements numeric.

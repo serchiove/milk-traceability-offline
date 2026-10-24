@@ -35,7 +35,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/estado").permitAll()     // Ruta pública de Diagnóstico
                 .requestMatchers("/actuator/health").permitAll() // Ruta pública de Actuator
                 .requestMatchers(HttpMethod.POST, "/api/lotes", "/api/lotes/*/asignacion-tanque").hasRole("OPERARIO")
-                .requestMatchers(HttpMethod.GET, "/api/reportes", "/api/reportes/csv").hasRole("JEFATURA")
+                .requestMatchers(HttpMethod.GET, "/api/reportes", "/api/reportes/csv", "/api/reportes/xlsx").hasRole("JEFATURA")
                 .requestMatchers(HttpMethod.GET, "/api/catalogos/proveedores", "/api/catalogos/vehiculos", "/api/catalogos/centro",
                                  "/api/lotes", "/api/lotes/*", "/api/tanques").hasAnyRole("OPERARIO", "JEFATURA")
                 .anyRequest().denyAll()                   // Todo lo demás, bloqueado
