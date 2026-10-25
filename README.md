@@ -114,6 +114,7 @@ La sesión vigente, pantalla, filtros y lote seleccionado se conservan al recarg
 
 ## API compartida
 
+sergio/documentacion-consolidada
 | Ruta | Operación |
 | --- | --- |
 | `POST /api/auth/login` | Autenticación y JWT |
@@ -130,6 +131,22 @@ La sesión vigente, pantalla, filtros y lote seleccionado se conservan al recarg
 | `/api/administracion/catalogos` | Administración de proveedores y vehículos para jefatura |
 
 El centro y el operario se obtienen del JWT. Las consultas usan `pagina` y `tamano`; lotes y reportes aceptan `estado`, `desde`, `hasta` y `buscar`. El período se interpreta en `America/Lima`; cada reporte admite hasta 10000 registros.
+
+| Fecha | Alcance | Resultado registrado |
+|---|---|---|
+| 20/10/2026 | Revisión de Elías sobre `a59788d` | 29/29 pruebas móviles y typecheck aprobados; dashboard compilado; backend bloqueado en ese entorno y no atribuido como ejecución propia |
+| 23/10/2026 | Ampliación APF3 con PostgreSQL aislado | 40 backend y 29 móviles aprobadas; Javadoc, build y descarga CSV/XLSX comprobados; ver docs/APF3_LIBRERIAS_JAVADOC_TDD.md |
+| 24/10/2026 | Pruebas de Elías sobre `a59788d` con PostgreSQL real y celular Redmi | Suite backend: 31 aprobadas; repetición de 9 pruebas críticas aprobada. Recorrido móvil–API–PostgreSQL, calidad, asignación de tanque, migraciones y validación JPA comprobados. Matriz: 22 aprobados y 2 parciales; aceptación web integrada pendiente |
+| 17/10/2026 | Backend migrado a JPA, HTTP + PostgreSQL aislado | 33 pruebas aprobadas, JAR generado |
+| 17/10/2026 | Suite móvil | 29 pruebas aprobadas; almacenamiento SQLite en memoria y HTTP simulado |
+| 16/10/2026 | TypeScript y exportación Android | Correctos en la revisión de integración; no equivale a APK distribuible |
+| 16/10/2026 | Android conectado | Calidad y tanque TQ-01 consultados desde el teléfono; no se confirmó asignación en esa comprobación |
+| 17/10/2026 | Rama Elías efb4135 | 15 casos preparados; resultados/evidencias figuran pendientes |
+
+La revisión actual de Elías se encuentra en la [matriz de 24 casos](docs/pruebas/MATRIZ_PRUEBAS_ELIAS.md), los [datos de prueba alineados](docs/pruebas/DATOS_FICTICIOS_ELIAS.md) y la [evidencia del 20/10/2026](docs/pruebas/EJECUCION_AUTOMATIZADA_2026-10-20.md).
+
+Conservamos las fechas y el alcance de cada ejecución para distinguir lo que probamos de lo que todavía debemos validar. Las pruebas están en `backend/src/test` y `mobile/tests`; completamos su seguimiento con los logs locales y la [bitácora de incidencias](docs/informes/Incidencias_y_aportes_verificados.docx). Antes de compartir evidencia retiramos los datos sensibles.
+main
 
 El JSON de recepción, la huella y los límites numéricos se documentan en [Arquitectura y contratos](mobile-flutter/docs/ANALISIS.md).
 

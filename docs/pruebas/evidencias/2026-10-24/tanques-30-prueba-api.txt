@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: pe.edu.utp.acopio.BackendFlowTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 18.68 s -- in pe.edu.utp.acopio.BackendFlowTests

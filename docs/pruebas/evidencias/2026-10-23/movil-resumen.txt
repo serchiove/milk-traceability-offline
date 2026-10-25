@@ -1,0 +1,21 @@
+﻿PRUEBA MOVIL REAL — 24/10/2026
+Commit: a59788d02c3ebf7a6e1fe443ea4e9625d94ce1aa
+Equipo: Redmi Note 13 Pro+ / Expo Go.
+
+UUID: 010aba18-ba9e-4c57-adb2-875abf7768f7
+Proveedor: ID 1. Vehiculo: ID 1, V1A-450. Centro: ID 1.
+Datos: 120,50 L; 4,50 C; 16 grados Dornic; 1,0300 g/mL.
+
+Se retiro el acceso USB a la API (18080), manteniendo Expo (8081).
+La recepcion se guardo localmente.
+El envio sin acceso a la API fallo y conservo el registro.
+Tras cerrar y reabrir Expo Go, se conservaron datos e identificador.
+Al restaurar 18080 y confirmar el envio, el servidor aprobo el lote.
+Resultado: APROBADO con reglas academicas DEMO-1 y QR visible.
+API y PostgreSQL devolvieron el mismo UUID y las mismas mediciones.
+Se verifico 1 lote y 1 evaluacion para este UUID.
+La asignacion desde el movil confirmo el destino TQ-01.
+Ocupacion anterior: 100 L. Final: 220,50 L. Disponible: 4779,50 L.
+
+Pendiente: comprobar este recorrido en el dashboard integrado y reporte.
+El escaneo del QR con camara no se ha probado en este recorrido.

@@ -1,0 +1,12 @@
+﻿{
+    "mediciones":  {
+                       "acidezDornic":  16,
+                       "temperaturaC":  4,
+                       "densidadGml":  1.03
+                   },
+    "fechaHora":  "2026-10-23T12:39:34.3655778-05:00",
+    "idLote":  "ead271de-cf5f-4072-918f-39414a1a2ebf",
+    "idProveedor":  1,
+    "volumenLitros":  100,
+    "idVehiculo":  1
+}

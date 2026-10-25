@@ -508,4 +508,86 @@ class BackendFlowTests {
         assertThat(post("/api/lotes",token(),valid).statusCode()).isEqualTo(200);
         assertThat(count("lote_leche",id)).isEqualTo(1);
     }
+
+    @Test void eliasVehiculoInactivoNoGuardaLote() throws Exception {
+        String jwt = token();
+        UUID anterior = UUID.randomUUID();
+        assertThat(post("/api/lotes", jwt, lote(anterior, "100", "4")).statusCode()).isEqualTo(201);
+
+        db.update("UPDATE acopio.vehiculo SET activo=false WHERE id_vehiculo=?", vehiculo);
+        UUID nuevo = UUID.randomUUID();
+        assertThat(post("/api/lotes", jwt, lote(nuevo, "100", "4")).statusCode()).isEqualTo(400);
+        assertThat(count("lote_leche", nuevo)).isZero();
+        assertThat(count("registro_calidad", nuevo)).isZero();
+
+        assertThat(get("/api/lotes/" + anterior, jwt).statusCode()).isEqualTo(200);
+        assertThat(count("lote_leche", anterior)).isEqualTo(1);
+        assertThat(count("registro_calidad", anterior)).isEqualTo(1);
+    }
+
+    @Test void eliasReportesYCsvRespetanMedianocheLima() throws Exception {
+        String op = token();
+        UUID antes = UUID.randomUUID(), inicio = UUID.randomUUID();
+        UUID fin = UUID.randomUUID(), siguiente = UUID.randomUUID();
+        UUID[] ids = {antes, inicio, fin, siguiente};
+        String[] fechas = {
+            "2026-10-15T04:59:59Z",
+            "2026-10-15T05:00:00Z",
+            "2026-10-16T04:59:59Z",
+            "2026-10-16T05:00:00Z"
+        };
+
+        for (int i = 0; i < ids.length; i++) {
+            String solicitud = lote(ids[i], "100", "4")
+                .replace("2026-10-15T10:30:00-05:00", fechas[i]);
+            assertThat(post("/api/lotes", op, solicitud).statusCode()).isEqualTo(201);
+        }
+
+        String jwt = jefe();
+        String filtro = "?desde=2026-10-15&hasta=2026-10-15&estado=APROBADO";
+        for (String ruta : List.of("/api/reportes", "/api/reportes/csv")) {
+            var respuesta = get(ruta + filtro, jwt);
+            assertThat(respuesta.statusCode()).as(ruta).isEqualTo(200);
+            assertThat(respuesta.body()).as(ruta)
+                .contains(inicio.toString(), fin.toString())
+                .doesNotContain(antes.toString(), siguiente.toString());
+            if (ruta.endsWith("/csv")) {
+                assertThat(respuesta.body().lines().filter(l -> !l.isBlank()).count()).isEqualTo(3);
+            } else {
+                assertThat(respuesta.body()).contains("\"total\":2");
+            }
+        }
+    }
+
+    @Test void eliasConsultaTreintaTanquesPaginados() throws Exception {
+        var esperados = new java.util.HashSet<Long>();
+        for (int i = 0; i < 30; i++) {
+            esperados.add(tanque("100", "DISPONIBLE"));
+        }
+
+        db.update("UPDATE acopio.usuario SET id_rol=(SELECT id_rol FROM acopio.rol WHERE nombre='JEFATURA') WHERE id_usuario=?", usuario);
+        String jwt = tokens.generarToken(email, usuario, centro, "JEFATURA");
+        var encontrados = new java.util.HashSet<Long>();
+
+        for (int pagina = 0; pagina < 2; pagina++) {
+            var respuesta = get("/api/tanques?pagina=" + pagina + "&tamano=25", jwt);
+            assertThat(respuesta.statusCode()).isEqualTo(200);
+            assertThat(respuesta.body()).containsPattern("\"total\"\\s*:\\s*30\\b");
+
+            var patron = java.util.regex.Pattern.compile("\"id\"\\s*:\\s*(\\d+)");
+            var coincidencias = patron.matcher(respuesta.body());
+            int cantidad = 0;
+
+            while (coincidencias.find()) {
+                long id = Long.parseLong(coincidencias.group(1));
+                assertThat(encontrados.add(id)).as("Tanque sin repetir: " + id).isTrue();
+                cantidad++;
+            }
+
+            assertThat(cantidad).as("Cantidad en pagina " + pagina)
+                .isEqualTo(pagina == 0 ? 25 : 5);
+        }
+
+        assertThat(encontrados).containsExactlyInAnyOrderElementsOf(esperados);
+    }
 }
