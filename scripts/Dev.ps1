@@ -1,8 +1,27 @@
-param([ValidateSet('Start','Stop','Check','Build','Mobile')][string]$Action='Start')
+param([ValidateSet('Start','Stop','Check','Build','Mobile')][string]$Action='Start',[string]$DeviceId)
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
 $local=Join-Path $root '.local'
 New-Item -ItemType Directory -Force $local | Out-Null
+# Java 17 es el entorno compartido por Spring Boot y Android.
+$javaHome = if ($env:ACOPIO_JAVA_HOME) { $env:ACOPIO_JAVA_HOME }
+ elseif (Test-Path 'C:\Program Files\Eclipse Adoptium') {
+  (Get-ChildItem -LiteralPath 'C:\Program Files\Eclipse Adoptium' -Directory | Where-Object Name -Like 'jdk-17*' | Sort-Object Name -Descending | Select-Object -First 1).FullName
+ } else { $env:JAVA_HOME }
+if ($javaHome) {
+ $env:JAVA_HOME=$javaHome
+ $env:PATH=(Join-Path $javaHome 'bin')+';'+$env:PATH
+}
+if ($Action -eq 'Mobile') {
+ $flutter=(Get-Command flutter.bat -ErrorAction Stop).Source
+ $serial=& "$PSScriptRoot/Conectar-Android.ps1" -Serial $DeviceId -PassThru
+ Push-Location "$root/mobile-flutter"
+ try {
+  & $flutter run -d $serial --dart-define=API_BASE_URL=http://127.0.0.1:18080
+  if($LASTEXITCODE -ne 0){throw 'No se pudo ejecutar la app Flutter. Revisa el mensaje anterior.'}
+ } finally {Pop-Location}
+ return
+}
 $pgBin=if($env:ACOPIO_PG_BIN){$env:ACOPIO_PG_BIN}else{'C:\Program Files\PostgreSQL\18\bin'}
 $node=if($env:ACOPIO_NODE){$env:ACOPIO_NODE}else{(Get-Command node.exe).Source}
 $java=(Get-Command java.exe).Source
@@ -72,9 +91,16 @@ function Build-All {
   Write-Host 'Backend recompilado y disponible nuevamente.'
  }
  Push-Location "$root/dashboard"
- try { & npm.cmd run build; if($LASTEXITCODE -ne 0){throw 'Fallo el build del dashboard.'} } finally {Pop-Location}
- Push-Location "$root/mobile"
- try { & npm.cmd run typecheck; if($LASTEXITCODE -ne 0){throw 'Fallo la comprobacion TypeScript de la app.'} } finally {Pop-Location}
+ try { & npm.cmd test; if($LASTEXITCODE -ne 0){throw 'Fallaron las pruebas del dashboard.'}; & npm.cmd run build; if($LASTEXITCODE -ne 0){throw 'Fallo el build del dashboard.'} } finally {Pop-Location}
+ Push-Location "$root/mobile-flutter"
+ try {
+  & flutter.bat analyze --no-pub
+  if($LASTEXITCODE -ne 0){throw 'Fallo el analisis de Flutter.'}
+  & flutter.bat test --no-pub test/connection_test.dart test/services_test.dart test/widget_test.dart test/repository_test.dart test/validation_test.dart
+  if($LASTEXITCODE -ne 0){throw 'Fallaron las pruebas de Flutter.'}
+  & flutter.bat build apk --debug --no-pub --dart-define=API_BASE_URL=http://127.0.0.1:18080
+  if($LASTEXITCODE -ne 0){throw 'Fallo la compilacion Android.'}
+ } finally {Pop-Location}
 }
 function Start-Managed($name,$exe,$arguments,$cwd) {
  $pidFile="$local/$name.pid"
@@ -110,25 +136,8 @@ switch($Action){
   Invoke-RestMethod 'http://127.0.0.1:18080/api/estado' | ConvertTo-Json -Depth 5
   Write-Host ('Dashboard HTTP '+(Invoke-WebRequest 'http://127.0.0.1:5173' -UseBasicParsing).StatusCode)
  }
- 'Mobile' {
-  if(Test-Path "$local/metro.pid"){
-   $metroPid=[int](Get-Content "$local/metro.pid")
-   $metroProcess=Get-CimInstance Win32_Process -Filter "ProcessId=$metroPid" -ErrorAction SilentlyContinue
-   if($metroProcess -and $metroProcess.CommandLine -and $metroProcess.CommandLine.Contains($root) -and $metroProcess.CommandLine.Contains('/expo/bin/cli')){Stop-Process -Id $metroPid}
-   Remove-Item -LiteralPath "$local/metro.pid"
-  }
-  # Metro must bind IPv4 so adb reverse can reach exp://127.0.0.1:8081.
-  $env:NODE_OPTIONS=($env:NODE_OPTIONS+' --dns-result-order=ipv4first').Trim()
-  $env:EXPO_PUBLIC_API_URL='http://127.0.0.1:18080'
-  $env:EXPO_NO_TELEMETRY='1'
-  $env:__UNSAFE_EXPO_HOME_DIRECTORY="$local/expo-windows"
-  New-Item -ItemType Directory -Force "$local/temp-windows" | Out-Null
-  $env:TEMP="$local/temp-windows";$env:TMP=$env:TEMP
-  Push-Location "$root/mobile"
-  try { & $node node_modules/expo/bin/cli start --localhost --clear } finally {Pop-Location}
- }
  'Stop' {
-  foreach($name in @('metro','dashboard','backend')){
+  foreach($name in @('dashboard','backend')){
    $pidFile="$local/$name.pid"
    if(Test-Path $pidFile){
     $savedPid=[int](Get-Content $pidFile)

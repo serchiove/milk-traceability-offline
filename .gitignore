@@ -3,10 +3,7 @@
 .env.local
 **/node_modules/
 **/dist/
-**/dist-android/
 **/target/
-**/.expo/
-mobile/.env.local
 *.log
 
 # Herramientas y archivos privados

@@ -68,10 +68,10 @@ La recepción confirmada se registra después del commit. Estos logs son diagnó
 La revisión del 23/10/2026 utilizó PostgreSQL 18 en una instancia aislada, puerto 55449, base `acopio_test_apf3`. No usamos los datos de desarrollo. El backend de comprobación se inició en 18089 y el dashboard en 5179; los puertos habituales del proyecto siguen siendo 18080 y 5173. `ACOPIO_API_TARGET` permite configurar el proxy de Vite para esta comprobación.
 
 - Backend: 40 pruebas aprobadas, cero fallos y cero errores; JAR generado.
-- Móvil: 29 pruebas aprobadas y TypeScript sin errores.
+- La verificación móvil actual se documenta en [las pruebas Flutter](../mobile-flutter/docs/VERIFICACION.md).
 - Dashboard: compilación correcta y comprobación en navegador de login, carga de datos, filtro de aprobados y descarga CSV/XLSX.
 - Javadoc: generación correcta, páginas HTML localizadas y navegación comprobada.
 
 Vinculamos los resúmenes en [verificación final](evidencias/04-verificacion-final.txt). Las capturas están en [Excel filtrado](evidencias/capturas/reportes-excel-filtrado.png) y [Javadoc](evidencias/capturas/javadoc.png). Las [muestras CSV y XLSX](evidencias/muestras/) proceden de peticiones HTTP reales con datos ficticios; el proveedor de prueba contiene texto parecido a una fórmula para verificar el tratamiento seguro.
 
-La comprobación de navegador y API no repite una recepción desde un teléfono físico. El detalle completo de trazabilidad web y la aceptación móvil-servidor-web con Android conservan su estado pendiente. Tampoco fusionamos esta rama con `main` por el hecho de completar estas comprobaciones.
+La evidencia backend de este documento corresponde al 23/10/2026. El recorrido posterior con teléfono físico, backend y dashboard del 24/10/2026 está documentado en [Evidencias del recorrido](../mobile-flutter/docs/EVIDENCIAS_RECORRIDO.md). El estado de publicación y fusión se consulta en Git.
