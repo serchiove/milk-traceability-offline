@@ -103,3 +103,10 @@ Consulta [las funcionalidades](docs/FUNCIONALIDADES.md), [la arquitectura y los 
 Android: APK de depuración compilado y recorrido probado en un teléfono físico. Las pruebas de interfaz incluyen captura, acceso, cierre de sesión y nombres largos con pantalla estrecha. iOS: proyecto y permisos preparados; compilación y firma pendientes en un Mac con Xcode. No se incluyen destinos web o escritorio.
 
 HTTP está habilitado para el servidor académico local. Para distribución real se debe utilizar HTTPS, limitar las excepciones de transporte y configurar la firma de publicación.
+
+
+## Organización visual y guía de clases
+
+Las pestañas principales tienen archivos independientes: `home_view.dart`, `records_view.dart`, `central_menu_view.dart` y `profile_view.dart`. `shell_view.dart` coordina la navegación. Los pasos de recepción están en `lib/views/capture/`, los componentes compartidos en `lib/views/components/` y cada ViewModel tiene su propio archivo.
+
+La [guía de clases y cambios visuales](docs/GUIA_CLASES_Y_CAMBIOS_VISUALES.md) explica todas las clases y dónde cambiar colores, botones, posiciones y espaciado para la exposición.

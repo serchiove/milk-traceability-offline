@@ -55,23 +55,26 @@ class _DetailState extends ConsumerState<LocalDetailView> {
         prepared?.center == widget.session.centerId;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Detalle local'),
-      ),
+      appBar: AppBar(title: const Text('Detalle local')),
       body: SafeArea(
         child: PageBody(
           children: [
-            // Code ID & Quick Status Tag (Google Stitch specification)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Wrap(
+              spacing: 10,
+              runSpacing: 8,
+              alignment: WrapAlignment.spaceBetween,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.surfaceContainerHigh,
                     borderRadius: BorderRadius.circular(9999),
                   ),
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       const Icon(
                         Icons.receipt_long_rounded,
@@ -92,13 +95,17 @@ class _DetailState extends ConsumerState<LocalDetailView> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.localContainer,
                     borderRadius: BorderRadius.circular(9999),
                     border: Border.all(color: AppColors.localBorder),
                   ),
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: const [
                       Icon(
                         Icons.smartphone_rounded,
@@ -204,10 +211,14 @@ class _DetailState extends ConsumerState<LocalDetailView> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
+                              Wrap(
+                                spacing: 6,
+                                runSpacing: 6,
                                 children: [
-                                  const StateBadge('RECIBIDO POR SERVIDOR', compact: true),
-                                  const SizedBox(width: 6),
+                                  const StateBadge(
+                                    'RECIBIDO POR SERVIDOR',
+                                    compact: true,
+                                  ),
                                   StateBadge(result.state, compact: true),
                                 ],
                               ),
@@ -228,52 +239,40 @@ class _DetailState extends ConsumerState<LocalDetailView> {
                 ),
               ),
 
-            // Origin & Logistics Card (Stitch specification)
             SectionCard(
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 28,
-                          height: 28,
-                          decoration: const BoxDecoration(
-                            color: AppColors.surfaceContainerHigh,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.factory_outlined,
-                            size: 16,
-                            color: AppColors.primaryContainer,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'CENTRO DE ACOPIO',
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.onSurfaceVariant,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                            Text(
-                              l.center,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.onSurface,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                    const Icon(
+                      Icons.factory_outlined,
+                      size: 20,
+                      color: AppColors.primaryContainer,
                     ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'CENTRO DE ACOPIO',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.onSurfaceVariant,
+                            ),
+                          ),
+                          Text(
+                            l.center,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.onSurface,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
                     const Icon(
                       Icons.verified_rounded,
                       size: 18,
@@ -329,7 +328,8 @@ class _DetailState extends ConsumerState<LocalDetailView> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
+                            Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.center,
                               children: const [
                                 Icon(
                                   Icons.local_shipping_outlined,
@@ -370,7 +370,8 @@ class _DetailState extends ConsumerState<LocalDetailView> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
+                            Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.center,
                               children: const [
                                 Icon(
                                   Icons.badge_outlined,
