@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './style.css';
+import { periodRange, selectedPeriod } from './filters.js';
+import { readDashboardSession, saveDashboardSession, clearDashboardSession, tokenExpiresAt } from './session.js';
+import LotQr from './LotQr.jsx';
 
 function normalizeLot(item) {
   const supplier = item?.proveedor;
@@ -53,14 +56,15 @@ function currentCenterLabel(item) {
 }
 
 function App() {
-  const [page, setPage] = useState('login');
+  const [restored] = useState(() => readDashboardSession());
+  const [page, setPage] = useState(restored?.view.page || 'login');
   const [email, setEmail] = useState('jefatura@gloria.com.pe');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
-  const [accessToken, setAccessToken] = useState(null);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [accessToken, setAccessToken] = useState(restored?.accessToken || null);
+  const [currentUser, setCurrentUser] = useState(restored?.usuario || null);
   const [apiData, setApiData] = useState(null);
   const [apiError, setApiError] = useState('');
   const [checking, setChecking] = useState(false);
@@ -68,14 +72,14 @@ function App() {
   const [lotsLoading, setLotsLoading] = useState(false);
   const [lotsError, setLotsError] = useState('');
   const [totalLots, setTotalLots] = useState(0);
-  const [lotsPage, setLotsPage] = useState(0);
+  const [lotsPage, setLotsPage] = useState(restored?.view.lotsPage || 0);
   const lotsPageSize = 25;
 
-  const [activeLotId, setActiveLotId] = useState('');
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('Todos');
-  const [fromDate, setFromDate] = useState('');
-  const [toDate, setToDate] = useState('');
+  const [activeLotId, setActiveLotId] = useState(restored?.view.activeLotId || '');
+  const [search, setSearch] = useState(restored?.view.search || '');
+  const [statusFilter, setStatusFilter] = useState(restored?.view.statusFilter || 'Todos');
+  const [fromDate, setFromDate] = useState(restored?.view.fromDate || '');
+  const [toDate, setToDate] = useState(restored?.view.toDate || '');
   const [notice, setNotice] = useState('');
   const [report, setReport] = useState(null);
   const [reportLoading, setReportLoading] = useState(false);
@@ -85,8 +89,31 @@ function App() {
   const [tanks, setTanks] = useState([]);
   const [tanksLoading, setTanksLoading] = useState(false);
   const [tanksError, setTanksError] = useState('');
+  const [updatedAt, setUpdatedAt] = useState({});
+  const refreshing = checking || lotsLoading || reportLoading || tanksLoading;
+  const timestamp = value => value ? new Date(value).toLocaleString('es-PE') : 'sin consulta confirmada';
+  const scope = `${fromDate || 'inicio'} a ${toDate || 'hoy'} · Estado: ${statusFilter}${search.trim() ? ` · Búsqueda: ${search.trim()}` : ''}`;
   const activeLot = lots.find(lot => lot.id === activeLotId) || lots[0] || null;
   const filteredLots = lots;
+
+  useEffect(() => {
+    if (accessToken && currentUser) {
+      saveDashboardSession({ accessToken, usuario: currentUser,
+        view: { page, activeLotId, search, statusFilter, fromDate, toDate, lotsPage } });
+    }
+  }, [accessToken, currentUser, page, activeLotId, search, statusFilter, fromDate, toDate, lotsPage]);
+
+  useEffect(() => {
+    if (!accessToken) return;
+    let timer;
+    const expire = () => {
+      const remaining = tokenExpiresAt(accessToken) - Date.now();
+      if (remaining <= 0) signOut('Tu sesión venció. Inicia sesión nuevamente.');
+      else timer = window.setTimeout(expire, Math.min(remaining, 2147483647));
+    };
+    expire();
+    return () => window.clearTimeout(timer);
+  }, [accessToken]);
 
   async function checkApi() {
     setChecking(true);
@@ -104,6 +131,31 @@ function App() {
   }
 
   useEffect(() => { checkApi(); }, []);
+
+  function refreshDashboard() {
+    setRefreshKey(value => value + 1);
+    checkApi();
+  }
+
+  function changePeriod(value) {
+    const range = periodRange(value);
+    setFromDate(range.from);
+    setToDate(range.to);
+    setLotsPage(0);
+  }
+
+  useEffect(() => {
+    if (!accessToken) return;
+    const refresh = () => {
+      if (document.visibilityState === 'visible') setRefreshKey(value => value + 1);
+    };
+    const interval = window.setInterval(refresh, 30000);
+    window.addEventListener('focus', refresh);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener('focus', refresh);
+    };
+  }, [accessToken]);
 
   async function signIn(event) {
     event.preventDefault();
@@ -135,6 +187,7 @@ function App() {
       }
 
       if (usuario.rol !== 'JEFATURA') {
+        clearDashboardSession();
         setAccessToken(null);
         setCurrentUser(null);
         setPassword('');
@@ -144,7 +197,8 @@ function App() {
       setAccessToken(token);
       setCurrentUser(usuario);
       setPage('indicators');
-      setNotice(`Sesión iniciada como ${usuario.nombre || 'Jefatura'}.`);
+      const remembered = saveDashboardSession({ accessToken: token, usuario, view: { page: 'indicators' } });
+      setNotice(`Sesión iniciada como ${usuario.nombre || 'Jefatura'}.${remembered ? '' : ' Este navegador no permite conservar la sesión al recargar.'}`);
       setPassword('');
     } catch (error) {
       setLoginError(
@@ -158,14 +212,24 @@ function App() {
   }
 
   function signOut(message = '') {
+    clearDashboardSession();
     setAccessToken(null);
     setCurrentUser(null);
     setLots([]);
     setTotalLots(0);
+    setLotsPage(0);
+    setActiveLotId('');
     setPage('login');
     setPassword('');
     setLoginError(message);
     setNotice('');
+    setReport(null);
+    setTanks([]);
+    setUpdatedAt({});
+    setSearch('');
+    setStatusFilter('Todos');
+    setFromDate('');
+    setToDate('');
   }
 
   // Usar esta función para todas las consultas privadas del dashboard.
@@ -225,11 +289,13 @@ function App() {
         }
 
         const data = await response.json();
+        if (controller.signal.aborted) return;
         const items = Array.isArray(data?.elementos) ? data.elementos : [];
 
         const normalizedLots = items.map(normalizeLot);
         setLots(normalizedLots);
         setTotalLots(Number(data?.total ?? normalizedLots.length));
+        setUpdatedAt(value => ({ ...value, lots: Date.now() }));
 
         setActiveLotId(currentId =>
           normalizedLots.some(lot => lot.id === currentId)
@@ -241,6 +307,7 @@ function App() {
         setLots([]);
         setTotalLots(0);
         setLotsError(error.message || 'No se pudieron cargar los lotes.');
+        setUpdatedAt(value => ({ ...value, lots: null }));
       } finally {
         if (!controller.signal.aborted) setLotsLoading(false);
       }
@@ -270,9 +337,16 @@ function App() {
         const suffix = params.toString() ? `?${params.toString()}` : '';
         const response = await apiFetch(`/api/reportes${suffix}`, { signal: controller.signal });
         if (!response.ok) throw new Error(`No se pudieron cargar los indicadores (HTTP ${response.status}).`);
-        setReport(await response.json());
+        const data = await response.json();
+        if (controller.signal.aborted) return;
+        setReport(data);
+        setUpdatedAt(value => ({ ...value, report: Date.now() }));
       } catch (error) {
-        if (error.name !== 'AbortError') setReportError(error.message || 'No se pudo cargar el reporte.');
+        if (error.name !== 'AbortError') {
+          setReport(null);
+          setUpdatedAt(value => ({ ...value, report: null }));
+          setReportError(error.message || 'No se pudo cargar el reporte.');
+        }
       } finally {
         if (!controller.signal.aborted) setReportLoading(false);
       }
@@ -296,9 +370,15 @@ function App() {
         const response = await apiFetch('/api/tanques?pagina=0&tamano=25', { signal: controller.signal });
         if (!response.ok) throw new Error(`No se pudieron cargar los tanques (HTTP ${response.status}).`);
         const data = await response.json();
+        if (controller.signal.aborted) return;
         setTanks(Array.isArray(data?.elementos) ? data.elementos : []);
+        setUpdatedAt(value => ({ ...value, tanks: Date.now() }));
       } catch (error) {
-        if (error.name !== 'AbortError') setTanksError(error.message || 'No se pudieron cargar los tanques.');
+        if (error.name !== 'AbortError') {
+          setTanks([]);
+          setUpdatedAt(value => ({ ...value, tanks: null }));
+          setTanksError(error.message || 'No se pudieron cargar los tanques.');
+        }
       } finally {
         if (!controller.signal.aborted) setTanksLoading(false);
       }
@@ -336,9 +416,14 @@ function App() {
   }
 
 
+  const filterKey = JSON.stringify([search, statusFilter, fromDate, toDate]);
+  const previousFilters = useRef(filterKey);
   useEffect(() => {
-    setLotsPage(0);
-  }, [search, statusFilter, fromDate, toDate]);
+    if (previousFilters.current !== filterKey) {
+      previousFilters.current = filterKey;
+      setLotsPage(0);
+    }
+  }, [filterKey]);
 
   const pageTitle = { indicators: 'Resumen del acopio', incidents: 'Incidencias de calidad', traceability: 'Trazabilidad y calidad', reports: 'Reportes operativos' }[page];
 
@@ -400,7 +485,8 @@ function App() {
         </header>
 
         <div className="content-area">
-          <div className="demo-banner"><span>●</span><div><strong>Conexión con API</strong><small>Lotes, indicadores, tanques, incidencias y exportación consultan el backend.</small></div><button onClick={checkApi} disabled={checking}>{checking ? 'Comprobando…' : 'Comprobar API'}</button></div>
+          <div className="demo-banner"><span>●</span><div><strong>Datos del servidor · {currentUser?.centro || 'Centro autorizado'}</strong><small>Incluye los lotes enviados desde todos los equipos de este centro. Se actualiza cada 30 segundos y al volver a la ventana.</small><small aria-live="polite">Lotes: {timestamp(updatedAt.lots)} · Indicadores: {timestamp(updatedAt.report)} · Tanques: {timestamp(updatedAt.tanks)}</small></div><button onClick={refreshDashboard} disabled={refreshing}>{refreshing ? 'Actualizando…' : 'Actualizar datos'}</button></div>
+          <div className="text-secondary small my-3">Filtros compartidos con reportes y exportación: {scope}</div>
           {apiError && <div className="alert alert-warning mt-3" role="alert">{apiError}</div>}
           {lotsError && <div className="alert alert-danger mt-3" role="alert">{lotsError}</div>}
           {lotsLoading && <div className="alert alert-info mt-3" role="status">Cargando lotes desde el servidor…</div>}
@@ -408,7 +494,7 @@ function App() {
 
           {page === 'indicators' && (
             <>
-              <div className="page-heading-row"><div><h2>Resumen del acopio</h2><p>Vista general · Lotes del centro autorizado de la sesión</p></div><div className="toolbar-selects"><label>Período<select className="form-select form-select-sm" defaultValue="Hoy"><option>Hoy</option><option>Últimos 7 días</option><option>Últimos 30 días</option></select></label><label>Centro<input className="form-control form-control-sm" value={currentUser?.centro || 'Centro autorizado'} readOnly /></label></div></div>
+              <div className="page-heading-row"><div><h2>Resumen del acopio</h2><p>Vista general · Lotes del centro autorizado de la sesión</p></div><div className="toolbar-selects"><label>Período<select className="form-select form-select-sm" value={selectedPeriod(fromDate, toDate)} onChange={event => changePeriod(event.target.value)}><option value="all">Todo el historial</option><option value="today">Hoy</option><option value="week">Últimos 7 días</option><option value="month">Últimos 30 días</option><option value="custom" disabled>Rango personalizado</option></select></label><label>Centro<input className="form-control form-control-sm" value={currentUser?.centro || 'Centro autorizado'} readOnly /></label></div></div>
               <div className="metrics-grid">
                 <Metric title="Recibido" value={`${formatNumber(report?.volumenLitros)} L`} icon="↘" tone="blue" note={reportLoading ? 'Actualizando…' : `${report?.total ?? 0} lotes del filtro actual`} />
                 <Metric title="Aprobado" value={`${formatNumber(report?.volumenAprobadoLitros)} L`} icon="✓" tone="green" note={`${formatNumber(report?.porcentajeVolumenAprobado)}% del volumen`} />
@@ -500,14 +586,7 @@ function App() {
 
                   <div className="trace-side">
                     <h4>Identificación QR</h4>
-                    {activeLot.raw?.codigoQr && activeLot.quality === 'APROBADO' ? (
-                      <p className="muted">{activeLot.raw.codigoQr}</p>
-                    ) : (
-                      <p className="muted">No hay código QR disponible para este lote.</p>
-                    )}
-                    <p className="qr-note">
-                      El detalle completo del lote y sus eventos se conectará mediante GET /api/lotes/{'{UUID}'}.
-                    </p>
+                    <LotQr lot={activeLot} />
                   </div>
                 </section>
               )}
@@ -529,7 +608,7 @@ function App() {
             </>
           )}
 
-          <footer className="app-footer"><span>ACOPIO · Sistema de trazabilidad de materia prima láctea</span><span>{apiData ? `API: ${apiData.baseDatos || 'conectada'}` : 'API sin confirmar'} · Dashboard conectado</span></footer>
+          <footer className="app-footer"><span>ACOPIO · Sistema de trazabilidad de materia prima láctea</span><span>{apiError ? 'API sin respuesta en la última comprobación' : apiData ? `API: ${apiData.baseDatos || 'disponible'}` : 'API sin confirmar'} · Centro autorizado</span></footer>
         </div>
       </main>
     </div>

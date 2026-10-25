@@ -9,16 +9,20 @@
     "files.exclude": {
       "**/node_modules": true,
       "**/target": true,
-      "**/.expo": true,
       "**/dist": true,
-      "**/dist-android": true,
-      ".local": true
+      ".local": true,
+      "**/build": true,
+      "**/.dart_tool": true,
+      "**/.gradle": true
     },
     "search.exclude": {
       "**/node_modules": true,
       "**/target": true,
       "**/.local": true,
-      "**/package-lock.json": true
+      "**/package-lock.json": true,
+      "**/build": true,
+      "**/.dart_tool": true,
+      "**/.gradle": true
     }
   }
 }

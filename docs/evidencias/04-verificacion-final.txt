@@ -13,14 +13,6 @@ Archivo de ejecucion: 04-verificacion-final.log
 [INFO] --- javadoc:3.12.0:javadoc (default-cli) @ acopio ---
 [INFO] BUILD SUCCESS
 
-Archivo de ejecucion: 05-mobile.log
-ℹ tests 29
-ℹ pass 29
-ℹ fail 0
-
-Archivo de ejecucion: 06-mobile-typecheck.log
-> tsc --noEmit
-
 Archivo de ejecucion: 07-dashboard-build.log
 ✓ built in 477ms
 

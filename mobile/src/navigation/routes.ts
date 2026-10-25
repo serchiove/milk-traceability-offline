@@ -1,2 +1,0 @@
-export type Pantalla = 'inicio' | 'registro' | 'lotes' | 'perfil' | 'conexion' | 'pendientes' | 'calidad' | 'trazabilidad' | 'tanque' | 'catalogos';
-export const titulos: Record<Pantalla, string> = { inicio: 'GLORIA · Acopio', registro: 'Nueva recepción', lotes: 'Registros', perfil: 'Perfil', conexion: 'Conexión', pendientes: 'Pendientes', calidad: 'Calidad', trazabilidad: 'Buscar lote', tanque: 'Tanques', catalogos: 'Catálogos' };
