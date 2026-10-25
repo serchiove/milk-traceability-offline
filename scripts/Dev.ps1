@@ -96,7 +96,7 @@ function Build-All {
  try {
   & flutter.bat analyze --no-pub
   if($LASTEXITCODE -ne 0){throw 'Fallo el analisis de Flutter.'}
-  & flutter.bat test --no-pub test/connection_test.dart test/services_test.dart test/widget_test.dart test/repository_test.dart test/validation_test.dart
+  & flutter.bat test --no-pub test/connection_test.dart test/services_test.dart test/widget_test.dart test/repository_test.dart test/validation_test.dart test/detail_layout_test.dart
   if($LASTEXITCODE -ne 0){throw 'Fallaron las pruebas de Flutter.'}
   & flutter.bat build apk --debug --no-pub --dart-define=API_BASE_URL=http://127.0.0.1:18080
   if($LASTEXITCODE -ne 0){throw 'Fallo la compilacion Android.'}

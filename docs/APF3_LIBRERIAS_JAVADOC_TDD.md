@@ -1,6 +1,6 @@
 # Librerías documentación y pruebas del tercer avance
 
-Ampliamos los reportes con Excel y usamos las cuatro librerías solicitadas en funciones del backend. Esta entrega se desarrolla en `sergio/apf3-reportes-documentacion`, a partir de `main` en `a59788d`. Conservamos el aporte web de Fernando mediante el cherry-pick de `73a9294` como `7da8c00`; la autoría original permanece en Git.
+Ampliamos los reportes con Excel e incorporamos las cuatro librerías del tercer avance en funciones del backend. Este documento conserva el alcance y las evidencias de esa implementación; el estado integrado del proyecto se presenta en el [README principal](../README.md).
 
 ## Uso de las librerías
 
@@ -68,7 +68,7 @@ La recepción confirmada se registra después del commit. Estos logs son diagnó
 La revisión del 23/10/2026 utilizó PostgreSQL 18 en una instancia aislada, puerto 55449, base `acopio_test_apf3`. No usamos los datos de desarrollo. El backend de comprobación se inició en 18089 y el dashboard en 5179; los puertos habituales del proyecto siguen siendo 18080 y 5173. `ACOPIO_API_TARGET` permite configurar el proxy de Vite para esta comprobación.
 
 - Backend: 40 pruebas aprobadas, cero fallos y cero errores; JAR generado.
-- La verificación móvil actual se documenta en [las pruebas Flutter](../mobile-flutter/docs/VERIFICACION.md).
+- La verificación móvil actual se documenta en [las pruebas Flutter](pruebas/VERIFICACION_FLUTTER.md).
 - Dashboard: compilación correcta y comprobación en navegador de login, carga de datos, filtro de aprobados y descarga CSV/XLSX.
 - Javadoc: generación correcta, páginas HTML localizadas y navegación comprobada.
 
