@@ -79,7 +79,7 @@ function Build-All {
  }
  if($runningBackends.Count -gt 0 -and (Test-Path "$local/backend.pid")){Remove-Item -LiteralPath "$local/backend.pid"}
  Push-Location "$root/backend"
- try { & mvn.cmd "-Dmaven.repo.local=$local/m2" --batch-mode verify; if($LASTEXITCODE -ne 0){throw 'Fallo la compilacion, las pruebas o el empaquetado del backend. Revisa el primer ERROR de Maven; el backend queda detenido.'} } finally {Pop-Location}
+ try { & .\mvnw.cmd "-Dmaven.repo.local=$local/m2" --batch-mode verify; if($LASTEXITCODE -ne 0){throw 'Fallo la compilacion, las pruebas o el empaquetado del backend. Revisa el primer ERROR de Maven; el backend queda detenido.'} } finally {Pop-Location}
  if($runningBackends.Count -gt 0){
   Start-Managed 'backend' $java @('-jar',('"'+$jar+'"')) "$root/backend"
   $ready=$false

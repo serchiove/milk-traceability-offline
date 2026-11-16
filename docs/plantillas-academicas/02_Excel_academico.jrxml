@@ -1,0 +1,180 @@
+<!-- Created with Jaspersoft Studio version 7.0.8.final using JasperReports Library version 7.0.8-6f896111  -->
+<jasperReport name="AcopioAcademicoExcel" pageWidth="1100" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="1100" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="80777dd8-ecd0-4134-891c-fc5182c9a71f">
+	<property name="net.sf.jasperreports.csv.column.names" value="lote,fecha,proveedor,placa,volumen,temperatura,estado,tanque,motivo"/>
+	<property name="net.sf.jasperreports.csv.source" value="C:/Users/Asus/Documents/Codex/milk-traceability-offline/docs/plantillas-academicas/muestra.csv"/>
+	<property name="net.sf.jasperreports.csv.encoding" value="UTF-8"/>
+	<property name="net.sf.jasperreports.csv.locale.code" value="en_US"/>
+	<property name="net.sf.jasperreports.export.xls.detect.cell.type" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.remove.empty.space.between.rows" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.white.page.background" value="false"/>
+	<style name="Fila" mode="Opaque" backcolor="#FFFFFF">
+		<box topPadding="10" leftPadding="8" bottomPadding="10" rightPadding="8">
+			<bottomPen lineWidth="0.5" lineColor="#E4F0E9"/>
+		</box>
+		<conditionalStyle backcolor="#F4F8F6">
+			<conditionExpression><![CDATA[$V{REPORT_COUNT} % 2 == 0]]></conditionExpression>
+		</conditionalStyle>
+	</style>
+	<style name="Base" default="true" forecolor="#213D37" fontName="DejaVu Sans" fontSize="10.0"/>
+	<parameter name="universidad" class="java.lang.String">
+		<defaultValueExpression><![CDATA["Universidad Tecnológica del Perú"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="curso" class="java.lang.String">
+		<defaultValueExpression><![CDATA["Integrador 1"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="docente" class="java.lang.String">
+		<defaultValueExpression><![CDATA["Alberto Edú Fernández Bernedo"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="equipo" class="java.lang.String">
+		<defaultValueExpression><![CDATA["Equipo 1"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="periodo" class="java.lang.String">
+		<defaultValueExpression><![CDATA["Agosto-2026"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="titulo" class="java.lang.String">
+		<defaultValueExpression><![CDATA["ACOPIO · Trazabilidad de leche"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="centro" class="java.lang.String">
+		<defaultValueExpression><![CDATA["Centro académico de demostración"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="filtros" class="java.lang.String">
+		<defaultValueExpression><![CDATA["Muestra ficticia · 12/11/2026 · Todos los estados"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="net.sf.jasperreports.csv.record.delimiter" class="java.lang.String">
+		<defaultValueExpression><![CDATA["\n"]]></defaultValueExpression>
+	</parameter>
+	<query language="csv"><![CDATA[]]></query>
+	<field name="lote" class="java.lang.String"/>
+	<field name="fecha" class="java.lang.String"/>
+	<field name="proveedor" class="java.lang.String"/>
+	<field name="placa" class="java.lang.String"/>
+	<field name="volumen" class="java.math.BigDecimal"/>
+	<field name="temperatura" class="java.math.BigDecimal"/>
+	<field name="estado" class="java.lang.String"/>
+	<field name="tanque" class="java.lang.String"/>
+	<field name="motivo" class="java.lang.String"/>
+	<variable name="litros" calculation="Sum" class="java.math.BigDecimal">
+		<expression><![CDATA[$F{volumen}]]></expression>
+		<initialValueExpression><![CDATA[java.math.BigDecimal.ZERO]]></initialValueExpression>
+	</variable>
+	<variable name="aprobados" calculation="Sum" class="java.lang.Integer">
+		<expression><![CDATA["APROBADO".equals($F{estado}) ? 1 : 0]]></expression>
+		<initialValueExpression><![CDATA[0]]></initialValueExpression>
+	</variable>
+	<variable name="rechazados" calculation="Sum" class="java.lang.Integer">
+		<expression><![CDATA["RECHAZADO".equals($F{estado}) ? 1 : 0]]></expression>
+		<initialValueExpression><![CDATA[0]]></initialValueExpression>
+	</variable>
+	<title height="232">
+		<element kind="rectangle" uuid="465f2442-3c2b-4ee9-8c65-ae5204e41ab8" x="0" y="0" width="1100" height="60" backcolor="#14634D" mode="Opaque">
+			<pen lineWidth="0.0"/>
+		</element>
+		<element kind="staticText" uuid="020e0282-e03b-49db-814c-c9740d084486" x="16" y="13" width="200" height="36" forecolor="#FFFFFF" fontSize="25.0" bold="true">
+			<text><![CDATA[ACOPIO]]></text>
+		</element>
+		<element kind="staticText" uuid="3ff16dd2-9b20-4eaa-ac2b-2d6fe2919326" x="250" y="20" width="834" height="27" forecolor="#FFFFFF" fontSize="16.0" hTextAlign="Right">
+			<text><![CDATA[REPORTE ACADÉMICO DE RECEPCIONES]]></text>
+		</element>
+		<element kind="textField" uuid="2eb21d70-17ba-4f86-9cf4-72bb5a6b5253" x="0" y="76" width="1100" height="36" fontSize="23.0" bold="true">
+			<expression><![CDATA[$P{titulo}]]></expression>
+		</element>
+		<element kind="textField" uuid="d8cb610d-8bb4-41ad-ad51-317bbbab8096" x="0" y="115" width="1100" height="24" fontSize="12.0">
+			<expression><![CDATA[$P{universidad}]]></expression>
+		</element>
+		<element kind="textField" uuid="463383ba-3060-4483-b2d5-9111eb19692f" x="0" y="143" width="1100" height="24" forecolor="#5C756D" fontSize="11.0">
+			<expression><![CDATA["Curso: " + $P{curso} + "    |    Docente: " + $P{docente} + "    |    Periodo: " + $P{periodo}]]></expression>
+		</element>
+		<element kind="textField" uuid="1a825a4b-f4b9-4e63-a51a-d585291606fa" x="0" y="171" width="1100" height="25" fontSize="11.0">
+			<expression><![CDATA["Equipo: " + $P{equipo}]]></expression>
+		</element>
+		<element kind="textField" uuid="23378bd2-acd1-4c6b-ae71-e6c8851d711c" x="0" y="200" width="1100" height="28" forecolor="#5C756D" fontSize="10.0">
+			<expression><![CDATA[$P{centro} + "    |    " + $P{filtros}]]></expression>
+		</element>
+	</title>
+	<columnHeader height="36">
+		<element kind="staticText" uuid="ed09bda7-4d57-4c69-a6bc-58a1e7fd981e" x="0" y="0" width="90" height="36" forecolor="#FFFFFF" backcolor="#14634D" mode="Opaque" fontSize="11.0" bold="true" vTextAlign="Middle">
+			<box leftPadding="8" rightPadding="8"/>
+			<text><![CDATA[Lote]]></text>
+		</element>
+		<element kind="staticText" uuid="1ee0b775-62d4-4e0c-ba19-c12bb99c6d8b" x="90" y="0" width="140" height="36" forecolor="#FFFFFF" backcolor="#14634D" mode="Opaque" fontSize="11.0" bold="true" vTextAlign="Middle">
+			<box leftPadding="8" rightPadding="8"/>
+			<text><![CDATA[Fecha de captura]]></text>
+		</element>
+		<element kind="staticText" uuid="95516a7c-a462-42a1-bdd4-16be3d74f9f9" x="230" y="0" width="230" height="36" forecolor="#FFFFFF" backcolor="#14634D" mode="Opaque" fontSize="11.0" bold="true" vTextAlign="Middle">
+			<box leftPadding="8" rightPadding="8"/>
+			<text><![CDATA[Proveedor]]></text>
+		</element>
+		<element kind="staticText" uuid="fa1ca3a1-6cd0-40ef-a644-b372d1750c5e" x="460" y="0" width="100" height="36" forecolor="#FFFFFF" backcolor="#14634D" mode="Opaque" fontSize="11.0" bold="true" vTextAlign="Middle">
+			<box leftPadding="8" rightPadding="8"/>
+			<text><![CDATA[Placa]]></text>
+		</element>
+		<element kind="staticText" uuid="4250d047-c245-4585-98ed-c8a7582d176b" x="560" y="0" width="100" height="36" forecolor="#FFFFFF" backcolor="#14634D" mode="Opaque" fontSize="11.0" bold="true" vTextAlign="Middle">
+			<box leftPadding="8" rightPadding="8"/>
+			<text><![CDATA[Volumen (L)]]></text>
+		</element>
+		<element kind="staticText" uuid="674eb5dc-ce38-4300-adbf-21a01df2d43b" x="660" y="0" width="100" height="36" forecolor="#FFFFFF" backcolor="#14634D" mode="Opaque" fontSize="11.0" bold="true" vTextAlign="Middle">
+			<box leftPadding="8" rightPadding="8"/>
+			<text><![CDATA[Temp. (°C)]]></text>
+		</element>
+		<element kind="staticText" uuid="4e60fef3-96c1-4491-8835-30d7bb1281c9" x="760" y="0" width="110" height="36" forecolor="#FFFFFF" backcolor="#14634D" mode="Opaque" fontSize="11.0" bold="true" vTextAlign="Middle">
+			<box leftPadding="8" rightPadding="8"/>
+			<text><![CDATA[Calidad]]></text>
+		</element>
+		<element kind="staticText" uuid="0f60ba5d-5d3b-400b-a5dd-6c2d0e9fe6b6" x="870" y="0" width="90" height="36" forecolor="#FFFFFF" backcolor="#14634D" mode="Opaque" fontSize="11.0" bold="true" vTextAlign="Middle">
+			<box leftPadding="8" rightPadding="8"/>
+			<text><![CDATA[Tanque]]></text>
+		</element>
+		<element kind="staticText" uuid="0f257b28-664c-4177-82e1-8b91b983a9d8" x="960" y="0" width="140" height="36" forecolor="#FFFFFF" backcolor="#14634D" mode="Opaque" fontSize="11.0" bold="true" vTextAlign="Middle">
+			<box leftPadding="8" rightPadding="8"/>
+			<text><![CDATA[Observación]]></text>
+		</element>
+	</columnHeader>
+	<detail>
+		<band height="48" splitType="Stretch">
+			<element kind="textField" uuid="9d1336ad-43e3-4359-952b-02e421bf0990" x="0" y="0" width="90" height="48" fontSize="11.0" textAdjust="StretchHeight" vTextAlign="Middle" style="Fila">
+				<expression><![CDATA[$F{lote}]]></expression>
+			</element>
+			<element kind="textField" uuid="9f8da7fc-1d4e-436e-b656-c5a5c49778bb" x="90" y="0" width="140" height="48" fontSize="11.0" textAdjust="StretchHeight" vTextAlign="Middle" style="Fila">
+				<expression><![CDATA[$F{fecha}]]></expression>
+			</element>
+			<element kind="textField" uuid="bc727a25-9ca4-4346-a31e-193def9ce63e" x="230" y="0" width="230" height="48" fontSize="11.0" textAdjust="StretchHeight" vTextAlign="Middle" style="Fila">
+				<expression><![CDATA[$F{proveedor}]]></expression>
+			</element>
+			<element kind="textField" uuid="01f5ea52-5a86-463d-a3eb-9dbc8dffae11" x="460" y="0" width="100" height="48" fontSize="11.0" textAdjust="StretchHeight" vTextAlign="Middle" style="Fila">
+				<expression><![CDATA[$F{placa}]]></expression>
+			</element>
+			<element kind="textField" uuid="f34d0c06-fbd4-4cbf-a282-22082638d1ea" x="560" y="0" width="100" height="48" fontSize="11.0" textAdjust="StretchHeight" pattern="0.00" hTextAlign="Right" vTextAlign="Middle" style="Fila">
+				<expression><![CDATA[$F{volumen}]]></expression>
+			</element>
+			<element kind="textField" uuid="cd55b7ba-b08b-440f-8aa3-d552ff2fe16c" x="660" y="0" width="100" height="48" fontSize="11.0" textAdjust="StretchHeight" pattern="0.00" hTextAlign="Right" vTextAlign="Middle" style="Fila">
+				<expression><![CDATA[$F{temperatura}]]></expression>
+			</element>
+			<element kind="textField" uuid="7f0d7bee-fe87-4cd6-909c-7fbb150809d0" x="760" y="0" width="110" height="48" forecolor="#14634D" fontSize="11.0" textAdjust="StretchHeight" bold="true" vTextAlign="Middle" style="Fila">
+				<expression><![CDATA[$F{estado}]]></expression>
+			</element>
+			<element kind="textField" uuid="4e5b25d7-73ea-4e29-9a41-1697ded98414" x="870" y="0" width="90" height="48" fontSize="11.0" textAdjust="StretchHeight" vTextAlign="Middle" style="Fila">
+				<expression><![CDATA[$F{tanque}]]></expression>
+			</element>
+			<element kind="textField" uuid="03fb5e0a-ae9b-48f2-813c-4e63f2910b29" x="960" y="0" width="140" height="48" fontSize="11.0" textAdjust="StretchHeight" vTextAlign="Middle" style="Fila">
+				<expression><![CDATA[$F{motivo}]]></expression>
+			</element>
+		</band>
+	</detail>
+	<summary height="116">
+		<element kind="rectangle" uuid="5215fb52-aad2-414d-a197-9de347878e06" x="0" y="0" width="1100" height="52" backcolor="#E4F0E9" mode="Opaque">
+			<pen lineWidth="0.0"/>
+		</element>
+		<element kind="staticText" uuid="6967691c-9913-4650-bb4e-c7f34ae3aafc" x="0" y="0" width="560" height="52" fontSize="12.0" bold="true" vTextAlign="Middle">
+			<text><![CDATA[VOLUMEN TOTAL (L)]]></text>
+		</element>
+		<element kind="textField" uuid="e0c9f80f-ec9e-4d68-99de-03cc53ea6abd" x="560" y="0" width="100" height="52" forecolor="#14634D" fontSize="16.0" pattern="0.00" bold="true" hTextAlign="Right" vTextAlign="Middle">
+			<expression><![CDATA[$V{litros}]]></expression>
+		</element>
+		<element kind="textField" uuid="a5118231-7ce3-4b2e-b854-de72faf0fe6c" x="0" y="66" width="1100" height="24" fontSize="11.0">
+			<expression><![CDATA["Recepciones: " + $V{REPORT_COUNT} + "    |    Aprobadas: " + $V{aprobados} + "    |    Rechazadas: " + $V{rechazados}]]></expression>
+		</element>
+		<element kind="staticText" uuid="18cb9826-f60f-4dbd-bd39-3393ac290c47" x="0" y="96" width="1100" height="18" forecolor="#5C756D" fontSize="9.0">
+			<text><![CDATA[Datos ficticios de demostración · Mediciones numéricas editables]]></text>
+		</element>
+	</summary>
+</jasperReport>

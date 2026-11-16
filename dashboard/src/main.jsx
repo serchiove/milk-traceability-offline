@@ -407,7 +407,7 @@ function App() {
       anchor.click();
       anchor.remove();
       URL.revokeObjectURL(url);
-      setNotice(`Reporte ${format === 'xlsx' ? 'Excel' : 'CSV'} descargado desde el servidor.`);
+      setNotice(`Reporte ${format === 'xlsx' ? 'Excel' : format === 'pptx' ? 'PowerPoint' : format.toUpperCase()} descargado desde el servidor.`);
     } catch (error) {
       setNotice(error.message || 'No se pudo descargar el reporte.');
     } finally {
@@ -602,7 +602,7 @@ function App() {
                 <label>Desde<input className="form-control" type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} /></label>
                 <label>Hasta<input className="form-control" type="date" value={toDate} onChange={e => setToDate(e.target.value)} /></label>
                 <label className="search-field">Buscar<input className="form-control" value={search} onChange={e => setSearch(e.target.value)} placeholder="Lote, proveedor, centro…" /></label>
-                <div className="filter-actions"><button className="btn btn-acopio" onClick={() => { setLotsPage(0); setRefreshKey(value => value + 1); setNotice('Filtros consultados en el servidor.'); }}>Aplicar filtros</button><button className="btn btn-soft" disabled={Boolean(exporting)} onClick={() => exportReport('csv')}>{exporting === 'csv' ? 'Descargando CSV…' : 'Exportar CSV'}</button><button className="btn btn-soft" disabled={Boolean(exporting)} onClick={() => exportReport('xlsx')}>{exporting === 'xlsx' ? 'Descargando Excel…' : 'Exportar Excel'}</button></div>
+                <div className="filter-actions"><button className="btn btn-acopio" onClick={() => { setLotsPage(0); setRefreshKey(value => value + 1); setNotice('Filtros consultados en el servidor.'); }}>Aplicar filtros</button><button className="btn btn-soft" disabled={Boolean(exporting)} onClick={() => exportReport('csv')}>{exporting === 'csv' ? 'Descargando CSV…' : 'Exportar CSV'}</button><button className="btn btn-soft" disabled={Boolean(exporting)} onClick={() => exportReport('xlsx')}>{exporting === 'xlsx' ? 'Descargando Excel…' : 'Exportar Excel'}</button><button className="btn btn-soft" disabled={Boolean(exporting)} onClick={() => exportReport('pdf')}>{exporting === 'pdf' ? 'Descargando PDF…' : 'Exportar PDF'}</button><button className="btn btn-soft" disabled={Boolean(exporting)} onClick={() => exportReport('pptx')}>{exporting === 'pptx' ? 'Descargando PowerPoint…' : 'Exportar PowerPoint'}</button></div>
               </section>
               <section className="panel report-table-panel"><PanelTitle title="Resultados" subtitle={`${totalLots} registro(s) en el servidor`} /><LotTable lots={filteredLots} loading={lotsLoading} onSelect={id =>{ setActiveLotId(id); setPage('traceability'); }} emptyMessage="No hay lotes que coincidan con los filtros." /><Pagination page={lotsPage} pageSize={lotsPageSize} total={totalLots} onChange={setLotsPage} /></section>
             </>

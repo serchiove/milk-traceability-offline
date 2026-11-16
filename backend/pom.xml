@@ -28,8 +28,14 @@
     </scm>
     <properties>
         <java.version>17</java.version>
+        <jasperreports.version>7.1.1</jasperreports.version>
     </properties>
     <dependencies>
+        <dependency><groupId>net.sf.jasperreports</groupId><artifactId>jasperreports</artifactId><version>${jasperreports.version}</version></dependency>
+        <dependency><groupId>net.sf.jasperreports</groupId><artifactId>jasperreports-pdf</artifactId><version>${jasperreports.version}</version></dependency>
+        <dependency><groupId>net.sf.jasperreports</groupId><artifactId>jasperreports-fonts</artifactId><version>${jasperreports.version}</version></dependency>
+        <dependency><groupId>net.sf.jasperreports</groupId><artifactId>jasperreports-jdt</artifactId><version>${jasperreports.version}</version></dependency>
+        <dependency><groupId>org.apache.pdfbox</groupId><artifactId>pdfbox</artifactId><version>3.0.6</version><scope>test</scope></dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -128,6 +134,14 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource><directory>src/main/resources</directory></resource>
+            <resource>
+                <directory>../docs/plantillas-academicas</directory>
+                <targetPath>reports/academicas</targetPath>
+                <includes><include>01_PDF_academico.jrxml</include><include>03_PowerPoint_academico.jrxml</include></includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

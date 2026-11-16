@@ -590,4 +590,94 @@ class BackendFlowTests {
 
         assertThat(encontrados).containsExactlyInAnyOrderElementsOf(esperados);
     }
+
+    HttpResponse<byte[]> pdf(String query, String jwt) throws Exception {
+        var request = HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + port + "/api/reportes/pdf" + query)).GET();
+        if (jwt != null) request.header("Authorization", "Bearer " + jwt);
+        return http.send(request.build(), HttpResponse.BodyHandlers.ofByteArray());
+    }
+
+    String textoPdf(byte[] bytes) throws Exception {
+        try (var documento = org.apache.pdfbox.Loader.loadPDF(bytes)) {
+            return new org.apache.pdfbox.text.PDFTextStripper().getText(documento);
+        }
+    }
+
+    @Test void pdfRequiresJefaturaAndPreservesAllFilters() throws Exception {
+        assertThat(pdf("", null).statusCode()).isEqualTo(401);
+        String op = token();
+        assertThat(pdf("", op).statusCode()).isEqualTo(403);
+        db.update("UPDATE acopio.proveedor SET razon_social=? WHERE id_proveedor=?", "Lechería Ñandú", proveedor);
+        UUID aprobado = UUID.randomUUID(), rechazado = UUID.randomUUID();
+        assertThat(post("/api/lotes", op, lote(aprobado, "120.50", "4")).statusCode()).isEqualTo(201);
+        assertThat(post("/api/lotes", op, lote(rechazado, "50", "12")).statusCode()).isEqualTo(201);
+        String jwt = jefe();
+        var response = pdf("?estado=APROBADO&desde=2026-10-15&hasta=2026-10-15&buscar=Lecher", jwt);
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.headers().firstValue("Content-Type").orElse("")).contains("application/pdf");
+        assertThat(response.headers().firstValue("Content-Disposition").orElse("")).contains("attachment", "acopio-reporte.pdf");
+        assertThat(textoPdf(response.body())).contains(aprobado.toString(), "Lechería Ñandú", "120.50", "APROBADO", "Recepciones: 1").doesNotContain(rechazado.toString());
+        assertThat(textoPdf(pdf("?buscar=sincoincidencias", jwt).body())).contains("Sin recepciones", "Recepciones: 0");
+        assertThat(textoPdf(pdf("?desde=2027-01-01", jwt).body())).doesNotContain(aprobado.toString());
+        assertThat(textoPdf(pdf("?hasta=2026-01-01", jwt).body())).doesNotContain(aprobado.toString());
+        assertThat(pdf("?desde=2026-10-16&hasta=2026-10-15", jwt).statusCode()).isEqualTo(400);
+        assertThat(pdf("?estado=INVALIDO", jwt).statusCode()).isEqualTo(400);
+        assertThat(pdf("?desde=no-fecha", jwt).statusCode()).isEqualTo(400);
+        java.nio.file.Files.write(java.nio.file.Path.of("target/reporte-pdf-prueba.pdf"), response.body());
+    }
+
+    @Test void pdfCannotOverrideAuthenticatedCenter() throws Exception {
+        UUID ajeno = UUID.randomUUID();
+        assertThat(post("/api/lotes", token(), lote(ajeno, "100", "4")).statusCode()).isEqualTo(201);
+        long centroAjeno = centro;
+        fixture();
+        var response = pdf("?idCentro=" + centroAjeno, jefe());
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(textoPdf(response.body())).contains("Sin recepciones", "Centro " + centro).doesNotContain(ajeno.toString());
+    }
+
+    HttpResponse<byte[]> pptx(String query, String jwt) throws Exception {
+        var request = HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + port + "/api/reportes/pptx" + query)).GET();
+        if (jwt != null) request.header("Authorization", "Bearer " + jwt);
+        return http.send(request.build(), HttpResponse.BodyHandlers.ofByteArray());
+    }
+
+    String textoPptx(byte[] bytes) throws Exception {
+        try (var slides = new org.apache.poi.xslf.usermodel.XMLSlideShow(new java.io.ByteArrayInputStream(bytes))) {
+            var texto = new StringBuilder();
+            for (var slide : slides.getSlides()) for (var shape : slide.getShapes())
+                if (shape instanceof org.apache.poi.xslf.usermodel.XSLFTextShape t) texto.append(t.getText()).append("\n");
+            return texto.toString();
+        }
+    }
+
+    @Test void pptxRequiresJefaturaAndPreservesFiltersAndAcademicCover() throws Exception {
+        assertThat(pptx("", null).statusCode()).isEqualTo(401);
+        String op = token();
+        assertThat(pptx("", op).statusCode()).isEqualTo(403);
+        UUID aprobado = UUID.randomUUID(), rechazado = UUID.randomUUID();
+        assertThat(post("/api/lotes", op, lote(aprobado, "120.50", "4")).statusCode()).isEqualTo(201);
+        assertThat(post("/api/lotes", op, lote(rechazado, "50", "12")).statusCode()).isEqualTo(201);
+        String jwt = jefe();
+        var response = pptx("?estado=APROBADO&desde=2026-10-15&hasta=2026-10-15&buscar=Proveedor", jwt);
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.headers().firstValue("Content-Type").orElse("")).contains("presentationml.presentation");
+        assertThat(response.headers().firstValue("Content-Disposition").orElse("")).contains("attachment", "acopio-reporte.pptx");
+        assertThat(textoPptx(response.body())).contains("Universidad Tecnológica del Perú", "Integrador 1", "Equipo 1", "Agosto-2026", "Alberto Edú Fernández Bernedo", aprobado.toString()).doesNotContain(rechazado.toString(), "Muestra ficticia");
+        assertThat(textoPptx(pptx("?buscar=sincoincidencias", jwt).body())).contains("Sin recepciones").doesNotContain(aprobado.toString());
+        assertThat(textoPptx(pptx("?desde=2027-01-01", jwt).body())).doesNotContain(aprobado.toString());
+        assertThat(textoPptx(pptx("?hasta=2026-01-01", jwt).body())).doesNotContain(aprobado.toString());
+        assertThat(pptx("?estado=INVALIDO", jwt).statusCode()).isEqualTo(400);
+        assertThat(pptx("?desde=2026-10-16&hasta=2026-10-15", jwt).statusCode()).isEqualTo(400);
+        java.nio.file.Files.write(java.nio.file.Path.of("target/reporte-pptx-prueba.pptx"), response.body());
+    }
+
+    @Test void pptxCannotOverrideAuthenticatedCenter() throws Exception {
+        UUID ajeno = UUID.randomUUID();
+        assertThat(post("/api/lotes", token(), lote(ajeno, "100", "4")).statusCode()).isEqualTo(201);
+        long centroAjeno = centro; fixture();
+        var response = pptx("?idCentro=" + centroAjeno, jefe());
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(textoPptx(response.body())).contains("Centro " + centro, "Sin recepciones").doesNotContain(ajeno.toString());
+    }
 }

@@ -3,7 +3,7 @@ $root=Split-Path $PSScriptRoot -Parent
 $local=Join-Path $root '.local'
 New-Item -ItemType Directory -Force $local | Out-Null
 $pgBin=if($env:ACOPIO_PG_BIN){$env:ACOPIO_PG_BIN}else{'C:\Program Files\PostgreSQL\18\bin'}
-foreach($tool in @('java.exe','mvn.cmd','npm.cmd','git.exe','flutter.bat')){Get-Command $tool -ErrorAction Stop | Out-Null}
+foreach($tool in @('java.exe','npm.cmd','git.exe','flutter.bat')){Get-Command $tool -ErrorAction Stop | Out-Null}
 if(!(Test-Path "$pgBin/initdb.exe")){throw 'Instala PostgreSQL 18 o define ACOPIO_PG_BIN con la carpeta bin.'}
 if($env:ACOPIO_NODE){$env:PATH=(Split-Path $env:ACOPIO_NODE)+';'+$env:PATH}
 if(!(Test-Path "$local/db-password.txt")){

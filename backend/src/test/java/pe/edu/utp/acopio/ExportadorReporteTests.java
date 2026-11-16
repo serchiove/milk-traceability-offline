@@ -75,4 +75,19 @@ class ExportadorReporteTests {
       assertThat(sheet.getRow(1).getCell(9).getNumericCellValue()).isEqualTo(1.03);
     }
   }
+
+  @Test void pdfPaginatesAndKeepsLongTextAndAccents() throws Exception {
+    var base = reporte("Lechería Ñandú " + "nombre largo ".repeat(30));
+    var filas = java.util.Collections.nCopies(30, base.registros().get(0));
+    var muchos = new Reporte(filas, 30, new BigDecimal("3615.00"), 0, 30, 0, 0, 100,
+        List.of(), BigDecimal.ZERO, new BigDecimal("3615.00"), BigDecimal.ZERO, 0, 100);
+    var bytes = new pe.edu.utp.acopio.report.ExportadorPdf().exportar(muchos, 1L, null, null, null, "");
+    try (var documento = org.apache.pdfbox.Loader.loadPDF(bytes)) {
+      assertThat(documento.getNumberOfPages()).isGreaterThan(1);
+      String texto = new org.apache.pdfbox.text.PDFTextStripper().getText(documento);
+      assertThat(texto).contains("Lechería Ñandú", "Recepciones: 30", "3,615.00", "Página 2", "Fin del reporte");
+      assertThat(texto.split("Lote:", -1)).hasSize(31);
+    }
+    java.nio.file.Files.write(java.nio.file.Path.of("target/reporte-pdf-multipagina.pdf"), bytes);
+  }
 }

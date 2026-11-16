@@ -1,0 +1,221 @@
+<!-- Created with Jaspersoft Studio version 7.0.8.final using JasperReports Library version 7.0.8-6f896111  -->
+<jasperReport name="AcopioAcademicoPDF" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="535" leftMargin="30" rightMargin="30" topMargin="30" bottomMargin="30" uuid="f27ba7eb-94af-49d7-a097-675896160909" titleNewPage="true">
+	<property name="net.sf.jasperreports.csv.column.names" value="lote,fecha,proveedor,placa,volumen,temperatura,estado,tanque,motivo"/>
+	<property name="net.sf.jasperreports.csv.source" value="C:/Users/Asus/Documents/Codex/milk-traceability-offline/docs/plantillas-academicas/muestra.csv"/>
+	<property name="net.sf.jasperreports.csv.encoding" value="UTF-8"/>
+	<property name="net.sf.jasperreports.csv.locale.code" value="en_US"/>
+	<style name="Base" default="true" forecolor="#213D37" fontName="DejaVu Sans" fontSize="10.0"/>
+	<parameter name="generado" class="java.lang.String">
+		<defaultValueExpression><![CDATA["Vista previa de diseño"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="universidad" class="java.lang.String">
+		<defaultValueExpression><![CDATA["Universidad Tecnológica del Perú"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="curso" class="java.lang.String">
+		<defaultValueExpression><![CDATA["Integrador 1"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="docente" class="java.lang.String">
+		<defaultValueExpression><![CDATA["Alberto Edú Fernández Bernedo"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="equipo" class="java.lang.String">
+		<defaultValueExpression><![CDATA["Equipo 1"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="periodo" class="java.lang.String">
+		<defaultValueExpression><![CDATA["Agosto-2026"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="titulo" class="java.lang.String">
+		<defaultValueExpression><![CDATA["ACOPIO · Trazabilidad de leche"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="centro" class="java.lang.String">
+		<defaultValueExpression><![CDATA["Centro académico de demostración"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="filtros" class="java.lang.String">
+		<defaultValueExpression><![CDATA["Muestra ficticia · 12/11/2026 · Todos los estados"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="net.sf.jasperreports.csv.record.delimiter" class="java.lang.String">
+		<defaultValueExpression><![CDATA["\n"]]></defaultValueExpression>
+	</parameter>
+	<query language="csv"><![CDATA[]]></query>
+	<field name="lote" class="java.lang.String"/>
+	<field name="fecha" class="java.lang.String"/>
+	<field name="proveedor" class="java.lang.String"/>
+	<field name="placa" class="java.lang.String"/>
+	<field name="volumen" class="java.math.BigDecimal"/>
+	<field name="temperatura" class="java.math.BigDecimal"/>
+	<field name="estado" class="java.lang.String"/>
+	<field name="tanque" class="java.lang.String"/>
+	<field name="motivo" class="java.lang.String"/>
+	<variable name="litros" calculation="Sum" class="java.math.BigDecimal">
+		<expression><![CDATA[$F{volumen}]]></expression>
+		<initialValueExpression><![CDATA[java.math.BigDecimal.ZERO]]></initialValueExpression>
+	</variable>
+	<variable name="aprobados" calculation="Sum" class="java.lang.Integer">
+		<expression><![CDATA["APROBADO".equals($F{estado}) ? 1 : 0]]></expression>
+		<initialValueExpression><![CDATA[0]]></initialValueExpression>
+	</variable>
+	<variable name="rechazados" calculation="Sum" class="java.lang.Integer">
+		<expression><![CDATA["RECHAZADO".equals($F{estado}) ? 1 : 0]]></expression>
+		<initialValueExpression><![CDATA[0]]></initialValueExpression>
+	</variable>
+	<title height="750">
+		<element kind="rectangle" uuid="1b5434be-4c0e-45d6-a72a-69769620c232" x="0" y="0" width="535" height="8" backcolor="#14634D" mode="Opaque">
+			<pen lineWidth="0.0"/>
+		</element>
+		<element kind="staticText" uuid="01caf75f-2678-46e5-96b8-8a699cd80d97" x="0" y="32" width="175" height="42" forecolor="#14634D" fontSize="28.0" bold="true">
+			<text><![CDATA[ACOPIO]]></text>
+		</element>
+		<element kind="textField" uuid="3bc8d33a-7857-4cab-a46f-ca5702016494" x="205" y="34" width="330" height="56" fontSize="12.0" hTextAlign="Right">
+			<expression><![CDATA[$P{universidad}]]></expression>
+		</element>
+		<element kind="staticText" uuid="dac1c232-0fa4-4f84-840e-28a5750c484b" x="0" y="156" width="535" height="18" forecolor="#5C756D" fontSize="10.0" bold="true">
+			<text><![CDATA[PROYECTO ACADÉMICO]]></text>
+		</element>
+		<element kind="textField" uuid="8f2fb052-761c-4902-9795-a236ec403096" x="0" y="197" width="520" height="123" forecolor="#213D37" fontSize="35.0" bold="true">
+			<expression><![CDATA[$P{titulo}]]></expression>
+		</element>
+		<element kind="staticText" uuid="16d3b1e8-a9f4-40b0-a254-52a1dea101e1" x="0" y="337" width="535" height="28" forecolor="#5C756D" fontSize="14.0">
+			<text><![CDATA[Recepción · Calidad · Trazabilidad]]></text>
+		</element>
+		<element kind="line" uuid="21c13b9b-27ca-4ada-a7dd-1f0ee4587849" x="0" y="389" width="535" height="1" forecolor="#14634D">
+			<pen lineWidth="0.7"/>
+		</element>
+		<element kind="staticText" uuid="4e2c1779-e296-4466-a1ac-cd72ec190ea0" x="0" y="418" width="260" height="18" forecolor="#5C756D" fontSize="9.0" bold="true">
+			<text><![CDATA[CURSO]]></text>
+		</element>
+		<element kind="staticText" uuid="6b5d7589-2221-4b60-8125-7c3f1d128c00" x="285" y="418" width="250" height="18" forecolor="#5C756D" fontSize="9.0" bold="true">
+			<text><![CDATA[DOCENTE]]></text>
+		</element>
+		<element kind="textField" uuid="f452eb70-96a8-4d60-9bd9-c50498f1b0e6" x="0" y="443" width="250" height="45" fontSize="13.0">
+			<expression><![CDATA[$P{curso}]]></expression>
+		</element>
+		<element kind="textField" uuid="c89922b6-abc4-4c82-b67e-b6976e6b97f3" x="285" y="443" width="250" height="45" fontSize="13.0">
+			<expression><![CDATA[$P{docente}]]></expression>
+		</element>
+		<element kind="staticText" uuid="4a511eba-c562-4a44-ab06-34c4eda159a8" x="0" y="520" width="535" height="18" forecolor="#5C756D" fontSize="9.0" bold="true">
+			<text><![CDATA[EQUIPO DE TRABAJO]]></text>
+		</element>
+		<element kind="textField" uuid="8a9394e8-3839-4136-be45-d6a80190dfb1" x="0" y="548" width="535" height="89" fontSize="14.0">
+			<expression><![CDATA[$P{equipo}]]></expression>
+		</element>
+		<element kind="rectangle" uuid="6a6577e9-f035-440a-b7c5-1dc3c65bbe73" x="0" y="690" width="535" height="60" backcolor="#E4F0E9" mode="Opaque">
+			<pen lineWidth="0.0"/>
+		</element>
+		<element kind="staticText" uuid="4b84aa55-2244-4d30-a7b6-0dc2c778b844" x="16" y="700" width="250" height="18" forecolor="#5C756D" fontSize="9.0" bold="true">
+			<text><![CDATA[PERIODO ACADÉMICO]]></text>
+		</element>
+		<element kind="textField" uuid="7d9eb0ca-daf4-4527-82e4-af4be3f913ad" x="16" y="723" width="500" height="22" fontSize="12.0" bold="true">
+			<expression><![CDATA[$P{periodo}]]></expression>
+		</element>
+	</title>
+	<pageHeader height="158">
+		<element kind="staticText" uuid="91d308b6-6aa2-49d4-b8d7-0b602d335383" x="0" y="0" width="125" height="23" forecolor="#14634D" fontSize="15.0" bold="true">
+			<text><![CDATA[ACOPIO]]></text>
+		</element>
+		<element kind="staticText" uuid="39c31789-4e01-4d6d-ab2a-b0ddfdf2dd06" x="145" y="5" width="390" height="18" forecolor="#5C756D" fontSize="9.0" hTextAlign="Right">
+			<text><![CDATA[REPORTE DE RECEPCIONES]]></text>
+		</element>
+		<element kind="line" uuid="c361e342-0c33-411d-9e0a-b1c46cf487e6" x="0" y="32" width="535" height="1" forecolor="#14634D">
+			<pen lineWidth="0.7"/>
+		</element>
+		<element kind="textField" uuid="550b6ec6-8620-4a57-abbc-9e390346350c" x="0" y="47" width="535" height="26" fontSize="16.0" bold="true">
+			<expression><![CDATA[$P{centro}]]></expression>
+		</element>
+		<element kind="textField" uuid="53df6dd1-9614-437a-b379-4363f872195b" x="0" y="81" width="535" height="30" forecolor="#5C756D" fontSize="10.0">
+			<expression><![CDATA[$P{filtros}]]></expression>
+		</element>
+		<element kind="rectangle" uuid="bd21d49f-b48f-48fe-a216-884eb5ad7cdb" x="0" y="121" width="535" height="29" backcolor="#F4F8F6" mode="Opaque">
+			<pen lineWidth="0.0"/>
+		</element>
+		<element kind="staticText" uuid="6f431737-233c-40ce-8941-04316da3ad9c" x="10" y="128" width="515" height="18" forecolor="#5C756D" fontSize="9.0" bold="true">
+			<text><![CDATA[DETALLE DE LAS RECEPCIONES]]></text>
+		</element>
+	</pageHeader>
+	<columnHeader height="32">
+		<element kind="rectangle" uuid="fd96e33b-0369-4f7b-9804-9e3a65d76e65" x="0" y="0" width="535" height="30" backcolor="#14634D" mode="Opaque">
+			<pen lineWidth="0.0"/>
+		</element>
+		<element kind="staticText" uuid="99d631d9-2e6b-45dc-bc7a-586c01343f48" x="7" y="8" width="58" height="18" forecolor="#FFFFFF" fontSize="8.0" bold="true">
+			<text><![CDATA[LOTE]]></text>
+		</element>
+		<element kind="staticText" uuid="80d32ee2-70c4-40d9-94e4-f34b30fc4ce1" x="79" y="8" width="76" height="18" forecolor="#FFFFFF" fontSize="8.0" bold="true">
+			<text><![CDATA[CAPTURA]]></text>
+		</element>
+		<element kind="staticText" uuid="f38d975f-2f31-4c8e-8c8a-433930825d9a" x="169" y="8" width="122" height="18" forecolor="#FFFFFF" fontSize="8.0" bold="true">
+			<text><![CDATA[PROVEEDOR]]></text>
+		</element>
+		<element kind="staticText" uuid="2b28a37e-2851-448e-b076-954622e8002a" x="305" y="8" width="48" height="18" forecolor="#FFFFFF" fontSize="8.0" bold="true" hTextAlign="Right">
+			<text><![CDATA[LITROS]]></text>
+		</element>
+		<element kind="staticText" uuid="ae416d23-ea6b-448a-8374-43b5c5910f47" x="367" y="8" width="81" height="18" forecolor="#FFFFFF" fontSize="8.0" bold="true">
+			<text><![CDATA[CALIDAD]]></text>
+		</element>
+		<element kind="staticText" uuid="79d8e6b5-fe8e-4ed1-8181-cba5ca7bc4af" x="462" y="8" width="66" height="18" forecolor="#FFFFFF" fontSize="8.0" bold="true">
+			<text><![CDATA[TANQUE]]></text>
+		</element>
+	</columnHeader>
+	<detail>
+		<band height="76" splitType="Stretch">
+			<element kind="textField" uuid="518a3e17-988f-4db8-a8cb-51c4f3fa9283" x="7" y="6" width="521" height="17" forecolor="#5C756D" fontSize="8.0">
+				<expression><![CDATA["Lote: " + $F{lote}]]></expression>
+			</element>
+			<element kind="textField" uuid="1300c412-f283-402b-b230-5d7ca94f3e53" x="7" y="30" width="58" height="35" fontSize="9.0" textAdjust="StretchHeight">
+				<expression><![CDATA[$F{lote}.substring(0, Math.min(8, $F{lote}.length()))]]></expression>
+			</element>
+			<element kind="textField" uuid="e8a3cdb6-15b8-4dcd-bd01-0264e3485f55" x="79" y="30" width="76" height="35" fontSize="9.0" textAdjust="StretchHeight">
+				<expression><![CDATA[$F{fecha}]]></expression>
+			</element>
+			<element kind="textField" uuid="d50ce004-4797-474c-b74e-b4a278fccc77" x="169" y="30" width="122" height="35" fontSize="9.0" textAdjust="StretchHeight">
+				<expression><![CDATA[$F{proveedor}]]></expression>
+			</element>
+			<element kind="textField" uuid="271140ff-9dcd-4782-8604-9b367fb2207f" x="305" y="30" width="48" height="35" fontSize="9.0" textAdjust="StretchHeight" pattern="0.00" bold="true" hTextAlign="Right">
+				<expression><![CDATA[$F{volumen}]]></expression>
+			</element>
+			<element kind="textField" uuid="b6540a39-c078-44f8-af99-ba803be339c5" x="367" y="30" width="81" height="35" forecolor="#14634D" fontSize="9.0" textAdjust="StretchHeight" bold="true">
+				<expression><![CDATA[$F{estado}]]></expression>
+			</element>
+			<element kind="textField" uuid="d1d3e998-e255-492c-8f79-aedce5e3df34" x="462" y="30" width="66" height="35" fontSize="9.0" textAdjust="StretchHeight">
+				<expression><![CDATA[$F{tanque}]]></expression>
+			</element>
+			<element kind="line" uuid="8c30ce80-8602-4874-8664-5736584cbf5b" x="0" y="75" width="535" height="1" forecolor="#E4F0E9" positionType="FixRelativeToBottom">
+				<pen lineWidth="0.7"/>
+			</element>
+		</band>
+	</detail>
+	<pageFooter height="30">
+		<element kind="line" uuid="bbd86601-b033-4448-81e9-ca2d854412ab" x="0" y="0" width="535" height="1" forecolor="#E4F0E9">
+			<pen lineWidth="0.7"/>
+		</element>
+		<element kind="staticText" uuid="e3290ed7-c858-4d0e-9fe5-c19a012d2af8" x="0" y="8" width="445" height="14" forecolor="#5C756D" fontSize="8.0">
+			<text><![CDATA[ACOPIO  /  REPORTE ACADÉMICO]]></text>
+		</element>
+		<element kind="textField" uuid="f1198395-a1d7-4de1-acff-70f6908dca3a" x="470" y="6" width="65" height="18" forecolor="#14634D" fontSize="9.0" bold="true" hTextAlign="Right">
+			<expression><![CDATA["Página " + $V{PAGE_NUMBER}]]></expression>
+		</element>
+	</pageFooter>
+	<summary height="180">
+		<element kind="rectangle" uuid="6355fc16-dfa6-49be-b275-f7522e54ba16" x="0" y="15" width="535" height="99" backcolor="#F4F8F6" mode="Opaque">
+			<pen lineWidth="0.0"/>
+		</element>
+		<element kind="staticText" uuid="b149babc-1850-4412-bd4e-0f68f9ff5790" x="18" y="30" width="260" height="18" forecolor="#5C756D" fontSize="9.0" bold="true">
+			<text><![CDATA[VOLUMEN TOTAL RECIBIDO]]></text>
+		</element>
+		<element kind="textField" uuid="623e4db0-7510-4b04-8ea1-9b7688e2954d" x="18" y="55" width="275" height="45" forecolor="#14634D" fontSize="30.0" pattern="#,##0.00" bold="true">
+			<expression><![CDATA[$V{litros}]]></expression>
+		</element>
+		<element kind="staticText" uuid="9b0c1020-8634-40d7-bc42-f4ea47d5c6af" x="294" y="67" width="30" height="24" forecolor="#5C756D" fontSize="14.0">
+			<text><![CDATA[L]]></text>
+		</element>
+		<element kind="staticText" uuid="16b69582-5aef-448a-9003-dd7867135a46" x="375" y="30" width="145" height="18" forecolor="#5C756D" fontSize="9.0" bold="true">
+			<text><![CDATA[RECEPCIONES]]></text>
+		</element>
+		<element kind="textField" uuid="0ea24f56-b0a6-460c-ba9d-e25d94ce64bb" x="375" y="55" width="145" height="45" fontSize="30.0" bold="true">
+			<expression><![CDATA[$V{REPORT_COUNT}]]></expression>
+		</element>
+		<element kind="textField" uuid="d84f0cff-0b6f-48db-9155-896ca7c864ee" x="0" y="131" width="535" height="23" fontSize="10.0">
+			<expression><![CDATA["Recepciones: " + $V{REPORT_COUNT} + " | Aprobadas: " + $V{aprobados} + "    |    Rechazadas: " + $V{rechazados} + "    |    Pendientes: " + ($V{REPORT_COUNT} - $V{aprobados} - $V{rechazados})]]></expression>
+		</element>
+		<element kind="textField" uuid="be154b7d-67f7-4b4f-85dc-60e13fed5420" x="0" y="160" width="535" height="17" forecolor="#5C756D" fontSize="8.0">
+			<expression><![CDATA[($V{REPORT_COUNT} == 0 ? "Sin recepciones para los filtros seleccionados. " : "Fin del reporte. ") + $P{generado}]]></expression>
+		</element>
+	</summary>
+</jasperReport>

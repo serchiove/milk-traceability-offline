@@ -9,13 +9,15 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.edu.utp.acopio.DTO.consulta.LoteDetalleDto;
 
 @Service
-/** Consulta un conjunto filtrado y consistente por centro para indicadores, CSV y XLSX. Limita la exportación a 10000 registros. */
+/** Consulta un conjunto filtrado y consistente por centro para indicadores, PDF, CSV y XLSX. Limita la exportación a 10000 registros. */
 public class ReporteService {
   private final ConsultaLoteService consultas;
   private final pe.edu.utp.acopio.report.ExportadorReporte exportador;
+  private final pe.edu.utp.acopio.report.ExportadorPdf pdf;
   @jakarta.persistence.PersistenceContext private jakarta.persistence.EntityManager em;
 
-  public ReporteService(ConsultaLoteService consultas, pe.edu.utp.acopio.report.ExportadorReporte exportador) {
+  public ReporteService(ConsultaLoteService consultas, pe.edu.utp.acopio.report.ExportadorReporte exportador, pe.edu.utp.acopio.report.ExportadorPdf pdf) {
+    this.pdf = pdf;
     this.consultas = consultas;
     this.exportador = exportador;
   }
@@ -112,11 +114,17 @@ public class ReporteService {
     return exportador.csv(reporte);
   }
 
-  /**
-   * Exporta el mismo conjunto autorizado con mediciones numéricas en Excel.
-   * @param reporte resultado de consultar
-   * @return libro XLSX
-   */
+  /** Genera el PDF del conjunto autorizado con sus filtros visibles. */
+  public byte[] pdf(Reporte reporte, Long centro, String estado, LocalDate desde, LocalDate hasta, String buscar) {
+    return pdf.exportar(reporte, centro, estado, desde, hasta, buscar);
+  }
+
+  /** Genera una presentación editable con el mismo conjunto autorizado. */
+  public byte[] pptx(Reporte reporte, Long centro, String estado, LocalDate desde, LocalDate hasta, String buscar) {
+    return pdf.exportarPptx(reporte, centro, estado, desde, hasta, buscar);
+  }
+
+  /** Exporta el mismo conjunto autorizado con mediciones numéricas en Excel. */
   public byte[] xlsx(Reporte reporte) {
     return exportador.xlsx(reporte);
   }

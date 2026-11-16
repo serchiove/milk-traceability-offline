@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport name="RecepcionesAcopio" language="java" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="782" leftMargin="30" rightMargin="30" topMargin="25" bottomMargin="25" whenNoDataType="AllSectionsNoDetail">
+  <style name="Base" default="true" fontName="DejaVu Sans" fontSize="9" forecolor="#243D38"/>
+  <parameter name="centro" class="java.lang.String"/>
+  <parameter name="filtros" class="java.lang.String"/>
+  <parameter name="generado" class="java.lang.String"/>
+  <parameter name="resumen" class="java.lang.String"/>
+  <parameter name="vacio" class="java.lang.String"/>
+  <field name="identidad" class="java.lang.String"/>
+  <field name="origen" class="java.lang.String"/>
+  <field name="medidas" class="java.lang.String"/>
+  <field name="calidad" class="java.lang.String"/>
+  <field name="destino" class="java.lang.String"/>
+  <title height="110" splitType="Stretch">
+    <element kind="staticText" x="0" y="0" width="782" height="30" fontSize="22" bold="true" forecolor="#14634D"><text>ACOPIO | Reporte de recepciones</text></element>
+    <element kind="textField" x="0" y="35" width="782" height="18" textAdjust="StretchHeight"><expression><![CDATA[$P{centro}]]></expression></element>
+    <element kind="textField" positionType="Float" x="0" y="57" width="782" height="26" textAdjust="StretchHeight"><expression><![CDATA[$P{filtros}]]></expression></element>
+    <element kind="textField" positionType="Float" x="0" y="88" width="782" height="20" bold="true"><expression><![CDATA[$P{resumen}]]></expression></element>
+  </title>
+  <pageHeader height="22">
+    <element kind="textField" x="0" y="0" width="782" height="18" fontSize="8" forecolor="#63756F"><expression><![CDATA["Generado: " + $P{generado} + " | Fechas de captura en hora de Lima"]]></expression></element>
+  </pageHeader>
+  <columnHeader height="26">
+    <element kind="rectangle" x="0" y="0" width="782" height="24" backcolor="#E4F0E9" mode="Opaque"><pen lineWidth="0.0"/></element>
+    <element kind="staticText" x="0" y="5" width="225" height="18" bold="true" fontSize="9"><text>IDENTIFICACIÓN</text></element>
+    <element kind="staticText" x="235" y="5" width="155" height="18" bold="true" fontSize="9"><text>ORIGEN</text></element>
+    <element kind="staticText" x="400" y="5" width="125" height="18" bold="true" fontSize="9"><text>MEDICIONES</text></element>
+    <element kind="staticText" x="535" y="5" width="130" height="18" bold="true" fontSize="9"><text>CALIDAD</text></element>
+    <element kind="staticText" x="675" y="5" width="107" height="18" bold="true" fontSize="9"><text>DESTINO</text></element>
+  </columnHeader>
+  <detail><band height="76" splitType="Stretch">
+    <element kind="textField" x="0" y="6" width="225" height="62" textAdjust="StretchHeight"><expression><![CDATA[$F{identidad}]]></expression></element>
+    <element kind="textField" x="235" y="6" width="155" height="62" textAdjust="StretchHeight"><expression><![CDATA[$F{origen}]]></expression></element>
+    <element kind="textField" x="400" y="6" width="125" height="62" textAdjust="StretchHeight"><expression><![CDATA[$F{medidas}]]></expression></element>
+    <element kind="textField" x="535" y="6" width="130" height="62" textAdjust="StretchHeight"><expression><![CDATA[$F{calidad}]]></expression></element>
+    <element kind="textField" x="675" y="6" width="107" height="62" textAdjust="StretchHeight"><expression><![CDATA[$F{destino}]]></expression></element>
+    <element kind="line" positionType="FixRelativeToBottom" x="0" y="74" width="782" height="1" forecolor="#D7E1DC"><pen lineWidth="0.5"/></element>
+  </band></detail>
+  <pageFooter height="22">
+    <element kind="staticText" x="0" y="5" width="600" height="15" fontSize="8"><text>ACOPIO · Trazabilidad de leche · Uso interno</text></element>
+    <element kind="textField" x="640" y="5" width="142" height="15" hTextAlign="Right" fontSize="8"><expression><![CDATA["Página " + $V{PAGE_NUMBER}]]></expression></element>
+  </pageFooter>
+  <summary height="28"><element kind="textField" x="0" y="8" width="782" height="18"><expression><![CDATA[$P{vacio}]]></expression></element></summary>
+</jasperReport>

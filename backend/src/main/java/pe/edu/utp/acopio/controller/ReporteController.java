@@ -9,7 +9,7 @@ import pe.edu.utp.acopio.service.ReporteService;
 
 @RestController
 @RequestMapping("/api/reportes")
-/** Expone indicadores, CSV y XLSX bajo /api/reportes. Spring Security exige JEFATURA; los filtros conservan el centro autenticado. */
+/** Expone indicadores, PDF, CSV y XLSX bajo /api/reportes. Spring Security exige JEFATURA; los filtros conservan el centro autenticado. */
 public class ReporteController {
     private final ReporteService reportes;
     public ReporteController(ReporteService reportes){this.reportes=reportes;}
@@ -29,6 +29,28 @@ public class ReporteController {
         @RequestParam(defaultValue="") String buscar) {
         return ResponseEntity.ok().header("Content-Disposition","attachment; filename=acopio-reporte.xlsx")
             .body(reportes.xlsx(reportes.consultar(usuario.idCentro(),estado,desde,hasta,buscar)));
+    }
+    @GetMapping(value="/pdf", produces="application/pdf")
+    public ResponseEntity<byte[]> exportarPdf(@AuthenticationPrincipal OperarioPrincipal usuario,
+        @RequestParam(required=false) String estado,
+        @RequestParam(required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate desde,
+        @RequestParam(required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate hasta,
+        @RequestParam(defaultValue="") String buscar) {
+        var reporte = reportes.consultar(usuario.idCentro(), estado, desde, hasta, buscar);
+        return ResponseEntity.ok().header("Content-Disposition", "attachment; filename=acopio-reporte.pdf")
+            .header("Cache-Control", "no-store")
+            .body(reportes.pdf(reporte, usuario.idCentro(), estado, desde, hasta, buscar));
+    }
+    @GetMapping(value="/pptx", produces="application/vnd.openxmlformats-officedocument.presentationml.presentation")
+    public ResponseEntity<byte[]> exportarPowerPoint(@AuthenticationPrincipal OperarioPrincipal usuario,
+        @RequestParam(required=false) String estado,
+        @RequestParam(required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate desde,
+        @RequestParam(required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate hasta,
+        @RequestParam(defaultValue="") String buscar) {
+        var reporte = reportes.consultar(usuario.idCentro(), estado, desde, hasta, buscar);
+        return ResponseEntity.ok().header("Content-Disposition", "attachment; filename=acopio-reporte.pptx")
+            .header("Cache-Control", "no-store")
+            .body(reportes.pptx(reporte, usuario.idCentro(), estado, desde, hasta, buscar));
     }
     @GetMapping(value="/csv",produces="text/csv;charset=UTF-8")
     public ResponseEntity<String> exportar(@AuthenticationPrincipal OperarioPrincipal usuario,
