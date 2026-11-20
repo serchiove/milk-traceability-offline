@@ -32,6 +32,14 @@ test('sesión vencida se descarta incluso si estaba guardada previamente', () =>
   assert.equal(storage.getItem(SESSION_KEY), null);
 });
 
+test('resumen diario se conserva como pantalla al recargar', () => {
+  const storage = memoryStorage();
+  const original = session();
+  original.view.page = 'daily';
+  assert.equal(saveDashboardSession(original, storage, now), true);
+  assert.equal(readDashboardSession(storage, now).view.page, 'daily');
+});
+
 test('JSON corrupto, JWT inválido y rol OPERARIO no restauran acceso de jefatura', () => {
   const storage = memoryStorage();
   for (const content of ['{', JSON.stringify({ ...session(), accessToken: 'invalid' }), JSON.stringify({ ...session(), usuario: { ...session().usuario, rol: 'OPERARIO' } })]) {

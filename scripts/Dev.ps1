@@ -26,7 +26,10 @@ $pgBin=if($env:ACOPIO_PG_BIN){$env:ACOPIO_PG_BIN}else{'C:\Program Files\PostgreS
 $node=if($env:ACOPIO_NODE){$env:ACOPIO_NODE}else{(Get-Command node.exe).Source}
 $java=(Get-Command java.exe).Source
 $env:PATH=(Split-Path $node)+';'+$env:PATH
-$env:DB_HOST='127.0.0.1';$env:DB_PORT='55440';$env:DB_NAME='acopio_dev';$env:DB_USERNAME='acopio_dev'
+$dbPortFile=Join-Path $local 'db-port.txt'
+$dbPortAcopio=if($env:ACOPIO_DB_PORT){$env:ACOPIO_DB_PORT}elseif(Test-Path $dbPortFile){(Get-Content $dbPortFile -Raw).Trim()}else{'55440'}
+if($dbPortAcopio -notmatch '^\d+$' -or [int]$dbPortAcopio -lt 1024 -or [int]$dbPortAcopio -gt 65535){throw 'Puerto PostgreSQL local invalido.'}
+$env:DB_HOST='127.0.0.1';$env:DB_PORT=$dbPortAcopio;$env:DB_NAME='acopio_dev';$env:DB_USERNAME='acopio_dev'
 if(!(Test-Path "$local/db-password.txt")){throw 'Falta .local/db-password.txt. Ejecuta scripts/Preparar.ps1 primero.'}
 $env:DB_PASSWORD=(Get-Content "$local/db-password.txt" -Raw).Trim()
 $env:PGPASSWORD=$env:DB_PASSWORD
@@ -46,13 +49,13 @@ if(!$env:JWT_SECRET){
 function Start-Database {
  & "$pgBin/pg_ctl.exe" -D "$local/pgdata" status *> $null
  if($LASTEXITCODE -ne 0){
-  & "$pgBin/pg_ctl.exe" -D "$local/pgdata" -l "$local/postgres.log" -o '-p 55440 -h 127.0.0.1' -w start
+  & "$pgBin/pg_ctl.exe" -D "$local/pgdata" -l "$local/postgres.log" -o "-p $dbPortAcopio -h 127.0.0.1" -w start
   if($LASTEXITCODE -ne 0){throw 'No se pudo iniciar PostgreSQL del proyecto. Revisa .local/postgres.log.'}
  }
- $exists=& "$pgBin/psql.exe" -w -h 127.0.0.1 -p 55440 -U acopio_dev -d postgres -t -A -c "SELECT 1 FROM pg_database WHERE datname='acopio_dev'"
+ $exists=& "$pgBin/psql.exe" -w -h 127.0.0.1 -p $dbPortAcopio -U acopio_dev -d postgres -t -A -c "SELECT 1 FROM pg_database WHERE datname='acopio_dev'"
  if($LASTEXITCODE -ne 0){throw 'No se pudo autenticar en PostgreSQL del proyecto.'}
  if($exists -ne '1'){
-  & "$pgBin/createdb.exe" -h 127.0.0.1 -p 55440 -U acopio_dev acopio_dev
+  & "$pgBin/createdb.exe" -h 127.0.0.1 -p $dbPortAcopio -U acopio_dev acopio_dev
   if($LASTEXITCODE -ne 0){throw 'No se pudo crear acopio_dev.'}
  }
 }
@@ -60,10 +63,10 @@ function Build-All {
  Start-Database
  # Integration tests must never write fixtures into the application's development database.
  $env:TEST_DB_NAME='acopio_test'
- $testDatabaseExists=& "$pgBin/psql.exe" -w -h 127.0.0.1 -p 55440 -U acopio_dev -d postgres -t -A -c "SELECT 1 FROM pg_database WHERE datname='acopio_test'"
+ $testDatabaseExists=& "$pgBin/psql.exe" -w -h 127.0.0.1 -p $dbPortAcopio -U acopio_dev -d postgres -t -A -c "SELECT 1 FROM pg_database WHERE datname='acopio_test'"
  if($LASTEXITCODE -ne 0){throw 'No se pudo comprobar la base de pruebas.'}
  if($testDatabaseExists -ne '1'){
-  & "$pgBin/createdb.exe" -h 127.0.0.1 -p 55440 -U acopio_dev acopio_test
+  & "$pgBin/createdb.exe" -h 127.0.0.1 -p $dbPortAcopio -U acopio_dev acopio_test
   if($LASTEXITCODE -ne 0){throw 'No se pudo crear la base aislada acopio_test.'}
  }
  $jar="$root/backend/target/acopio-0.0.1-SNAPSHOT.jar"

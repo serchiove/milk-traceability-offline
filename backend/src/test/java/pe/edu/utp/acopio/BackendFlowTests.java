@@ -71,6 +71,34 @@ class BackendFlowTests {
             .header("Authorization","Bearer "+jwt).header("Content-Type","application/json")
             .method(method,HttpRequest.BodyPublishers.ofString(body)).build(),HttpResponse.BodyHandlers.ofString());
     }
+    @Test void dailySummaryRequiresSupervisorKeepsCenterAndRejectsBadDates() throws Exception {
+        String path = "/api/reportes/diario";
+        assertThat(get(path + "?fecha=2026-10-15", null).statusCode()).isEqualTo(401);
+        assertThat(get(path + "?fecha=2026-10-15", token()).statusCode()).isEqualTo(403);
+        assertThat(get(path + "/pdf?fecha=2026-10-15", token()).statusCode()).isEqualTo(403);
+        assertThat(post(path + "/correo", null, "{\"fecha\":\"2026-10-15\"}").statusCode()).isEqualTo(401);
+        assertThat(post(path + "/correo", token(), "{\"fecha\":\"2026-10-15\"}").statusCode()).isEqualTo(403);
+        UUID id = UUID.randomUUID();
+        assertThat(post("/api/lotes", token(), lote(id,"125.50","4")).statusCode()).isEqualTo(201);
+        String jwt = jefe();
+        var summary = get(path + "?fecha=2026-10-15", jwt);
+        assertThat(summary.statusCode()).isEqualTo(200);
+        assertThat(summary.body()).contains(id.toString(), email, "\"total\":1", "\"volumenLitros\":125.50", "\"correoDisponible\":false");
+        assertThat(get(path + "?fecha=2026-10-16", jwt).body()).contains("\"total\":0").doesNotContain(id.toString());
+        for (String date : List.of("2026-02-30", "2999-01-01", "invalida"))
+            assertThat(get(path + "?fecha=" + date, jwt).statusCode()).isEqualTo(400);
+        assertThat(post(path + "/correo", jwt, "{}").statusCode()).isEqualTo(400);
+        assertThat(post(path + "/correo", jwt, "{\"fecha\":\"2026-10-15\"}").statusCode()).isEqualTo(503);
+        var pdf = get(path + "/pdf?fecha=2026-10-15", jwt);
+        assertThat(pdf.statusCode()).isEqualTo(200);
+        assertThat(pdf.headers().firstValue("Content-Type")).hasValue("application/pdf");
+        // Cambiar el centro del usuario debe cambiar el conjunto, aunque se intente añadir idCentro.
+        long otro = db.queryForObject("INSERT INTO acopio.centro_acopio(nombre,region,capacidad_litros) VALUES ('Otro centro diario','Prueba',10000) RETURNING id_centro", Long.class);
+        db.update("UPDATE acopio.usuario SET id_centro=? WHERE id_usuario=?", otro, usuario);
+        String otroJwt = tokens.generarToken(email, usuario, otro, "JEFATURA");
+        assertThat(get(path + "?fecha=2026-10-15&idCentro=" + centro, otroJwt).body())
+            .contains("\"total\":0", "Otro centro diario").doesNotContain(id.toString());
+    }
     @Test void administrationRequiresSupervisorAndValidCatalogData() throws Exception {
         String path="/api/administracion/catalogos/vehiculos";
         String body="{\"placa\":\"ABC-123\",\"capacidadLitros\":5000}";

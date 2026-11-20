@@ -11,6 +11,11 @@ import pe.edu.utp.acopio.service.LoteService;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+  @ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
+  ResponseEntity<?> estado(org.springframework.web.server.ResponseStatusException error) {
+    return ResponseEntity.status(error.getStatusCode()).body(Map.of("mensaje",
+        error.getReason() == null ? "No se pudo completar la solicitud" : error.getReason()));
+  }
   @ExceptionHandler(org.springframework.dao.DuplicateKeyException.class)
   ResponseEntity<?> duplicado() {
     return ResponseEntity.status(409)

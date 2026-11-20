@@ -1,4 +1,5 @@
 .local/
+/Material complementario Codex/
 .env
 .env.local
 **/node_modules/

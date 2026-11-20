@@ -131,6 +131,10 @@
             <version>0.11.5</version>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -139,7 +143,7 @@
             <resource>
                 <directory>../docs/plantillas-academicas</directory>
                 <targetPath>reports/academicas</targetPath>
-                <includes><include>01_PDF_academico.jrxml</include><include>03_PowerPoint_academico.jrxml</include></includes>
+                <includes><include>01_PDF_academico.jrxml</include><include>03_PowerPoint_academico.jrxml</include><include>04_Resumen_diario.jrxml</include></includes>
             </resource>
         </resources>
         <plugins>

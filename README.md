@@ -1,315 +1,377 @@
 <div align="center">
 
-<img src="docs/assets/readme-banner.svg" alt="ACOPIO — Recepción y trazabilidad de leche" width="100%" />
+<img src="docs/assets/readme-banner.svg" alt="ACOPIO · Integrador 1 · Equipo 1 · Universidad Tecnológica del Perú" width="100%" />
 
-# ACOPIO
+**Registro, validación y trazabilidad de la recepción de leche**
 
-**Sistema Automatizado Multiplataforma para el Registro, Validación y Trazabilidad en el Acopio de Materia Prima Láctea en Leche Gloria, 2026**
+Flutter + SQLite · Java 17 + Spring Boot · PostgreSQL · React · JasperReports
 
-Avance de Proyecto Final 3 · Curso Integrador I: Sistemas Software · Universidad Tecnológica del Perú
-
-**Flutter y Dart · Java 17 y Spring Boot · PostgreSQL · React y Vite**
+[Inicio rápido](#inicio-rápido) · [Interfaces](#interfaces) · [Reportes](#reportes-y-plantillas) · [Correo](#resumen-diario-por-correo) · [Verificación](#pruebas-y-evidencias)
 
 </div>
 
-## Presentación
+## El proyecto
 
-Desarrollamos ACOPIO para registrar recepciones de leche y relacionar su origen, mediciones, evaluación de calidad y tanque de destino. Tomamos como caso de estudio a Leche Gloria y trabajamos con datos ficticios en un entorno académico.
+ACOPIO permite registrar recepciones de leche desde una app móvil, conservarlas sin conexión y enviarlas al servidor cuando el operario recupera conectividad. El backend evalúa la calidad y conserva procedencia, mediciones y destino; jefatura consulta los resultados de su centro desde el dashboard.
 
-Nuestra propuesta permite continuar el registro cuando el centro no tiene acceso al servidor. El operario conserva la recepción en el teléfono y solicita su envío cuando recupera la conexión. El backend valida la información y la almacena en PostgreSQL; la jefatura consulta los registros confirmados desde el dashboard.
+Tomamos como caso de estudio a Leche Gloria y utilizamos datos ficticios. Las reglas **DEMO-1** son parámetros académicos de demostración.
 
-**Estado al 25 de octubre de 2026:** contamos con captura local, envío manual con reintento, evaluación central de calidad, asignación de tanque, consulta por QR y reportes CSV y Excel. El recorrido integrado fue comprobado en Android y dashboard. Las reglas **DEMO-1** son valores académicos de demostración, no criterios oficiales de la empresa. La preparación para producción corresponde a una etapa posterior.
+**Documentación actualizada al 20/11/2026.** Este README describe también los cambios del árbol de trabajo local que todavía no se han publicado: resumen diario, correo con Gmail, nueva vista del dashboard y ajustes del entorno. No presupone que la rama remota ya los contenga.
 
-## Contenido
-
-- [Roles y responsabilidades](#roles-y-responsabilidades)
-- [Recorrido funcional](#recorrido-funcional)
-- [Interfaces](#interfaces)
-- [Arquitectura y organización](#arquitectura-y-organización)
-- [Persistencia y consistencia](#persistencia-y-consistencia)
-- [API y permisos](#api-y-permisos)
-- [Instalación y ejecución](#instalación-y-ejecución)
-- [Pruebas y evidencias](#pruebas-y-evidencias)
-- [Alcance pendiente](#alcance-pendiente)
-- [Equipo](#equipo)
-
-## Roles y responsabilidades
-
-| Rol | Interfaz | Responsabilidades implementadas |
-| --- | --- | --- |
-| **OPERARIO** | App Flutter | Registrar recepciones, conservar borradores, enviar pendientes, consultar calidad y trazabilidad y asignar un tanque a una recepción aprobada. |
-| **JEFATURA** | Dashboard | Consultar indicadores, lotes, incidencias y tanques del centro; filtrar y exportar reportes CSV y Excel. La API también dispone de administración de proveedores y vehículos. |
-
-El operario registra el destino físico de la recepción porque participa en la operación del centro. La selección del tanque está sujeta a validación del servidor: mismo centro, lote aprobado y capacidad suficiente. La jefatura supervisa la información. Esta distribución es una decisión de nuestro prototipo y debe contrastarse con el procedimiento real de la organización.
-
-La asignación es un registro digital; no controla válvulas ni confirma el trasvase mediante sensores. `acopio_dev` es una cuenta técnica de PostgreSQL, no un tercer rol de la aplicación.
-
-## Recorrido funcional
-
-1. **Acceso y catálogos.** El operario inicia sesión y descarga proveedores, vehículos y centro autorizado. Puede actualizar la copia sin perder su borrador.
-2. **Captura.** Selecciona el origen e ingresa volumen, temperatura, acidez y densidad. Revisa el resumen antes de guardar.
-3. **Guardado local.** Se conserva la recepción y su UUID en el teléfono. El guardado no realiza un envío automático.
-4. **Envío y reintento.** El operario envía una recepción o los pendientes. Un fallo de comunicación conserva el registro y la solicitud para reintentarlos con el mismo UUID.
-5. **Evaluación central.** El backend valida las referencias, evalúa las mediciones y registra la calidad y las incidencias correspondientes.
-6. **Destino.** Una recepción aprobada puede asignarse a un tanque disponible del mismo centro, con validación de capacidad.
-7. **Supervisión.** La jefatura consulta el lote confirmado desde el dashboard y genera reportes con los mismos filtros aplicados.
-
-Distinguimos **guardado local**, **recibido por el servidor** y **resultado de calidad**. Un lote rechazado por calidad también puede estar correctamente enviado. Los totales del teléfono corresponden a esa cuenta y dispositivo; los del dashboard incluyen las recepciones confirmadas del centro.
-
-La captura sin conexión requiere una sesión todavía vigente y catálogos descargados. No guardamos la contraseña, no evaluamos calidad offline ni enviamos recepciones en segundo plano. Cerrar sesión conserva los registros y la edición local, separados por usuario y centro.
+| Área | Disponible en el código local |
+| --- | --- |
+| **Operación móvil** | Captura offline, borradores, envío manual con reintento, consulta de calidad, QR y asignación de tanque. |
+| **Supervisión web** | Indicadores, incidencias, trazabilidad, filtros, sesión conservada al recargar y resumen diario adaptable a móvil. |
+| **Reportes** | CSV, Excel, PDF académico y PowerPoint editable; PDF específico del resumen diario. |
+| **Correo** | Vista de remitente y destinatario por centro, envío manual del resumen con PDF adjunto y configuración local para Gmail. |
+| **Datos y seguridad** | PostgreSQL, Flyway, JPA, BCrypt, JWT, permisos por rol y consultas limitadas al centro autenticado. |
 
 ## Interfaces
 
-| Sección móvil | Función |
-| --- | --- |
-| **Inicio** | Nueva recepción, pendientes y últimas recepciones. |
-| **Registros** | Búsqueda por proveedor, placa o UUID, filtro de pendientes y acceso al detalle local. |
-| **Central** | Trazabilidad, calidad, lectura de QR y asignación de tanque mediante consultas al servidor. |
-| **Perfil** | Identidad, centro, catálogos, comprobación de conexión y cierre de sesión. |
+Las capturas del dashboard muestran **la interfaz actual con respuestas simuladas y datos ficticios**. Los correos `example.com` son ilustrativos; estas imágenes no acreditan una conexión a PostgreSQL ni entrega de correo real.
+
+### Resumen diario y correo
+
+Remitente, destinatario autorizado, indicadores, motivos de rechazo, distribución por tanque y detalle del día en una misma pantalla.
 
 <p align="center">
-  <img src="mobile-flutter/docs/visual-entrega3/inicio.png" alt="Inicio de la app Flutter" width="260" />
-  <img src="mobile-flutter/docs/visual-entrega3/central.png" alt="Menú Central de la app Flutter" width="260" />
+  <img src="docs/assets/readme/dashboard-resumen-diario.png" alt="Resumen diario: configuración de correo, descarga PDF e indicadores del centro" width="1100" />
 </p>
 
-*Vistas actuales renderizadas con datos ficticios de prueba; ilustran la interfaz y no constituyen evidencia de sincronización.*
+### Indicadores y exportaciones
 
-En el dashboard organizamos la consulta en **Indicadores, Incidencias, Trazabilidad y Reportes**. Compartimos filtros de estado, fechas y búsqueda entre consultas y exportaciones. Los datos se actualizan cada 30 segundos mientras la ventana está visible, al recuperar el foco o al solicitar una actualización.
-
-La sesión vigente, pantalla, filtros y selección del lote se conservan al recargar la misma pestaña. El QR identifica la recepción mediante el código confirmado por el servidor; el acceso al detalle sigue sujeto a autenticación y permisos del centro.
-
-![Trazabilidad y QR del lote confirmado](mobile-flutter/docs/evidencias/recorrido-2026-10-24/05-dashboard-qr-despues-recarga.png)
-
-*Evidencia del 24/10/2026: QR visible después de recargar el dashboard conservando la sesión. El detalle del recorrido está en [Evidencias del recorrido](mobile-flutter/docs/EVIDENCIAS_RECORRIDO.md).*
-
-## Arquitectura y organización
-
-La app y el dashboard consumen la misma API REST. PostgreSQL conserva la información central y SQLite permite trabajar localmente en el teléfono.
-
-```text
-milk-traceability-offline/
-├── backend/          API REST, seguridad, calidad, reportes y persistencia JPA
-├── dashboard/        Interfaz web de jefatura y pruebas
-├── mobile-flutter/   Aplicación móvil Flutter, pruebas y evidencias
-│   └── lib/
-│       ├── core/          Configuración, providers, tema y formatos
-│       ├── models/        Sesión, catálogos, lotes y validaciones
-│       ├── repositories/  Persistencia SQLite
-│       ├── services/      HTTP, sesión, catálogos, envío y consultas
-│       ├── viewmodels/    Estado y coordinación de operaciones
-│       └── views/         Pantallas, pasos de captura y componentes
-├── database/         Modelo SQL de referencia para el informe
-├── docs/             Documentación técnica y evidencias de pruebas
-├── scripts/          Preparación, ejecución y conexión Android
-└── README.md         Presentación y documentación general del proyecto
-```
+<table>
+  <tr>
+    <th width="50%">Indicadores del centro</th>
+    <th width="50%">Reportes operativos</th>
+  </tr>
+  <tr>
+    <td valign="top"><img src="docs/assets/readme/dashboard-indicadores.png" alt="Indicadores de litros recibidos, aprobados, rechazados y tanques" width="100%" /></td>
+    <td valign="top"><img src="docs/assets/readme/dashboard-reportes.png" alt="Filtros y botones de exportación CSV, Excel, PDF y PowerPoint" width="100%" /></td>
+  </tr>
+  <tr>
+    <td>Consulta de lotes y capacidad disponible de tanques.</td>
+    <td>Filtros compartidos entre la consulta y los cuatro formatos.</td>
+  </tr>
+</table>
 
 ### Aplicación móvil
 
-Aplicamos **MVVM**, con `ChangeNotifier` y Riverpod para observar el estado y administrar dependencias. Las vistas no ejecutan SQL ni realizan directamente las solicitudes HTTP.
+<table>
+  <tr><th width="50%">Inicio del operario</th><th width="50%">Consulta central</th></tr>
+  <tr>
+    <td align="center"><img src="mobile-flutter/docs/visual-entrega3/inicio.png" alt="App Flutter: inicio y acceso al registro de una recepción" width="240" /></td>
+    <td align="center"><img src="mobile-flutter/docs/visual-entrega3/central.png" alt="App Flutter: menú de trazabilidad, QR y destino" width="240" /></td>
+  </tr>
+</table>
 
-| Clases o componentes | Responsabilidad |
+Estas vistas móviles corresponden al tercer avance y usan datos ficticios. Las capturas originales del recorrido comprobado se conservan en [Evidencias del recorrido](mobile-flutter/docs/EVIDENCIAS_RECORRIDO.md).
+
+## Recorrido y permisos
+
+1. El **operario** inicia sesión y descarga catálogos del centro.
+2. Captura origen, volumen y mediciones; guarda el registro y su UUID en SQLite.
+3. Solicita el envío cuando hay conexión. Los reintentos conservan la misma solicitud.
+4. El backend valida referencias, identifica duplicados y evalúa calidad dentro de la transacción.
+5. Una recepción aprobada puede asignarse a un tanque del mismo centro, con capacidad suficiente.
+6. **Jefatura** consulta los registros confirmados, exporta reportes y envía el resumen diario.
+
+| Rol | Acceso y responsabilidades |
 | --- | --- |
-| `ShellView` | Coordina la navegación entre las cuatro pestañas. |
-| `HomeView`, `RecordsView`, `CentralMenuView`, `ProfileView` | Presentan las funciones de cada sección. |
-| `CaptureView` y `views/capture/` | Coordinan origen, mediciones y revisión de la recepción. |
-| `LocalDetailView`, `CentralView`, `ScannerView` | Presentan el registro local, la consulta central y la lectura de QR. |
-| `AuthViewModel`, `WorkspaceViewModel`, `CentralViewModel`, `CatalogViewModel`, `ConnectionViewModel` | Mantienen el estado y coordinan acceso, captura, envío, consultas, catálogos y conexión. |
-| `LocalRepository` | Conserva registros, solicitudes y ediciones en SQLite. |
-| `ApiClient`, `SessionService`, `SyncService`, `CentralService` | Gestionan HTTP, acceso y catálogos, envío y consultas centrales. |
-| `AppColors`, tema y componentes compartidos | Unifican colores, tipografía, botones, menús y etiquetas de estado. |
+| `OPERARIO` | App Flutter: registrar, enviar, consultar calidad/trazabilidad y asignar destino. |
+| `JEFATURA` | Dashboard: indicadores, incidencias, trazabilidad, reportes y correo. La API permite administrar proveedores y vehículos. |
 
-Cada ViewModel tiene su propio archivo. `app_viewmodels.dart` conserva las exportaciones para los consumidores existentes. `MenuAction`, `SectionIntro`, `PrimaryButton` y `StateBadge` evitan repetir la composición visual.
+El trabajo offline requiere sesión vigente y catálogos descargados. Guardar localmente no significa haber enviado el registro; un lote rechazado por calidad sí puede estar recibido por el servidor. La asignación del tanque es un registro digital y no controla dispositivos físicos.
 
-### Backend y dashboard
+## Arquitectura y organización
 
-En Java separamos controladores REST, servicios de negocio, reglas de calidad, entidades y repositorios JPA. Spring Security valida el JWT y los permisos; Flyway administra la evolución del esquema. En el dashboard, React presenta las consultas de jefatura y Vite sirve el entorno de desarrollo con un proxy hacia la API.
+```mermaid
+flowchart LR
+    Operario[Operario] --> App[App Flutter]
+    App <--> SQLite[(SQLite local)]
+    App -->|Envío manual con JWT| API[API Spring Boot]
+    Jefatura[Jefatura] --> Web[Dashboard React]
+    Web -->|Consultas con JWT| API
+    API <--> DB[(PostgreSQL)]
+    API --> Reportes[CSV / XLSX / PDF / PPTX]
+    API -->|Resumen y PDF| SMTP[Gmail SMTP]
+```
 
-| Tecnología | Uso |
+```text
+ACOPIO/
+├── backend/                    API, reglas, seguridad, persistencia y exportadores
+│   ├── mvnw.cmd                Maven Wrapper para Windows
+│   └── src/test/               Pruebas Java e integración con una base separada
+├── dashboard/                  Interfaz React, estilos y pruebas
+├── mobile-flutter/             App, SQLite, ViewModels y pruebas móviles
+├── database/                   Referencia SQL y datos ficticios de demostración
+├── docs/
+│   ├── assets/readme/          Capturas ilustrativas de este documento
+│   ├── plantillas-academicas/  Fuentes JRXML editables en Jaspersoft Studio
+│   └── pruebas/               Matrices y evidencias fechadas
+├── scripts/                    Preparación, arranque, pruebas y configuración de correo
+├── .local/                     Configuración privada y archivos generados; ignorada por Git
+├── Acopio.code-workspace       Espacio de trabajo de VS Code
+└── README.md
+```
+
+La app aplica **MVVM**, Riverpod y `ChangeNotifier`; los repositorios gestionan SQLite. El backend separa controladores, servicios, reglas de calidad, entidades y repositorios JPA. Flyway administra las migraciones y Spring Security valida identidad, rol y centro.
+
+| Tecnología | Uso concreto |
 | --- | --- |
-| Flutter, Dart y Riverpod | Interfaz móvil y gestión del estado. |
-| SQLite y almacenamiento seguro | Registros locales y persistencia separada del token. |
-| Java 17, Spring Boot, JPA/Hibernate | API, transacciones y acceso a PostgreSQL. |
-| PostgreSQL y Flyway | Persistencia relacional central y migraciones. |
-| React, Vite y Bootstrap | Dashboard de jefatura. |
-| Guava | Cálculo SHA-256 de la representación canónica de una recepción. |
-| Apache POI y Commons CSV | Exportaciones XLSX y CSV. |
-| Logback | Diagnóstico técnico y eventos de recepción y reportes. |
+| Java 17, Spring Boot y JPA/Hibernate | API y operaciones transaccionales. |
+| PostgreSQL 18 y Flyway | Nueve tablas de negocio e historial de migraciones. |
+| Flutter, Dart, Riverpod y SQLite | Captura móvil y persistencia offline. |
+| React, Vite y Bootstrap | Dashboard y navegación adaptable. |
+| JasperReports | PDF académico, PowerPoint y resumen diario PDF. |
+| Apache POI / Commons CSV | Exportaciones Excel / CSV. |
+| Spring Mail / Jakarta Mail | Mensajes SMTP y adjuntos PDF. |
+| Guava / Logback | Huella SHA-256 de solicitudes / diagnóstico técnico. |
 
-Las versiones declaradas se encuentran en [pom.xml](backend/pom.xml), [pubspec.yaml](mobile-flutter/pubspec.yaml) y [package.json](dashboard/package.json). Conservamos los archivos de bloqueo de dependencias para reproducir el entorno.
+Las versiones se declaran en [pom.xml](backend/pom.xml), [package.json](dashboard/package.json) y [pubspec.yaml](mobile-flutter/pubspec.yaml). Las credenciales, logs, base local y copias temporales no se publican. El material de apoyo se conserva fuera del repositorio; las evidencias de entrega pertenecen a `docs/`.
 
-## Persistencia y consistencia
+## Inicio rápido
 
-El modelo central incluye nueve tablas de negocio: `rol`, `centro_acopio`, `usuario`, `proveedor`, `vehiculo`, `tanque`, `lote_leche`, `registro_calidad` e `incidencia`. Flyway mantiene además su historial de migraciones.
+### 1. Requisitos
 
-Las [migraciones del backend](backend/src/main/resources/db/migration) son la fuente ejecutable del esquema. [modelo_original_informe.sql](database/modelo_original_informe.sql) es una referencia del informe y no debe ejecutarse encima de una base ya administrada por Flyway.
+| Herramienta | Consideración |
+| --- | --- |
+| Git y PowerShell | Entorno de trabajo en Windows. |
+| Java 17 | API y entorno Android compartido. |
+| Maven Wrapper | Incluido en `backend/mvnw.cmd`; no se exige Maven global. |
+| Node.js y npm | Dependencias, pruebas y compilación del dashboard. |
+| PostgreSQL 18 | Herramientas `initdb`, `pg_ctl`, `psql` y `createdb`. |
+| Flutter y Android SDK | Necesarios para la preparación completa y la app móvil. |
+| Jaspersoft Studio | Opcional: edición visual de las plantillas de reportes. |
 
-En el teléfono usamos `acopio_flutter.db`, con tablas `lots`, `sends`, `editions` y `config`. La captura, la asociación de la identidad y la eliminación del borrador se confirman en una transacción. Serializamos las escrituras y separamos formularios y catálogos por usuario y centro. El token se almacena mediante `flutter_secure_storage`.
+### 2. Preparar el equipo
 
-Para reintentar sin duplicar, conservamos el UUID y el cuerpo de la solicitud. Calculamos una huella SHA-256 sobre UUID, proveedor, vehículo, usuario, centro, instante UTC, volumen y mediciones. La representación elimina ceros decimales no significativos y normaliza el instante; usuario y centro autorizados provienen de la sesión. Un UUID reutilizado con contenido diferente genera un conflicto.
-
-La confirmación local requiere una respuesta válida y coherente del servidor. Un código HTTP de éxito por sí solo no basta. El backend controla el aislamiento por centro, las referencias activas, la calidad y la capacidad del tanque dentro de sus operaciones transaccionales.
-
-## API y permisos
-
-| Método y ruta | Acceso | Función |
-| --- | --- | --- |
-| `POST /api/auth/login` | Público | Autenticación y emisión de JWT. |
-| `GET /api/estado` | Público | Diagnóstico de API y PostgreSQL. |
-| `GET /api/catalogos/proveedores`, `/vehiculos` y `/centro` | OPERARIO / JEFATURA | Catálogos y centro autorizado. Las tres rutas comienzan por `/api/catalogos`. |
-| `POST /api/lotes` | OPERARIO | Recepción, control de duplicados y evaluación. |
-| `GET /api/lotes` y `/api/lotes/{uuid}` | OPERARIO / JEFATURA | Listado y detalle del centro. |
-| `GET /api/lotes/por-qr?codigo=ACOPIO:UUID` | OPERARIO / JEFATURA | Consulta por código QR. |
-| `GET /api/tanques` | OPERARIO / JEFATURA | Tanques del centro. |
-| `POST /api/lotes/{uuid}/asignacion-tanque` | OPERARIO | Asignación del destino. |
-| `GET /api/reportes`, `/api/reportes/csv`, `/api/reportes/xlsx` | JEFATURA | Indicadores y exportaciones. |
-| `/api/administracion/catalogos/**` | JEFATURA | Administración de proveedores y vehículos mediante API. |
-
-Las consultas paginadas utilizan `pagina` y `tamano`. Los lotes y reportes aceptan `estado`, `desde`, `hasta` y `buscar`. Las fechas se interpretan en `America/Lima` y cada reporte admite hasta 10000 registros. CSV y Excel conservan los filtros y el centro autenticado; las cadenas similares a fórmulas reciben un tratamiento específico en la exportación.
-
-## Instalación y ejecución
-
-### Requisitos
-
-Nuestro entorno de desarrollo en Windows utiliza Git, **Java 17**, Maven, Node.js con npm, **PostgreSQL 18**, Flutter y Android SDK. La configuración Android debe estar disponible en `flutter doctor`. Para un teléfono físico se requiere depuración USB autorizada.
-
-### Preparación inicial
-
-Desde la raíz del repositorio, en PowerShell:
+Desde la raíz del repositorio:
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\Preparar.ps1
 ```
 
-El script instala dependencias, prepara PostgreSQL local y ejecuta compilación y pruebas. Las claves de esa computadora se conservan en `.local/db-password.txt` y `.local/jwt-secret.txt`, fuera de Git. [.env.example](.env.example) documenta las variables; no se carga automáticamente.
+El script instala dependencias, inicializa PostgreSQL y ejecuta compilación y pruebas, incluyendo Flutter. Un fallo de las pruebas móviles debe revisarse por separado; no representa por sí solo un fallo de backend o dashboard.
 
-Podemos configurar `ACOPIO_JAVA_HOME`, `ACOPIO_PG_BIN` y `ACOPIO_NODE` si las herramientas están en rutas diferentes. No incluimos datos privados, claves ni dependencias instaladas en el repositorio.
+Las rutas se pueden ajustar con `ACOPIO_JAVA_HOME`, `ACOPIO_PG_BIN` y `ACOPIO_NODE`. [.env.example](.env.example) documenta variables y no se carga automáticamente. La contraseña de PostgreSQL y el secreto JWT se generan en `.local/`.
 
-### Arranque habitual
+### 3. Iniciar, comprobar y detener
 
 ```powershell
 .\Iniciar.cmd
+.\Verificar.cmd
+.\Detener.cmd
 ```
 
-En otra terminal, con Android conectado:
+| Servicio | Dirección local |
+| --- | --- |
+| Dashboard | http://127.0.0.1:5173 |
+| API | http://127.0.0.1:18080 |
+| Estado de API y base | http://127.0.0.1:18080/api/estado |
+| Salud de la aplicación | http://127.0.0.1:18080/actuator/health |
+| PostgreSQL | `127.0.0.1`, base y usuario `acopio_dev`; puerto configurable. |
+
+**Puerto PostgreSQL:** el valor predeterminado es `55440`. `Dev.ps1` prioriza `ACOPIO_DB_PORT`, luego `.local/db-port.txt`. En el equipo de desarrollo se cambió a `55430` porque Windows reservó el puerto anterior. En pgAdmin debe usarse el mismo puerto y la contraseña local del equipo.
+
+### 4. Acceder al entorno de demostración
+
+| Interfaz | Cuenta ficticia | Contraseña inicial |
+| --- | --- | --- |
+| App móvil | `operario@gloria.com.pe` | `123456` |
+| Dashboard | `jefatura@gloria.com.pe` | `123456` |
+
+Las cuentas son de demostración; si se cambiaron las claves se usan las vigentes. La contraseña de PostgreSQL es independiente de estas cuentas.
+
+Para cargar recepciones ficticias de Equipo 1, revisar y ejecutar [demo_reportes_equipo1.sql](database/demo_reportes_equipo1.sql) sobre la base de desarrollo, desde pgAdmin. El script identifica sus datos de muestra; no se utiliza sobre una base de operación real.
+
+<details>
+<summary><strong>Conectar un teléfono Android</strong></summary>
+
+Con depuración USB autorizada:
 
 ```powershell
 .\Abrir_Flutter.cmd
 ```
 
-El lanzador móvil configura Java 17, selecciona el dispositivo autorizado, prepara `adb reverse` para el puerto 18080 y ejecuta Flutter. Si hay varios dispositivos:
+El lanzador selecciona el teléfono, configura `adb reverse` y usa `http://127.0.0.1:18080`. Si hay varios dispositivos:
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\Dev.ps1 -Action Mobile -DeviceId ID_DEL_CELULAR
 ```
 
-| Servicio | Dirección de desarrollo |
-| --- | --- |
-| Dashboard | http://127.0.0.1:5173 |
-| API | http://127.0.0.1:18080 |
-| Diagnóstico | http://127.0.0.1:18080/api/estado |
-| PostgreSQL | `127.0.0.1:55440`, base y usuario `acopio_dev` |
+En el emulador Android estándar, usar `http://10.0.2.2:18080` como `API_BASE_URL`. El proceso Flutter termina con `q` en su terminal. La configuración iOS no está validada.
 
-`Verificar.cmd` comprueba el entorno y `Detener.cmd` detiene los servicios administrados. El proceso móvil termina con `q` en su terminal.
+</details>
 
-### Conexión móvil y cuentas de desarrollo
+## Reportes y plantillas
 
-| Entorno móvil | `API_BASE_URL` |
-| --- | --- |
-| Android físico por USB y `adb reverse` | `http://127.0.0.1:18080` |
-| Emulador Android estándar | `http://10.0.2.2:18080` |
-| Android por red local | `http://IP_LAN_DEL_PC:18080` |
-| Simulador iOS en el mismo Mac que la API | `http://127.0.0.1:18080` |
+En **Reportes**, los formatos operativos comparten los filtros `estado`, `desde`, `hasta` y `buscar`, y el centro del JWT. La fecha se interpreta en `America/Lima`. El máximo es de **10.000 recepciones** por reporte.
 
-La URL se define al compilar con `--dart-define=API_BASE_URL=...`. Por defecto el backend escucha en la interfaz local; usar la red local requiere configurar su dirección de escucha y acceso al puerto. Preferimos USB para el entorno académico. `adb.exe` suele encontrarse en `%LOCALAPPDATA%\Android\Sdk\platform-tools`.
-
-| Interfaz | Correo ficticio | Contraseña inicial de desarrollo |
+| Formato | Generación | Uso |
 | --- | --- | --- |
-| App OPERARIO | `operario@gloria.com.pe` | `123456` |
-| Dashboard JEFATURA | `jefatura@gloria.com.pe` | `123456` |
+| **CSV** | Commons CSV | Intercambio de datos; texto protegido frente a fórmulas. |
+| **Excel (.xlsx)** | Apache POI | Análisis tabular y mediciones numéricas. |
+| **PDF (.pdf)** | JasperReports | Reporte académico con portada, detalle y totales. |
+| **PowerPoint (.pptx)** | JasperReports | Presentación editable con portada, fichas de recepciones y resumen. |
+| **Resumen diario PDF** | JasperReports | Indicadores del día, calidad, tanques y detalle; también se adjunta al correo. |
 
-Estas cuentas pertenecen a los datos de demostración. Si se modificaron sus claves, se utilizan las vigentes. La contraseña de PostgreSQL es independiente. En pgAdmin registramos el host y puerto anteriores con la clave local de esta computadora; la instancia del proyecto es independiente de otros servidores en el puerto 5432.
+### Personalizar con Jaspersoft Studio
 
-### Actualizar después de cambios del backend
+| Plantilla | Conectada al dashboard |
+| --- | --- |
+| `01_PDF_academico.jrxml` | Sí: Exportar PDF. |
+| `02_Excel_academico.jrxml` | Diseño para Studio; la descarga Excel sigue generándose con POI. |
+| `03_PowerPoint_academico.jrxml` | Sí: Exportar PowerPoint. |
+| `04_Resumen_diario.jrxml` | Sí: descargar y enviar el resumen diario. |
+
+Abrir [docs/plantillas-academicas](docs/plantillas-academicas) en Jaspersoft Studio y editar el JRXML en **Design**. Las plantillas académicas incluyen Equipo 1, Integrador 1, Universidad Tecnológica del Perú, periodo Agosto-2026 y docente Alberto Edú Fernández Bernedo.
+
+Maven copia las fuentes al classpath durante la compilación. Guardar en Studio no actualiza un backend que ya está ejecutándose: hay que recompilar y reiniciar. Todavía no existe un editor de plantillas dentro del dashboard. CSV no admite diseño visual de colores o portada.
+
+## Resumen diario por correo
+
+**Resumen diario** tiene acceso propio en el menú y un enlace desde Reportes. Al entrar o cambiar de fecha carga indicadores, remitente, destinatario autorizado y estado de configuración de Gmail.
+
+1. Seleccionar la fecha de captura y revisar el centro y destinatario.
+2. Consultar los litros recibidos, aprobados, rechazados y pendientes.
+3. Revisar motivos de rechazo, distribución por tanque y recepciones.
+4. Descargar el PDF o pulsar **Enviar resumen por correo**.
+
+El resumen incluye capturas del día seleccionado que ya están sincronizadas al consultar. Los registros todavía guardados en los teléfonos no aparecen. Las evaluaciones y asignaciones son las actuales al consultar; los litros por tanque corresponden a esas recepciones, no a su ocupación acumulada. La descarga y el envío consultan de nuevo, por lo que pueden incorporar sincronizaciones posteriores a la vista previa.
+
+### Configurar Gmail
+
+Activar verificación en dos pasos y crear una contraseña de aplicación en la cuenta remitente. Después ejecutar:
 
 ```powershell
-.\Probar_Proyecto.cmd
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\Configurar-Correo.ps1
 ```
 
-El comando recompila el backend y ejecuta las pruebas. Si la API está en funcionamiento, la detiene para reemplazar el JAR y la reinicia. Después comprueba dashboard y Flutter y genera el APK Android de depuración.
+El asistente guarda remitente, destinatario por centro y contraseña en `.local/mail.properties`. La contraseña se introduce de forma oculta. Reiniciar el backend para aplicar los cambios.
 
-`Iniciar.cmd` reutiliza el JAR existente: iniciar los servicios no equivale a recompilar el código actualizado. El 25/10 comprobamos que un JAR antiguo impedía exportar Excel; la recompilación y el reinicio resolvieron el problema.
+El destinatario se configura mediante `app.mail.centros.ID.destinatario`; si no existe, se usa el correo del usuario autenticado. El navegador no puede elegir otro centro ni un destinatario arbitrario. SMTP utiliza autenticación y STARTTLS; se limita a un intento por minuto y destinatario.
+
+El envío es **manual**. La configuración disponible no acredita entrega en la bandeja: el envío real por Gmail sigue pendiente de comprobación documentada. La integración actual cubre reportes y no incorpora todavía verificación de cuentas ni recuperación de contraseñas.
+
+Ver [Guía del resumen diario](docs/resumen-diario.md) para configuración, API y tratamiento de errores.
+
+## API y consistencia
+
+<details>
+<summary><strong>Rutas principales y permisos</strong></summary>
+
+| Método y ruta | Acceso | Función |
+| --- | --- | --- |
+| `POST /api/auth/login` | Público | Autenticación y JWT. |
+| `GET /api/estado`, `GET /actuator/health` | Público | Diagnóstico y salud. |
+| `GET /api/catalogos/proveedores`, `/vehiculos`, `/centro` | OPERARIO / JEFATURA | Catálogos; las tres rutas parten de `/api/catalogos`. |
+| `POST /api/lotes` | OPERARIO | Recepción y evaluación. |
+| `GET /api/lotes`, `/api/lotes/{uuid}` | OPERARIO / JEFATURA | Listado y detalle del centro. |
+| `GET /api/lotes/por-qr?codigo=ACOPIO:UUID` | OPERARIO / JEFATURA | Consulta por QR. |
+| `GET /api/tanques` | OPERARIO / JEFATURA | Disponibilidad y capacidad. |
+| `POST /api/lotes/{uuid}/asignacion-tanque` | OPERARIO | Destino de una recepción aprobada. |
+| `GET /api/reportes` | JEFATURA | Indicadores del conjunto filtrado. |
+| `GET /api/reportes/csv`, `/xlsx`, `/pdf`, `/pptx` | JEFATURA | Descargas; las cuatro rutas parten de `/api/reportes`. |
+| `GET /api/reportes/diario?fecha=AAAA-MM-DD` | JEFATURA | Vista previa del resumen y configuración visible. |
+| `GET /api/reportes/diario/pdf?fecha=AAAA-MM-DD` | JEFATURA | PDF diario. |
+| `POST /api/reportes/diario/correo` | JEFATURA | Envío manual con cuerpo `{"fecha":"AAAA-MM-DD"}`. |
+| `/api/administracion/catalogos/**` | JEFATURA | Administración de proveedores y vehículos. |
+
+</details>
+
+El centro y usuario de una solicitud se obtienen de la sesión. La paginación utiliza `pagina` y `tamano`. Un UUID reutilizado con contenido diferente genera conflicto; la huella SHA-256 normaliza instante, volumen y mediciones para permitir reintentos coherentes.
+
+Las nueve tablas de negocio son `rol`, `centro_acopio`, `usuario`, `proveedor`, `vehiculo`, `tanque`, `lote_leche`, `registro_calidad` e `incidencia`. Las [migraciones Flyway](backend/src/main/resources/db/migration) son la fuente ejecutable; [modelo_original_informe.sql](database/modelo_original_informe.sql) es una referencia y no se ejecuta sobre una base ya administrada por Flyway.
 
 ## Pruebas y evidencias
 
-| Componente | Resultado comprobado | Alcance |
+Estas son las últimas verificaciones documentadas; editar este README no ejecuta de nuevo las suites.
+
+| Componente | Comprobación | Alcance y límite |
 | --- | --- | --- |
-| Backend, 25/10/2026 | **43 pruebas**, sin fallos, errores ni omitidas | 2 de aplicación, 38 de flujos y 3 del exportador; reportes Surefire conservados. |
-| Flutter, 25/10/2026 | **46 pruebas aprobadas**, análisis sin incidencias y APK generado | Conexión, servicios, repositorio, validaciones y widgets, incluido ajuste de los detalles en pantallas estrechas. |
-| Dashboard, evidencia del 24/10/2026 | **11 pruebas aprobadas** y compilación correcta | Fechas, QR y conservación de sesión. No sumamos ejecuciones de fechas distintas. |
-| Recorrido integrado | Comprobado en teléfono y dashboard; funcionamiento confirmado nuevamente el 25/10 | Captura local, recuperación de conexión, envío, calidad, destino y consulta. Excel confirmado tras actualizar el backend. |
+| **Backend · 18/11/2026** | Suite completa de **53 pruebas** aprobada; empaquetado correcto. | Base aislada `acopio_test`. Después se ejecutaron **5 pruebas específicas** de resumen/correo, todas aprobadas; no se suman como otra suite completa. |
+| **Dashboard · 18/11/2026** | **12 pruebas** aprobadas y build de Vite correcto. | Fechas, QR y sesión, incluida restauración de Resumen diario. |
+| **Navegador · 18/11/2026** | Acceso, menú, carga automática, destinatario corregido, fecha, descarga PDF, recarga y vista móvil comprobados. | La prueba no envió correo real. |
+| **Exportaciones · 18/11/2026** | CSV, XLSX, PDF y PPTX respondieron HTTP 200; resumen PDF descargado. | Consultas autenticadas y datos ficticios. |
+| **Flutter · evidencia histórica** | 46 pruebas, análisis y APK documentados el 25/10. | Una preparación posterior informó dos fallos de widgets. Pendiente volver a validar el estado móvil; no se atribuyen resultados actuales a aquella ejecución. |
 
-La matriz de Elías contiene **24 casos** y documenta sus alcances. No los sumamos al número de pruebas automatizadas. Incluye aislamiento por centro, calidad, capacidad, reintentos, concurrencia, rollback, migraciones y validación JPA. Las pruebas adicionales cubren vehículos inactivos, límites del día en Lima y paginación de 30 tanques.
-
-Para ejecutar las pruebas de Flutter desde la raíz:
-
-```powershell
-Push-Location mobile-flutter
-flutter analyze --no-pub
-flutter test --no-pub test/connection_test.dart test/services_test.dart test/widget_test.dart test/repository_test.dart test/validation_test.dart test/detail_layout_test.dart
-Pop-Location
-```
+### Ejecutar las comprobaciones
 
 Para el dashboard:
 
 ```powershell
 Push-Location dashboard
-npm test
-npm run build
+npm.cmd test
+npm.cmd run build
 Pop-Location
 ```
 
-Las pruebas de integración del lanzador utilizan la base separada `acopio_test`. Las pruebas locales de Flutter usan almacenamiento temporal y respuestas controladas. El contrato con servidor real se ejecuta mediante `mobile-flutter/tool/Test-Contract.ps1`: requiere un JAR actualizado y prepara PostgreSQL y backend aislados en los puertos 55441 y 18081. Crea una recepción de prueba; no debe apuntarse a una base de presentación.
+Para las pruebas unitarias del resumen diario, sin iniciar PostgreSQL:
 
-El APK se genera en `mobile-flutter/build/app/outputs/flutter-apk/app-debug.apk`. La compilación Android no acredita una compilación iOS ni una firma de distribución.
+```powershell
+Push-Location backend
+.\mvnw.cmd "-Dmaven.repo.local=../.local/m2" "-Dtest=ResumenDiarioTests" test
+Pop-Location
+```
 
-### Documentación técnica conservada
+Para el conjunto completo, incluida base de prueba, dashboard y Flutter:
+
+```powershell
+.\Probar_Proyecto.cmd
+```
+
+Este lanzador crea o usa `acopio_test`, ejecuta `mvnw.cmd verify`, pruebas/build web, análisis/pruebas Flutter y APK. Si encuentra un backend activo, lo detiene para reemplazar el JAR y después lo reinicia. Un fallo móvil se conserva como fallo móvil, aunque las comprobaciones anteriores hayan pasado.
+
+`Iniciar.cmd` reutiliza el JAR existente: iniciar no recompila los cambios. Para compilar solo backend y continuar trabajando en web, con el backend detenido:
+
+```powershell
+Push-Location backend
+.\mvnw.cmd "-Dmaven.repo.local=../.local/m2" -DskipTests package
+Pop-Location
+.\Iniciar.cmd
+```
+
+Ese último comando de Maven omite pruebas; no sustituye `verify`. Para Javadoc, ejecutar `.\mvnw.cmd javadoc:javadoc` desde `backend`.
+
+<details>
+<summary><strong>Documentación y evidencias anteriores</strong></summary>
 
 | Documento | Contenido |
 | --- | --- |
-| [Librerías, Javadoc y TDD](docs/APF3_LIBRERIAS_JAVADOC_TDD.md) | Uso de librerías, ciclo rojo–verde–refactorización de Excel y evidencias académicas. |
-| [Matriz de pruebas de Elías](docs/pruebas/MATRIZ_PRUEBAS_ELIAS.md) | Casos, resultados y evidencias por versión. |
-| [Datos ficticios](docs/pruebas/DATOS_FICTICIOS_ELIAS.md) | Datos de preparación para las pruebas. |
-| [Cierre adicional de Elías](docs/pruebas/CIERRE_ADICIONAL_ELIAS_2026-10-24.md) | Comprobaciones de integración y pruebas adicionales del 24/10. |
-| [Verificación móvil](docs/pruebas/VERIFICACION_FLUTTER.md) | Resultados móviles consolidados, alcance y evidencias del recorrido. |
-| [Evidencias del recorrido](mobile-flutter/docs/EVIDENCIAS_RECORRIDO.md) | Capturas originales y explicación de lo observado. |
-| [Resultados backend del 25/10](docs/pruebas/evidencias/2026-10-25) | Resúmenes Surefire de la suite completa de 43 pruebas. |
+| [Resumen diario y correo](docs/resumen-diario.md) | Configuración SMTP, endpoints, fechas y límites. |
+| [Plantillas académicas](docs/plantillas-academicas) | Fuentes JRXML y muestras de diseño. |
+| [Librerías, Javadoc y TDD](docs/APF3_LIBRERIAS_JAVADOC_TDD.md) | Incremento Java y ciclo rojo–verde–refactorización de Excel. |
+| [Matriz de pruebas de Elías](docs/pruebas/MATRIZ_PRUEBAS_ELIAS.md) | Casos y evidencias por versión. |
+| [Verificación Flutter](docs/pruebas/VERIFICACION_FLUTTER.md) | Resultados móviles históricos y alcance. |
+| [Recorrido Android y web](mobile-flutter/docs/EVIDENCIAS_RECORRIDO.md) | Capturas originales del recorrido integrado. |
+| [Resultados del 25/10](docs/pruebas/evidencias/2026-10-25) | Reportes backend de esa versión. |
 
-Los documentos fechados describen la versión probada en ese momento; sus incidencias históricas no sustituyen este resumen del estado actual. Conservamos evidencias anteriores de migraciones y transacciones porque permiten contrastar resultados antes y después de una operación.
+Las matrices manuales no se suman a las pruebas automatizadas. Las capturas ilustrativas del README tampoco se presentan como evidencia de ejecución con servicios reales.
 
-Generamos Javadoc desde `backend` con `mvn javadoc:javadoc`; el resultado está en `backend/target/site/apidocs/index.html`. Los registros de Logback son diagnóstico técnico y no sustituyen una auditoría durable de usuarios.
+</details>
 
-## Alcance pendiente
+## Pendientes de la entrega final
 
-| Área | Trabajo pendiente |
+| Área | Siguiente trabajo |
 | --- | --- |
-| Reportes | Exportación PDF y diferenciación visual entre errores y descargas correctas en los avisos del dashboard. |
-| Administración | Pantallas completas para proveedores y vehículos; gestión de usuarios, centros y alta de tanques. |
-| Tanques | Vaciado, mantenimiento e historial de movimientos; completar la paginación del dashboard, que consulta los primeros 25 tanques. |
-| Recepciones | Corrección o anulación autorizada, con motivo e historial. |
-| Publicación | HTTPS, firma de distribución, respaldos con restauración comprobada y pruebas de rendimiento y aceptación final. |
-| Validación operativa | Contrastar responsabilidades y reglas de calidad con el proceso real. |
-| iOS | Compilar, firmar y probar en macOS/Xcode. |
+| Monitoreo | Plan con indicadores, frecuencia, responsables, logs y mediciones de rendimiento. |
+| Mantenimiento | Plan preventivo/correctivo, respaldos y restauración comprobada. |
+| Pruebas móviles | Revisar los dos fallos reportados y repetir la validación Flutter. |
+| Correo | Comprobar entrega real por Gmail; automatización horaria si se incorpora al alcance. |
+| Operación | Completar administración de usuarios/centros, ciclo de tanques, corrección/anulación e historial de recepciones. |
+| Documentación | Alinear el informe final y sus evidencias con el código; preparar y ensayar la sustentación. |
 
-La prueba de 30 tanques valida la paginación de la API; no equivale a tener implementadas todas las páginas en el dashboard. El proyecto Android constituye la plataforma comprobada de esta entrega.
+La auditoría completa, las mediciones empresariales y la validación iOS no se consideran acreditadas. La consulta de los primeros 25 tanques del dashboard no equivale a haber implementado toda su paginación.
 
-## Equipo
+## Equipo y contexto académico
 
-| Integrante | Responsabilidad principal |
+**Equipo 1 · Integrador 1 · Universidad Tecnológica del Perú**
+Periodo académico: **Agosto-2026** · Docente: **Alberto Edú Fernández Bernedo**
+
+| Integrante | Aporte principal |
 | --- | --- |
 | Sergio Rodrigo Veliz Carrasco | Aplicación móvil, entorno e integración. |
 | Patricio Alejandro Durant Carbajal | Backend, autenticación, recepción y calidad. |
 | Fernando José Huayto Abarga | Dashboard y consumo de la API. |
 | Elías Jhonny Ccama Ynca | Base de datos y pruebas. |
-
-Integramos nuestros aportes en este repositorio y conservamos en Git el historial de cambios. La documentación distingue las funciones implementadas, las verificaciones realizadas y el alcance previsto para la siguiente entrega.

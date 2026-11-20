@@ -5,6 +5,7 @@ import './style.css';
 import { periodRange, selectedPeriod } from './filters.js';
 import { readDashboardSession, saveDashboardSession, clearDashboardSession, tokenExpiresAt } from './session.js';
 import LotQr from './LotQr.jsx';
+import DailySummary from './DailySummary.jsx';
 
 function normalizeLot(item) {
   const supplier = item?.proveedor;
@@ -425,7 +426,7 @@ function App() {
     }
   }, [filterKey]);
 
-  const pageTitle = { indicators: 'Resumen del acopio', incidents: 'Incidencias de calidad', traceability: 'Trazabilidad y calidad', reports: 'Reportes operativos' }[page];
+  const pageTitle = { indicators: 'Resumen del acopio', incidents: 'Incidencias de calidad', traceability: 'Trazabilidad y calidad', reports: 'Reportes operativos', daily: 'Resumen diario y correo' }[page];
 
   if (page === 'login') {
     return (
@@ -474,6 +475,7 @@ function App() {
           <button className={page === 'incidents' ? 'active' : ''} onClick={() => setPage('incidents')}><span>⚠ </span> Incidencias</button>
           <button className={page === 'traceability' ? 'active' : ''} onClick={() => setPage('traceability')}><span>◧</span> Trazabilidad</button>
           <button className={page === 'reports' ? 'active' : ''} onClick={() => setPage('reports')}><span>▤</span> Reportes</button>
+          <button className={page === 'daily' ? 'active' : ''} onClick={() => setPage('daily')}><span>✉</span> Resumen diario</button>
         </nav>
         <div className="sidebar-bottom"><span className="status-dot"></span> Centro autorizado</div>
       </aside>
@@ -485,8 +487,8 @@ function App() {
         </header>
 
         <div className="content-area">
-          <div className="demo-banner"><span>●</span><div><strong>Datos del servidor · {currentUser?.centro || 'Centro autorizado'}</strong><small>Incluye los lotes enviados desde todos los equipos de este centro. Se actualiza cada 30 segundos y al volver a la ventana.</small><small aria-live="polite">Lotes: {timestamp(updatedAt.lots)} · Indicadores: {timestamp(updatedAt.report)} · Tanques: {timestamp(updatedAt.tanks)}</small></div><button onClick={refreshDashboard} disabled={refreshing}>{refreshing ? 'Actualizando…' : 'Actualizar datos'}</button></div>
-          <div className="text-secondary small my-3">Filtros compartidos con reportes y exportación: {scope}</div>
+          {page !== 'daily' && <div className="demo-banner"><span>●</span><div><strong>Datos del servidor · {currentUser?.centro || 'Centro autorizado'}</strong><small>Incluye los lotes enviados desde todos los equipos de este centro. Se actualiza cada 30 segundos y al volver a la ventana.</small><small aria-live="polite">Lotes: {timestamp(updatedAt.lots)} · Indicadores: {timestamp(updatedAt.report)} · Tanques: {timestamp(updatedAt.tanks)}</small></div><button onClick={refreshDashboard} disabled={refreshing}>{refreshing ? 'Actualizando…' : 'Actualizar datos'}</button></div>}
+          {page !== 'daily' && <div className="text-secondary small my-3">Filtros compartidos con reportes y exportación: {scope}</div>}
           {apiError && <div className="alert alert-warning mt-3" role="alert">{apiError}</div>}
           {lotsError && <div className="alert alert-danger mt-3" role="alert">{lotsError}</div>}
           {lotsLoading && <div className="alert alert-info mt-3" role="status">Cargando lotes desde el servidor…</div>}
@@ -593,9 +595,11 @@ function App() {
             </>
           )}
 
+          {page === 'daily' && <DailySummary apiFetch={apiFetch} />}
           {page === 'reports' && (
             <>
               <div className="page-heading-row"><div><h2>Reportes operativos</h2><p>Filtra los lotes y descarga el reporte completo desde el servidor.</p></div></div>
+              <section className="daily-shortcut panel"><div><span className="daily-eyebrow">RESUMEN Y CORREO</span><h3>El cierre de tu día, en un solo reporte</h3><p>Revisa los indicadores, descarga el PDF y envíalo al destinatario autorizado del centro.</p></div><button className="btn btn-acopio" onClick={() => setPage('daily')}>Abrir resumen diario →</button></section>
               <section className="panel report-filters">
                 <label>Estado<select className="form-select" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}><option>Todos</option><option>APROBADO</option><option>RECHAZADO</option><option>PENDIENTE</option></select></label>
                 <label>Centro autorizado<input className="form-control" value={currentUser?.centro || 'Centro de la sesión'} readOnly /></label>

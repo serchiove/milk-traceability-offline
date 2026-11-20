@@ -1,3 +1,10 @@
+> **Estado actualizado al 20/11/2026:** las plantillas `01_PDF_academico.jrxml` y
+> `03_PowerPoint_academico.jrxml` ya están conectadas a las descargas del dashboard.
+> `04_Resumen_diario.jrxml` genera el PDF diario y el adjunto del correo.
+> `02_Excel_academico.jrxml` sigue siendo un diseño para Studio: Excel se descarga con Apache POI.
+> Maven copia las plantillas utilizadas al compilar; guardar cambios requiere recompilar y reiniciar.
+> Las notas posteriores sobre “integración futura” describen la preparación histórica de las muestras.
+
 # Integración activa del PDF y PowerPoint (13/11/2026)
 
 El dashboard ya dispone de Exportar PDF y Exportar PowerPoint. El backend utiliza directamente 01_PDF_academico.jrxml y 03_PowerPoint_academico.jrxml de esta carpeta: Maven los copia al JAR en reports/academicas. Cambiar el diseño en Studio requiere guardar, recompilar el backend y reiniciarlo. F5 en Studio refresca el editor; no recompila el backend.

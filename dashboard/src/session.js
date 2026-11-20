@@ -1,5 +1,5 @@
 export const SESSION_KEY = 'acopio.dashboard.session.v1';
-const pages = ['indicators', 'incidents', 'traceability', 'reports'];
+const pages = ['indicators', 'incidents', 'traceability', 'reports', 'daily'];
 
 function browserStorage() {
   try { return globalThis.sessionStorage; } catch { return null; }
