@@ -21,8 +21,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Conectar-Android.p
 | Probar_Proyecto.cmd | Compilar backend/web y comprobar tipos del móvil |
 | Detener.cmd | Detener los servicios del proyecto |
 
+Respaldos programados, restauración de prueba y recuperación: [Mantenimiento](07_MANTENIMIENTO.md).
+
 ## Otra computadora
-Requisitos: Java 17, Maven 3.9+, Node 24 LTS, PostgreSQL 18 y Git. Android requiere Expo Go compatible con SDK 57 y depuración USB, o emulador con ADB.
+Requisitos: Java 25 LTS, Maven 3.9+, Node 24 LTS, PostgreSQL 18 y Git. Android requiere Expo Go compatible con SDK 57 y depuración USB, o emulador con ADB.
 Descomprimir el paquete de código y ejecutar:
 
 ```powershell

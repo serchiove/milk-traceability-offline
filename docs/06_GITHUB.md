@@ -11,7 +11,7 @@ cd milk-traceability-offline
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Preparar.ps1
 ```
 
-Preparar.ps1 requiere Java 17, Maven 3.9+, Node 24 LTS, Git y PostgreSQL 18 instalados. Ver docs/01_INICIO_RAPIDO.md.
+Preparar.ps1 requiere Java 25 LTS, Maven 3.9+, Node 24 LTS, Git y PostgreSQL 18 instalados. Ver docs/01_INICIO_RAPIDO.md.
 
 ## Trabajar en una función nueva
 

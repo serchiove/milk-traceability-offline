@@ -135,7 +135,7 @@ Responsable: Patricio. Fecha de corte: 09 de octubre de 2026.
 El backend centraliza el acceso de la aplicación móvil y el dashboard a PostgreSQL. Debe autenticar usuarios, aplicar permisos, recibir lotes, evaluar calidad y coordinar transacciones. Hoy implementa conexión de diagnóstico y migraciones del esquema; los servicios de negocio todavía están pendientes.
 
 ## Qué tenemos implementado
-La aplicación usa Java 17, Spring Boot 4.1.1 y Maven. Integra Spring JDBC, validación, Flyway y Actuator. La estructura inicial separa Controller, Service y Repository, con inyección de dependencias.
+La aplicación usa Java 25 LTS, Spring Boot 4.1.1 y Maven. Integra Spring JDBC, validación, Flyway y Actuator. La estructura inicial separa Controller, Service y Repository, con inyección de dependencias.
 EntornoController recibe GET /api/estado; EntornoService arma la respuesta; EntornoRepository consulta information_schema para contar las tablas de acopio y recupera los centros activos mediante JdbcTemplate.
 La respuesta contiene estado, baseDatos, tablas, centros y alcance. Los datos proceden de consultas reales, pero el diagnóstico no evalúa todas las funciones de negocio. /actuator/health permite verificar la salud del servicio.
 El servidor escucha en 127.0.0.1:18080. La configuración toma host, puerto, nombre, usuario y contraseña de base mediante variables de entorno. Flyway crea el esquema con V1 y carga dos roles y un centro ficticio con V2. La limpieza de Flyway está deshabilitada.
@@ -239,7 +239,7 @@ Reservar versiones de migración entre Patricio y Elías. Conservar archivos loc
 
 ## Repositorio y ejecución
 Repositorio de destino: https://github.com/serchiove/milk-traceability-offline. La carpeta raíz contiene backend, dashboard, mobile, database, docs y scripts. El historial existente debe preservarse mediante un commit descendiente de main, sin force push.
-En cada equipo instalar Java 17, Maven 3.9+, Node 24 LTS, PostgreSQL 18 y Git. Ejecutar scripts/Preparar.ps1, después Iniciar.cmd. Android requiere Expo Go compatible y autorización USB. Las instrucciones completas y los puertos están en docs/01_INICIO_RAPIDO.md.
+En cada equipo instalar Java 25 LTS, Maven 3.9+, Node 24 LTS, PostgreSQL 18 y Git. Ejecutar scripts/Preparar.ps1, después Iniciar.cmd. Android requiere Expo Go compatible y autorización USB. Las instrucciones completas y los puertos están en docs/01_INICIO_RAPIDO.md.
 
 ## Limitaciones que deben mantenerse visibles
 El entorno es local. No hay todavía autenticación real, HTTPS de despliegue, APK independiente, cuenta PostgreSQL de mínimos privilegios ni sincronización de lotes. El modelo piloto no incluye mezclas, vaciados o reasignaciones. No introducir esas funciones sin acordar cambios de alcance y migraciones.

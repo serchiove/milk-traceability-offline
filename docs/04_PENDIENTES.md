@@ -7,6 +7,13 @@
 - [x] Tres comprobaciones guardadas en SQLite, según captura del usuario.
 - [x] Confirmar persistencia SQLite después de cerrar completamente y reabrir la app.
 
+## Mantenimiento
+- [x] Programar respaldos diarios de PostgreSQL con retención de cinco días.
+- [x] Restaurar un respaldo de prueba en una base temporal y verificar esquema y migraciones.
+- [x] Documentar recuperación local, conservación y límites de los respaldos.
+- [ ] Configurar una copia externa y comprobar una restauración desde esa copia.
+Evidencia: [Mantenimiento y recuperación](07_MANTENIMIENTO.md) y [pruebas ejecutadas](05_PRUEBAS.md).
+
 ## Entrega 1: autenticación y catálogos
 - [ ] Acordar contrato de API y permisos de operario / jefatura.
 - [ ] Implementar contraseña protegida, autenticación y autorización en backend.

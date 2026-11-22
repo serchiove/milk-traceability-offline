@@ -19,6 +19,7 @@
       "**/target": true,
       "**/.local": true,
       "**/package-lock.json": true
-    }
+    },
+    "java.configuration.updateBuildConfiguration": "interactive"
   }
 }

@@ -13,7 +13,18 @@
 | Android → SQLite | Captura del usuario: 3 comprobaciones guardadas |
 | Persistencia al cerrar/reabrir | Pendiente de confirmación del usuario |
 
-La organización de carpetas/documentación no vuelve a ejecutar estas pruebas ni convierte evidencia anterior en una nueva ejecución.
+## Mantenimiento — 22/11/2026
+
+| Comprobación | Resultado |
+|---|---|
+| Respaldo custom de PostgreSQL y lectura con `pg_restore --list` | Aprobado; archivo local creado en `.local/backups` |
+| Restauración integral en una base temporal distinta | Aprobada; 9 tablas y 3 migraciones Flyway exitosas; base temporal eliminada y `acopio_dev` intacta |
+| Retención de cinco días | Aprobada con un archivo vencido de prueba; se eliminó solo el archivo de respaldo vencido |
+| Tarea diaria de Windows a las 2:00 AM | Instalada y ejecutada manualmente desde el Programador de tareas; resultado `0`, próximo inicio según horario |
+
+El procedimiento y los límites de recuperación están en [Mantenimiento y recuperación](07_MANTENIMIENTO.md). Los respaldos comprobados son locales; configurar una copia externa y probar recuperación desde esa copia siguen siendo tareas manuales.
+
+La organización de carpetas/documentación no vuelve a ejecutar las pruebas anteriores ni convierte su evidencia en una nueva ejecución.
 
 ## Comprobación manual corta
 1. Iniciar el entorno; comprobar conexión real desde web.
