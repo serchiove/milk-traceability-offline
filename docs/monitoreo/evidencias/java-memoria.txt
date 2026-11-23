@@ -1,0 +1,19 @@
+﻿   size_t MaxHeapSize                              = 4135583744                                {product} {ergonomic}
+Lectura 1 - 2026-11-22 19:20:00 -05:00
+11088:
+ garbage-first heap   total 151552K, used 116164K [0x0000000709800000, 0x0000000800000000)
+  region size 2048K, 40 young (81920K), 2 survivors (4096K)
+ Metaspace       used 105508K, committed 106432K, reserved 1179648K
+  class space    used 14337K, committed 14784K, reserved 1048576K
+Lectura 2 - 2026-11-22 19:21:00 -05:00
+11088:
+ garbage-first heap   total 151552K, used 116310K [0x0000000709800000, 0x0000000800000000)
+  region size 2048K, 40 young (81920K), 2 survivors (4096K)
+ Metaspace       used 105508K, committed 106432K, reserved 1179648K
+  class space    used 14337K, committed 14784K, reserved 1048576K
+Lectura 3 - 2026-11-22 19:22:00 -05:00
+11088:
+ garbage-first heap   total 151552K, used 118212K [0x0000000709800000, 0x0000000800000000)
+  region size 2048K, 41 young (83968K), 2 survivors (4096K)
+ Metaspace       used 105528K, committed 106432K, reserved 1179648K
+  class space    used 14337K, committed 14784K, reserved 1048576K

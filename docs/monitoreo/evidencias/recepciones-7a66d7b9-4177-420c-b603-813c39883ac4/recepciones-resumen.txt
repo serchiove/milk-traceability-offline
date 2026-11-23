@@ -1,0 +1,12 @@
+fechaUTC=2026-11-23T00:06:42.529346400Z
+commit=bb4f9fed409df0603a4c58180d9c251185eed6a5
+base=acopio_test
+operacion=POST /api/lotes
+calentamiento_ok=true
+muestras=20
+altas_201_con_uuid=20
+fallos=0
+altas_con_2000ms_o_mas=0
+p95_ms_solo_altas_validas=41.619
+max_ms_solo_altas_validas=55.825
+alcance=HTTP local hasta recibir la respuesta. Token de prueba previo; usuarios en paralelo: 1. No es carga de produccion.
