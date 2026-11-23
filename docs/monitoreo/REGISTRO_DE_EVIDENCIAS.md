@@ -12,7 +12,7 @@
 | MON-03 | Registros INFO y WARN | `INFO` para recepciones confirmadas. `WARN` al enviar el mismo UUID con otro volumen. La prueba confirmó HTTP 409 y que el volumen original no cambió. | [INFO](evidencias/recepciones-log-info.txt) y [WARN](evidencias/recepciones-log-warn.txt) |
 | MON-04 | Tiempo de registro de lotes | 20 de 20 registros exitosos, 0 fallos y 0 registros de 2 segundos o más. Percentil 95: 41,619 ms. Máximo: 55,825 ms. Se excluyó el calentamiento. | [Resumen](evidencias/recepciones-7a66d7b9-4177-420c-b603-813c39883ac4/recepciones-resumen.txt) y [CSV](evidencias/recepciones-7a66d7b9-4177-420c-b603-813c39883ac4/recepciones.csv) |
 | MON-05 | Uso del heap de Java | Tres lecturas de 113,44, 113,58 y 115,44 MiB sobre un máximo de 3 944 MiB: 2,88 %, 2,88 % y 2,93 %. | [Lecturas de memoria](evidencias/java-memoria.txt) |
-| MON-06 | Estado de calidad de los lotes medidos | PostgreSQL devolvió `APROBADO` para los 20 UUID del CSV. Pendiente contrastar el conteo con el reporte del dashboard. | [Consulta a PostgreSQL](evidencias/lotes-medidos-calidad.txt) |
+| MON-06 | Estado de calidad de los lotes medidos | PostgreSQL y la API de reportes coincidieron en los 20 lotes medidos: una fila por UUID, todos APROBADOS. | [Consulta a PostgreSQL](evidencias/lotes-medidos-calidad.txt) y [comparación con el reporte](evidencias/comparacion-reporte.txt) |
 | MON-07 | Comprobación tras incorporar los cambios a `main` | Pendiente de integración. | — |
 
 La meta de menos de 2 segundos se cumplió en la prueba local, con un usuario a la vez. El resultado no mide el comportamiento con varios usuarios simultáneos ni en producción.
