@@ -9,4 +9,8 @@ public record Usuario(
     String passwordHash,
     String rol,
     boolean activo
+<<<<<<< HEAD
 ) {}
+=======
+) {}
+>>>>>>> bbbf73f (feat: implementar seguridad JWT, login con Postgres y recepcion de lotes)

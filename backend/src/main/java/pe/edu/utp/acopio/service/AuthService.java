@@ -60,4 +60,8 @@ public class AuthService {
 
         return Optional.of(new LoginResponse(token, usuarioDto));
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> bbbf73f (feat: implementar seguridad JWT, login con Postgres y recepcion de lotes)

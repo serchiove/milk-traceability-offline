@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 package pe.edu.utp.acopio.DTO.auth;
 
 import jakarta.validation.constraints.Email;
@@ -13,6 +14,9 @@ public record LoginRequest(
     String password
 =======
 package pe.edu.utp.acopio.dto.auth;
+=======
+package pe.edu.utp.acopio.DTO.auth;
+>>>>>>> bbbf73f (feat: implementar seguridad JWT, login con Postgres y recepcion de lotes)
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

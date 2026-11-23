@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 package pe.edu.utp.acopio.DTO.lote;
 
 import jakarta.validation.constraints.DecimalMin;
@@ -18,6 +19,9 @@ public record MedicionesDto(
     BigDecimal densidadGml
 =======
 package pe.edu.utp.acopio.dto.lote;
+=======
+package pe.edu.utp.acopio.DTO.lote;
+>>>>>>> bbbf73f (feat: implementar seguridad JWT, login con Postgres y recepcion de lotes)
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;

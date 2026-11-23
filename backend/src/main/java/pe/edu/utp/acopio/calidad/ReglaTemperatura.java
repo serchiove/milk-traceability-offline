@@ -17,4 +17,8 @@ public class ReglaTemperatura implements ReglaCalidad {
         }
         return Optional.empty();
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> bbbf73f (feat: implementar seguridad JWT, login con Postgres y recepcion de lotes)

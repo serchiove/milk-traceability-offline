@@ -102,4 +102,8 @@ public class LoteService {
             throw new IllegalStateException("Algoritmo SHA-256 no disponible", e);
         }
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> bbbf73f (feat: implementar seguridad JWT, login con Postgres y recepcion de lotes)
