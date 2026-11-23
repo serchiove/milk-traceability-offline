@@ -1,0 +1,1 @@
+﻿2026-11-22T19:25:11.909-05:00 WARN  pe.edu.utp.acopio.service.LoteService - recepcion_conflictiva uuid=8827ea54-0c91-4936-be92-7bd96ee358f3

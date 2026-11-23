@@ -1,0 +1,5 @@
+﻿  estado  | lotes 
+----------+-------
+ APROBADO |    20
+(1 fila)
+

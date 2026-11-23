@@ -1,0 +1,48 @@
+{
+  "fuente": {
+    "commit": "bb4f9fed409df0603a4c58180d9c251185eed6a5",
+    "cambiosLocales": true
+  },
+  "puerto": 18089,
+  "pausaEntreRondasSeg": 5,
+  "alcance": "Sondeos HTTP locales de salud y estado. No miden el registro de lotes ni la disponibilidad mensual.",
+  "registros": [
+    {
+      "fechaUTC": "2026-11-23T00:04:34.682Z",
+      "consultas": [
+        {
+          "ruta": "/actuator/health",
+          "http": null,
+          "detalle": "sin_respuesta",
+          "duracionMs": 34.3,
+          "nivel": "ERROR"
+        },
+        {
+          "ruta": "/api/estado",
+          "http": null,
+          "detalle": "sin_respuesta",
+          "duracionMs": 3.1,
+          "nivel": "ERROR"
+        }
+      ]
+    }
+  ],
+  "resumen": [
+    {
+      "ruta": "/actuator/health",
+      "intentos": 1,
+      "validas": 0,
+      "fallos": 1,
+      "avisosLentos": 0,
+      "p95MsValidas": null
+    },
+    {
+      "ruta": "/api/estado",
+      "intentos": 1,
+      "validas": 0,
+      "fallos": 1,
+      "avisosLentos": 0,
+      "p95MsValidas": null
+    }
+  ]
+}

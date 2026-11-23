@@ -1,0 +1,3 @@
+﻿Comparacion del CSV de monitoreo con GET /api/reportes
+Base: acopio_test | Fecha del reporte: 2026-11-22 (Lima)
+Coinciden 20 de 20 lotes: una fila por UUID y estado APROBADO.
