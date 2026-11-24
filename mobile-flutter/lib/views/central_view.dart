@@ -48,6 +48,11 @@ class _CentralState extends ConsumerState<CentralView> {
     super.dispose();
   }
 
+  void showReceipts() {
+    code.clear();
+    vm.load(vm.page);
+  }
+
   Future<void> scan() async {
     final value = await Navigator.push<String>(
       context,
@@ -69,9 +74,8 @@ class _CentralState extends ConsumerState<CentralView> {
         child: Scaffold(
           appBar: AppBar(
             title: Text(switch (widget.mode) {
-              'calidad' => 'Calidad',
               'tanque' => 'Asignar tanque',
-              _ => 'Trazabilidad',
+              _ => d == null ? 'Consultar recepción' : 'Detalle de recepción',
             }),
             actions: [
               IconButton(
@@ -87,94 +91,51 @@ class _CentralState extends ConsumerState<CentralView> {
           ),
           body: SafeArea(
             child: PageBody(
+              key: ValueKey(d != null),
               children: [
-                Notice(
-                  'Datos del servidor para ${widget.session.centerName}. Última consulta correcta: ${vm.updatedAt == null ? 'pendiente' : dateLabel(vm.updatedAt!.toIso8601String())}. Requiere conexión.',
-                  warning: vm.error != null,
-                ),
-                // Plant Info Mini Header
-                Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 8,
+                if (d == null) ...[
+                  Text(
+                    widget.session.centerName,
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.border),
+                  const SizedBox(height: 12),
+                  FilledButton.icon(
+                    onPressed: vm.busy ? null : scan,
+                    icon: const Icon(Icons.qr_code_scanner_rounded),
+                    label: const Text('Escanear QR'),
                   ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.factory_outlined,
-                        size: 16,
-                        color: AppColors.primaryContainer,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          widget.session.centerName,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.onSurface,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Search & Scan Bar
-                TextField(
-                  controller: code,
-                  enabled: !vm.busy,
-                  decoration: InputDecoration(
-                    labelText: 'UUID o código ACOPIO',
-                    prefixIcon: const Icon(Icons.search_rounded),
-                    suffixIcon: code.text.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear_rounded),
-                            onPressed: () {
-                              code.clear();
-                              setState(() {});
-                            },
-                          )
-                        : null,
-                  ),
-                  onSubmitted: (v) => vm.open(v),
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(
-                      child: FilledButton.icon(
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size(0, 46),
-                        ),
-                        onPressed: vm.busy ? null : () => vm.open(code.text),
-                        icon: const Icon(Icons.search_rounded, size: 18),
-                        label: const Text('Buscar'),
-                      ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: code,
+                    enabled: !vm.busy,
+                    decoration: InputDecoration(
+                      labelText: 'O escribe el UUID o código ACOPIO',
+                      prefixIcon: const Icon(Icons.search_rounded),
+                      suffixIcon: code.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear_rounded),
+                              onPressed: () {
+                                code.clear();
+                                setState(() {});
+                              },
+                            )
+                          : null,
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(
-                          minimumSize: const Size(0, 46),
-                        ),
-                        onPressed: vm.busy ? null : scan,
-                        icon: const Icon(
-                          Icons.qr_code_scanner_rounded,
-                          size: 18,
-                        ),
-                        label: const Text('Escanear QR'),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
+                    textInputAction: TextInputAction.search,
+                    onChanged: (_) => setState(() {}),
+                    onSubmitted: (v) {
+                      if (!vm.busy && v.trim().isNotEmpty) vm.open(v);
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  OutlinedButton(
+                    onPressed: vm.busy || code.text.trim().isEmpty
+                        ? null
+                        : () => vm.open(code.text),
+                    child: const Text('Consultar código'),
+                  ),
+                  const SizedBox(height: 14),
+                ],
 
                 if (vm.error != null) ...[
                   Notice(vm.error!, error: true),
@@ -537,39 +498,41 @@ class _CentralState extends ConsumerState<CentralView> {
                       d['codigoQr'] != null)
                     LotQr(d['codigoQr']),
 
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    decoration: BoxDecoration(
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Material(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppColors.border),
-                    ),
-                    child: ExpansionTile(
-                      title: const Text(
-                        'Identificador único (UUID)',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.onSurfaceVariant,
-                        ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        side: const BorderSide(color: AppColors.border),
                       ),
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                          child: SelectableText(
-                            d['idLote'],
-                            style: const TextStyle(
-                              fontFamily: 'monospace',
-                              fontSize: 12,
-                            ),
+                      child: ExpansionTile(
+                        title: const Text(
+                          'Identificador único (UUID)',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.onSurfaceVariant,
                           ),
                         ),
-                      ],
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                            child: SelectableText(
+                              d['idLote'],
+                              style: const TextStyle(
+                                fontFamily: 'monospace',
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
 
                   OutlinedButton.icon(
-                    onPressed: vm.busy ? null : () => vm.load(vm.page),
+                    onPressed: vm.busy ? null : showReceipts,
                     icon: const Icon(Icons.arrow_back_rounded, size: 16),
                     label: const Text('Volver a las recepciones'),
                   ),
@@ -589,11 +552,6 @@ class _CentralState extends ConsumerState<CentralView> {
                             color: AppColors.onSurface,
                           ),
                         ),
-                      ),
-                      IconButton(
-                        tooltip: 'Actualizar',
-                        onPressed: vm.busy ? null : () => vm.load(vm.page),
-                        icon: const Icon(Icons.refresh_rounded),
                       ),
                     ],
                   ),

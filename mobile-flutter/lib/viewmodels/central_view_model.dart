@@ -13,12 +13,12 @@ class CentralViewModel extends ViewModel {
   String code = '';
   int page = 0, sequence = 0;
   bool assigning = false;
-  DateTime? updatedAt;
   CentralViewModel(this.session, this.service, {this.approvedOnly = false});
   Future<void> load([int p = 0]) async {
     if (assigning) {
       return;
     }
+    code = '';
     final serial = ++sequence;
     busy = true;
     error = null;
@@ -30,7 +30,6 @@ class CentralViewModel extends ViewModel {
       if (serial == sequence) {
         list = data;
         page = p;
-        updatedAt = DateTime.now();
       }
     } catch (e) {
       if (serial == sequence) {
@@ -59,7 +58,6 @@ class CentralViewModel extends ViewModel {
       final d = await service.detail(session, value);
       if (serial == sequence) {
         detail = d;
-        updatedAt = DateTime.now();
       }
     } catch (e) {
       if (serial == sequence) {
@@ -103,7 +101,6 @@ class CentralViewModel extends ViewModel {
     emit();
     try {
       detail = await service.assign(session, lotId, id);
-      updatedAt = DateTime.now();
     } catch (e) {
       detail = null;
       code = lotId;

@@ -26,20 +26,12 @@ class CentralMenuView extends StatelessWidget {
         icon: Icons.hub_outlined,
       ),
       MenuAction(
-        title: 'Trazabilidad',
+        title: 'Consultar recepción',
         description:
-            'Encuentra el origen y el recorrido de una recepción por UUID o QR.',
+            'Busca por QR o UUID y revisa el origen, la calidad y el destino.',
         icon: Icons.qr_code_scanner,
         onTap: () =>
             onNavigate(CentralView(session: session, mode: 'trazabilidad')),
-      ),
-      MenuAction(
-        title: 'Calidad',
-        description:
-            'Revisa mediciones, resultado e incidencias de la evaluación.',
-        accent: AppColors.primaryLight,
-        icon: Icons.science_outlined,
-        onTap: () => onNavigate(CentralView(session: session, mode: 'calidad')),
       ),
       MenuAction(
         title: 'Tanques',

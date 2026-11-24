@@ -17,6 +17,13 @@ class _CatalogState extends ConsumerState<CatalogView> {
   late final CatalogViewModel vm;
   final search = TextEditingController();
   bool offline = false;
+  String type = 'proveedores';
+
+  void searchOnline() {
+    if (!offline && !vm.busy) {
+      vm.load(type: type, search: search.text.trim());
+    }
+  }
 
   @override
   void initState() {
@@ -39,7 +46,7 @@ class _CatalogState extends ConsumerState<CatalogView> {
     return ListenableBuilder(
       listenable: vm,
       builder: (context, _) {
-        final cached = vm.type == 'proveedores'
+        final cached = type == 'proveedores'
             ? cache?.suppliers
             : cache?.vehicles;
         final items = offline
@@ -57,53 +64,11 @@ class _CatalogState extends ConsumerState<CatalogView> {
           body: SafeArea(
             child: PageBody(
               children: [
-                // Info Center Card
-                SectionCard(
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: AppColors.surfaceContainerHigh,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Icon(
-                            Icons.factory_outlined,
-                            size: 20,
-                            color: AppColors.primaryContainer,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                widget.session.centerName,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.onSurface,
-                                ),
-                              ),
-                              if (cache != null)
-                                Text(
-                                  '${cache.center['region']} · Capacidad nominal: ${number(cache.center['capacidadLitros'])} L',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: AppColors.onSurfaceVariant,
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                Text(
+                  widget.session.centerName,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
-
+                const SizedBox(height: 12),
                 SectionCard(
                   children: [
                     Text(
@@ -120,12 +85,17 @@ class _CatalogState extends ConsumerState<CatalogView> {
                               final updated = await workspace.refreshCatalogs();
                               if (!mounted) return;
                               if (updated) {
-                                await vm.load(search: search.text.trim());
+                                if (!offline) {
+                                  await vm.load(
+                                    type: type,
+                                    search: search.text.trim(),
+                                  );
+                                }
                                 if (!context.mounted) return;
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text(
-                                      'Catálogos actualizados para nuevas capturas. Revisa las selecciones de tu borrador.',
+                                      'Copia descargada actualizada.',
                                     ),
                                   ),
                                 );
@@ -140,40 +110,26 @@ class _CatalogState extends ConsumerState<CatalogView> {
                     ),
                     if (workspace.error != null)
                       Notice(workspace.error!, error: true),
-                    const Text(
-                      'La actualización conserva tu borrador y los registros guardados. Si falla, puedes seguir usando la copia anterior.',
-                      style: TextStyle(fontSize: 12),
+                    Material(
+                      type: MaterialType.transparency,
+                      child: SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('Consultar copia descargada'),
+                        value: offline,
+                        onChanged: cache == null
+                            ? null
+                            : (value) {
+                                setState(() => offline = value);
+                                if (!value) {
+                                  vm.load(
+                                    type: type,
+                                    search: search.text.trim(),
+                                  );
+                                }
+                              },
+                      ),
                     ),
                   ],
-                ),
-
-                // Offline copy toggle
-                Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: SwitchListTile(
-                    activeTrackColor: AppColors.primaryContainer,
-                    title: const Text(
-                      'Consultar copia descargada',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    subtitle: const Text(
-                      'Disponible en este dispositivo sin conexión a red',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.onSurfaceVariant,
-                      ),
-                    ),
-                    value: offline,
-                    onChanged: (v) => setState(() => offline = v),
-                  ),
                 ),
 
                 // Type Segmented Button
@@ -190,10 +146,11 @@ class _CatalogState extends ConsumerState<CatalogView> {
                       icon: Icon(Icons.local_shipping_rounded, size: 18),
                     ),
                   ],
-                  selected: {vm.type},
+                  selected: {type},
                   onSelectionChanged: (s) {
                     search.clear();
-                    vm.load(type: s.first, search: '');
+                    setState(() => type = s.first);
+                    if (!offline) vm.load(type: type, search: '');
                   },
                 ),
                 const SizedBox(height: 14),
@@ -201,14 +158,13 @@ class _CatalogState extends ConsumerState<CatalogView> {
                 TextField(
                   controller: search,
                   maxLength: 180,
-                  onChanged: (_) {
-                    if (offline) {
-                      setState(() {});
-                    }
-                  },
-                  onSubmitted: (_) => vm.load(search: search.text.trim()),
+                  onChanged: (_) => setState(() {}),
+                  textInputAction: TextInputAction.search,
+                  onSubmitted: (_) => searchOnline(),
                   decoration: InputDecoration(
-                    labelText: 'Nombre, documento o placa...',
+                    labelText: type == 'proveedores'
+                        ? 'Buscar por nombre o documento'
+                        : 'Buscar por placa o descripción',
                     prefixIcon: const Icon(Icons.search_rounded),
                     counterText: '',
                     suffixIcon: search.text.isNotEmpty
@@ -229,9 +185,7 @@ class _CatalogState extends ConsumerState<CatalogView> {
                 if (!offline) ...[
                   const SizedBox(height: 10),
                   FilledButton.icon(
-                    onPressed: vm.busy
-                        ? null
-                        : () => vm.load(search: search.text.trim()),
+                    onPressed: vm.busy ? null : searchOnline,
                     icon: const Icon(Icons.search_rounded, size: 18),
                     label: const Text('Buscar en catálogo'),
                   ),
@@ -242,62 +196,58 @@ class _CatalogState extends ConsumerState<CatalogView> {
                 if (vm.error != null && !offline)
                   Notice(vm.error!, error: true),
 
-                if (offline && cache != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Text(
-                      'Descargado: ${dateLabel(cache.updated)} · ${items.length} items en cache',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.onSurfaceVariant,
-                      ),
-                    ),
+                if (offline)
+                  Text(
+                    '${items.length} resultados en la copia descargada',
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
-
-                if (items.isEmpty && !vm.busy)
+                if (items.isEmpty &&
+                    (offline || (!vm.busy && vm.error == null)))
                   const Notice('No hay coincidencias en el catálogo.'),
 
                 ...items.map(
-                  (i) => Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    decoration: BoxDecoration(
+                  (i) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Material(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppColors.border),
-                    ),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        side: const BorderSide(color: AppColors.border),
                       ),
-                      leading: Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceContainerLow,
-                          borderRadius: BorderRadius.circular(8),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 4,
                         ),
-                        child: Icon(
-                          vm.type == 'proveedores'
-                              ? Icons.agriculture_rounded
-                              : Icons.local_shipping_rounded,
-                          size: 20,
-                          color: AppColors.primaryContainer,
+                        leading: Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceContainerLow,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            type == 'proveedores'
+                                ? Icons.agriculture_rounded
+                                : Icons.local_shipping_rounded,
+                            size: 20,
+                            color: AppColors.primaryContainer,
+                          ),
                         ),
-                      ),
-                      title: Text(
-                        i.label,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.onSurface,
+                        title: Text(
+                          i.label,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.onSurface,
+                          ),
                         ),
-                      ),
-                      subtitle: Text(
-                        i.description,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.onSurfaceVariant,
+                        subtitle: Text(
+                          i.description,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.onSurfaceVariant,
+                          ),
                         ),
                       ),
                     ),

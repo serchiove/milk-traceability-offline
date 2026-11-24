@@ -510,11 +510,11 @@ class _DetailState extends ConsumerState<LocalDetailView> {
             const SizedBox(height: 14),
 
             // UUID Technical Detail (collapsible)
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
+            Material(
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.border),
+                side: const BorderSide(color: AppColors.border),
               ),
               child: ExpansionTile(
                 title: const Text(

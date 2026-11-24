@@ -17,35 +17,17 @@ class CaptureMeasurementsStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) => SectionCard(
     children: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      const Row(
         children: [
-          Row(
-            children: const [
-              Icon(Icons.biotech_rounded, size: 22, color: AppColors.secondary),
-              SizedBox(width: 8),
-              Text(
-                '2. Mediciones de Plataforma',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.onSurface,
-                ),
-              ),
-            ],
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: AppColors.secondaryFixed,
-              borderRadius: BorderRadius.circular(9999),
-            ),
-            child: const Text(
-              'EN CURSO',
+          Icon(Icons.biotech_rounded, size: 22, color: AppColors.secondary),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Mediciones de plataforma',
               style: TextStyle(
-                fontSize: 10,
+                fontSize: 15,
                 fontWeight: FontWeight.w700,
-                color: AppColors.onSecondaryFixed,
+                color: AppColors.onSurface,
               ),
             ),
           ),
